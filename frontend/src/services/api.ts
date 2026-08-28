@@ -1,9 +1,14 @@
 const getApiBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
-    return `http://${host}:5000/api`;
+    if (host === 'localhost' || host.startsWith('192.168.') || host.startsWith('127.0.')) {
+      return `http://${host}:5000/api`;
+    }
   }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  return 'http://localhost:5000/api';
 };
 
 const getHeaders = (token?: string | null) => {
