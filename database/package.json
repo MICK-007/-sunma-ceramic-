@@ -1,0 +1,21 @@
+{
+  "name": "@sunma/database",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SUNMA CERAMIC - Database Schema, Migrations, and Seed Data",
+  "main": "schema/index.ts",
+  "scripts": {
+    "db:generate": "drizzle-kit generate:pg",
+    "db:migrate": "tsx seed/migrate.ts",
+    "db:seed": "tsx seed/seed.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.30.0",
+    "postgres": "^3.4.3"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.20.14",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "sunma-ceramic-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SUNMA CERAMIC - Premium Architectural Ceramic & Tile E-Commerce Platform",
+  "workspaces": [
+    "frontend",
+    "backend",
+    "database"
+  ],
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "start:backend": "npm --prefix backend run start",
+    "start:frontend": "npm --prefix frontend run start",
+    "db:generate": "npm --prefix database run db:generate",
+    "db:migrate": "npm --prefix database run db:migrate",
+    "db:seed": "npm --prefix database run db:seed"
+  },
+  "keywords": [
+    "ceramic",
+    "tile",
+    "ecommerce",
+    "nextjs",
+    "express",
+    "supabase",
+    "drizzle"
+  ],
+  "author": "SUNMA CERAMIC Tech Team"
+}

@@ -1,0 +1,77 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+  /* Centralized Typography Tokens (easy to replace fonts later) */
+  --font-heading: 'Cinzel', 'Playfair Display', 'Didot', Georgia, serif;
+  --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Centralized Dark Luxury Color System */
+  --color-bg-primary: #0C0D0E;
+  --color-bg-secondary: #141618;
+  --color-bg-card: #1C1E22;
+  --color-bg-elevated: #24272D;
+  --color-gold: #D4AF37;
+  --color-gold-hover: #E5C158;
+  --color-gold-muted: rgba(212, 175, 55, 0.15);
+  --color-stone: #8C8275;
+  --color-stone-dark: #4A453E;
+  --color-stone-light: #B8B0A6;
+  --color-text-main: #F3F3F3;
+  --color-text-muted: #9EA3A9;
+  --color-text-inverse: #0C0D0E;
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-gold: rgba(212, 175, 55, 0.4);
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-main);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-heading);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0C0D0E;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2A2D32;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #D4AF37;
+}
+
+/* Luxury Card Hover Micro-animations */
+.luxury-card {
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.luxury-card:hover {
+  border-color: var(--color-border-gold);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), 0 0 15px -5px rgba(212, 175, 55, 0.15);
+}
+
+/* Custom Tile Pattern Simulator Grid */
+.tile-repeat-canvas {
+  background-repeat: repeat;
+  background-size: contain;
+  transition: background-image 0.3s ease-in-out;
+}
