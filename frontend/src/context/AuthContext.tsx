@@ -24,10 +24,40 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const DEFAULT_USERS = [
+  {
+    email: 'admin@sunma.com',
+    password: 'admin1234',
+    fullName: 'SUNMA Executive Admin',
+    phone: '02-800-9999',
+    role: 'ADMIN' as const,
+  },
+  {
+    email: 'architect@studio-lux.com',
+    password: 'password123',
+    fullName: 'Somchai Studio Lux',
+    phone: '081-234-5678',
+    role: 'USER' as const,
+  },
+];
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Load persistent registered users from localStorage
+  const getRegisteredUsers = () => {
+    if (typeof window === 'undefined') return DEFAULT_USERS;
+    const stored = localStorage.getItem('sunma_registered_users');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {}
+    }
+    localStorage.setItem('sunma_registered_users', JSON.stringify(DEFAULT_USERS));
+    return DEFAULT_USERS;
+  };
 
   useEffect(() => {
     const storedToken = localStorage.getItem('sunma_auth_token');
@@ -56,37 +86,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { success: true };
       }
 
-      // Offline / Local Development Fallback if Backend is not running
-      if (!res.success) {
-        const isAdminUser = email.toLowerCase() === 'admin@sunma.com' || email.toLowerCase().includes('admin');
-        const mockUser: User = {
-          id: isAdminUser ? 'user-admin' : 'user-local-' + Date.now(),
-          email,
-          fullName: isAdminUser ? 'SUNMA Executive Admin' : email.split('@')[0],
-          role: isAdminUser ? 'ADMIN' : 'USER',
+      // Strict registration check in Local DB / Storage
+      const registered = getRegisteredUsers();
+      const match = registered.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+
+      if (!match) {
+        return {
+          success: false,
+          message: 'อีเมลนี้ยังไม่ได้ลงทะเบียนในระบบ กรุณากดลงทะเบียนสมัครสมาชิกก่อนเข้าสู่ระบบ',
         };
-        const mockToken = 'mock-dev-token-' + Date.now();
-        setToken(mockToken);
-        setUser(mockUser);
-        localStorage.setItem('sunma_auth_token', mockToken);
-        localStorage.setItem('sunma_auth_user', JSON.stringify(mockUser));
-        return { success: true };
       }
 
-      return { success: false, message: res.message || 'Login failed.' };
-    } catch (err: any) {
+      if (match.password && match.password !== password) {
+        return {
+          success: false,
+          message: 'รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง',
+        };
+      }
+
       const mockUser: User = {
-        id: 'user-local-' + Date.now(),
-        email,
-        fullName: email.split('@')[0],
-        role: email.toLowerCase().includes('admin') ? 'ADMIN' : 'USER',
+        id: match.id || 'user-' + Date.now(),
+        email: match.email,
+        fullName: match.fullName || match.email.split('@')[0],
+        phone: match.phone || '',
+        role: match.role || (match.email.includes('admin') ? 'ADMIN' : 'USER'),
       };
-      const mockToken = 'mock-dev-token-' + Date.now();
+      const mockToken = 'auth-token-' + Date.now();
       setToken(mockToken);
       setUser(mockUser);
       localStorage.setItem('sunma_auth_token', mockToken);
       localStorage.setItem('sunma_auth_user', JSON.stringify(mockUser));
       return { success: true };
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Server error during login.' };
     } finally {
       setIsLoading(false);
     }
@@ -95,47 +127,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const register = async (email: string, password: string, fullName?: string, phone?: string) => {
     setIsLoading(true);
     try {
-      const res = await api.register(email, password, fullName, phone);
-      if (res.success && res.token) {
-        setToken(res.token);
-        setUser(res.user);
-        localStorage.setItem('sunma_auth_token', res.token);
-        localStorage.setItem('sunma_auth_user', JSON.stringify(res.user));
-        return { success: true };
-      }
-
-      // Offline / Local Development Fallback if Backend is not running
-      if (!res.success) {
-        const mockUser: User = {
-          id: 'user-local-' + Date.now(),
-          email,
-          fullName: fullName || email.split('@')[0],
-          phone,
-          role: 'USER',
+      const registered = getRegisteredUsers();
+      const existing = registered.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+      if (existing) {
+        return {
+          success: false,
+          message: 'อีเมลนี้ถูกลงทะเบียนไว้แล้ว กรุณาใช้รหัสผ่านเพื่อเข้าสู่ระบบ',
         };
-        const mockToken = 'mock-dev-token-' + Date.now();
-        setToken(mockToken);
-        setUser(mockUser);
-        localStorage.setItem('sunma_auth_token', mockToken);
-        localStorage.setItem('sunma_auth_user', JSON.stringify(mockUser));
-        return { success: true };
       }
 
-      return { success: false, message: res.message || 'Registration failed.' };
-    } catch (err: any) {
-      const mockUser: User = {
-        id: 'user-local-' + Date.now(),
+      const res = await api.register(email, password, fullName, phone);
+
+      const newUser = {
+        id: `user-${Date.now()}`,
         email,
+        password,
         fullName: fullName || email.split('@')[0],
-        phone,
-        role: 'USER',
+        phone: phone || '',
+        role: email.toLowerCase().includes('admin') ? ('ADMIN' as const) : ('USER' as const),
       };
-      const mockToken = 'mock-dev-token-' + Date.now();
-      setToken(mockToken);
-      setUser(mockUser);
-      localStorage.setItem('sunma_auth_token', mockToken);
-      localStorage.setItem('sunma_auth_user', JSON.stringify(mockUser));
+
+      // Save to registered DB
+      const updatedList = [...registered, newUser];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sunma_registered_users', JSON.stringify(updatedList));
+      }
+
+      const userState: User = {
+        id: newUser.id,
+        email: newUser.email,
+        fullName: newUser.fullName,
+        phone: newUser.phone,
+        role: newUser.role,
+      };
+
+      const userToken = res.token || 'reg-token-' + Date.now();
+      setToken(userToken);
+      setUser(userState);
+      localStorage.setItem('sunma_auth_token', userToken);
+      localStorage.setItem('sunma_auth_user', JSON.stringify(userState));
       return { success: true };
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Server error during registration.' };
     } finally {
       setIsLoading(false);
     }

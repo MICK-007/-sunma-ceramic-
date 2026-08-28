@@ -33,6 +33,8 @@ export default function AdminProductsPage() {
   const [surface, setSurface] = useState('Matt');
   const [featured, setFeatured] = useState(false);
 
+  const [thumbnail, setThumbnail] = useState('/images/tiles/calacatta-marble.jpeg');
+
   const loadData = async () => {
     setIsLoading(true);
     const [pRes, cRes, bRes] = await Promise.all([
@@ -63,6 +65,7 @@ export default function AdminProductsPage() {
     setMaterial('Porcelain');
     setSurface('Matt');
     setFeatured(false);
+    setThumbnail('/images/tiles/calacatta-marble.jpeg');
     setModalOpen(true);
   };
 
@@ -79,7 +82,21 @@ export default function AdminProductsPage() {
     setMaterial(prod.material || 'Porcelain');
     setSurface(prod.surface || 'Matt');
     setFeatured(!!prod.featured);
+    setThumbnail(prod.thumbnail || '/images/tiles/calacatta-marble.jpeg');
     setModalOpen(true);
+  };
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          setThumbnail(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -96,6 +113,8 @@ export default function AdminProductsPage() {
       material,
       surface,
       featured,
+      thumbnail: thumbnail || '/images/tiles/calacatta-marble.jpeg',
+      images: [thumbnail || '/images/tiles/calacatta-marble.jpeg'],
     };
 
     if (editingId) {
@@ -267,6 +286,30 @@ export default function AdminProductsPage() {
                   </option>
                 ))}
               </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-stone font-semibold mb-1">Product Image (Upload from Computer or enter URL)</label>
+            <div className="flex items-center space-x-3 bg-bg-secondary p-2.5 rounded border border-border-subtle">
+              <div className="relative w-14 h-14 rounded border border-border-gold overflow-hidden shrink-0 bg-black">
+                {thumbnail && <Image src={thumbnail} alt="Preview" fill className="object-cover" />}
+              </div>
+              <div className="flex-1 space-y-1.5">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageFileChange}
+                  className="w-full text-[11px] text-stone-light file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-bg-primary hover:file:bg-gold-hover cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={thumbnail}
+                  onChange={e => setThumbnail(e.target.value)}
+                  placeholder="/images/tiles/calacatta-marble.jpeg or Data URL"
+                  className="w-full bg-bg-card border border-border-subtle rounded p-1.5 text-white font-mono text-[10px]"
+                />
+              </div>
             </div>
           </div>
 

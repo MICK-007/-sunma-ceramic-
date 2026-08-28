@@ -90,21 +90,12 @@ export const Navbar = () => {
           })}
         </nav>
 
-        {/* Utilities: Search, Wishlist, Cart, Account, Language */}
+        {/* Utilities: Search, Cart, Account, Language */}
         <div className="hidden sm:flex items-center space-x-5">
           <LanguageSwitcher />
 
           <Link href="/shop" className="text-txt-muted hover:text-gold transition-colors p-1.5">
             <Search className="w-4 h-4" />
-          </Link>
-
-          <Link href="/account?tab=wishlist" className="text-txt-muted hover:text-gold transition-colors relative p-1.5">
-            <Heart className="w-4 h-4" />
-            {wishlistProductIds.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-gold text-bg-primary text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                {wishlistProductIds.length}
-              </span>
-            )}
           </Link>
 
           <Link href="/cart" className="text-txt-muted hover:text-gold transition-colors relative p-1.5">
