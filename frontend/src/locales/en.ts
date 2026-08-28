@@ -172,10 +172,16 @@ export const en = {
     updateStatus: 'Update Order Status',
   },
   common: {
-    loading: 'Loading SUNMA surface catalog...',
+    loading: 'Loading catalog data...',
     error: 'An error occurred. Please try again.',
     save: 'Save Changes',
     cancel: 'Cancel',
     close: 'Close',
+  },
+  auth: {
+    emailNotRegistered: 'This email is not registered in our system. Please sign up first.',
+    invalidPassword: 'Invalid password. Please check your password and try again.',
+    emailAlreadyExists: 'An account with this email already exists. Please log in.',
+    requiredFields: 'Please complete all required fields.',
   },
 };

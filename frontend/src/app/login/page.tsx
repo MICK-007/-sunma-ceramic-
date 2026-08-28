@@ -38,7 +38,13 @@ function LoginContent() {
     if (res.success) {
       router.push(redirect);
     } else {
-      setErrorMsg(res.message || 'Login failed.');
+      let msg = res.message || 'Login failed.';
+      if (msg.includes('ยังไม่ได้ลงทะเบียน') || msg.includes('not registered') || msg.includes('EMAIL_NOT_REGISTERED')) {
+        msg = (t as any).auth?.emailNotRegistered || 'This email is not registered in our system. Please sign up first.';
+      } else if (msg.includes('รหัสผ่านไม่ถูกต้อง') || msg.includes('Invalid password') || msg.includes('INVALID_PASSWORD')) {
+        msg = (t as any).auth?.invalidPassword || 'Invalid password. Please check your password and try again.';
+      }
+      setErrorMsg(msg);
     }
   };
 
