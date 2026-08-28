@@ -42,15 +42,6 @@ function LoginContent() {
     }
   };
 
-  const handleAdminDemoLogin = async () => {
-    setIsSubmitting(true);
-    const res = await login('admin@sunmaceramic.com', 'admin1234');
-    setIsSubmitting(false);
-    if (res.success) {
-      router.push('/admin');
-    }
-  };
-
   return (
     <div className="max-w-md mx-auto px-4 py-16 space-y-6">
       <div className="text-center space-y-2">
@@ -113,16 +104,6 @@ function LoginContent() {
           <Link href="/register" className="text-gold font-bold hover:underline">
             {t.nav.register}
           </Link>
-        </div>
-
-        <div className="pt-3 border-t border-border-subtle text-center">
-          <button
-            type="button"
-            onClick={handleAdminDemoLogin}
-            className="text-[11px] text-stone hover:text-gold transition-colors font-mono"
-          >
-            🔑 Log in as Administrator (Demo)
-          </button>
         </div>
       </form>
     </div>
