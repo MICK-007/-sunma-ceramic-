@@ -35,7 +35,7 @@ export const en = {
   home: {
     featuredTitle: 'Signature Porcelain Slabs',
     featuredSubtitle: 'Hand-selected architectural surfaces for modern living spaces.',
-    roomStudioBannerTitle: 'SUNMA Room Studio V1',
+    roomStudioBannerTitle: 'SUNMA Room Studio',
     roomStudioBannerSubtitle: 'Simulate high-definition ceramic and tile surfaces live inside predefined architectural rooms before ordering.',
     roomStudioButton: 'Launch Room Studio Visualizer',
     importedTitle: 'Direct European Import Collection',
@@ -97,7 +97,7 @@ export const en = {
   },
   roomStudio: {
     title: 'SUNMA ROOM STUDIO',
-    subtitle: 'Interactive Surface Visualizer V1',
+    subtitle: 'Interactive Surface Visualizer',
     selectRoom: '1. Select Architectural Room',
     selectArea: '2. Select Surface Target Area',
     selectTile: '3. Select Tile Surface',

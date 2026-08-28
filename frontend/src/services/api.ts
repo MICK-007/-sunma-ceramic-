@@ -26,31 +26,42 @@ const getHeaders = (token?: string | null) => {
   return headers;
 };
 
+async function safeFetch(url: string, options?: RequestInit) {
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      return { success: false, message: errorData.message || `HTTP error ${res.status}`, data: null };
+    }
+    return await res.json();
+  } catch (err: any) {
+    console.warn(`[API Connection Note] Failed to reach ${url}:`, err?.message || err);
+    return { success: false, message: 'Backend service offline or unreachable', data: [] };
+  }
+}
+
 export const api = {
   // Auth
   async login(email: string, password: string) {
-    const res = await fetch(`${getApiBaseUrl()}/auth/login`, {
+    return safeFetch(`${getApiBaseUrl()}/auth/login`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ email, password }),
     });
-    return res.json();
   },
 
   async register(email: string, password: string, fullName?: string, phone?: string) {
-    const res = await fetch(`${getApiBaseUrl()}/auth/register`, {
+    return safeFetch(`${getApiBaseUrl()}/auth/register`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ email, password, fullName, phone }),
     });
-    return res.json();
   },
 
   async me() {
-    const res = await fetch(`${getApiBaseUrl()}/auth/me`, {
+    return safeFetch(`${getApiBaseUrl()}/auth/me`, {
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   // Products
@@ -63,196 +74,170 @@ export const api = {
         }
       });
     }
-    const res = await fetch(`${getApiBaseUrl()}/products?${query.toString()}`);
-    return res.json();
+    return safeFetch(`${getApiBaseUrl()}/products?${query.toString()}`);
   },
 
   async getProductBySlug(slug: string) {
-    const res = await fetch(`${getApiBaseUrl()}/products/${slug}`);
-    return res.json();
+    return safeFetch(`${getApiBaseUrl()}/products/${slug}`);
   },
 
   async getCategories() {
-    const res = await fetch(`${getApiBaseUrl()}/categories`);
-    return res.json();
+    return safeFetch(`${getApiBaseUrl()}/categories`);
   },
 
   async getBrands() {
-    const res = await fetch(`${getApiBaseUrl()}/brands`);
-    return res.json();
+    return safeFetch(`${getApiBaseUrl()}/brands`);
   },
 
   // Cart
   async getCart() {
-    const res = await fetch(`${getApiBaseUrl()}/cart`, {
+    return safeFetch(`${getApiBaseUrl()}/cart`, {
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   async addToCart(productId: string, quantity: number = 1, variantId?: string) {
-    const res = await fetch(`${getApiBaseUrl()}/cart/items`, {
+    return safeFetch(`${getApiBaseUrl()}/cart/items`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ productId, quantity, variantId }),
     });
-    return res.json();
   },
 
   async updateCartItem(itemId: string, quantity: number) {
-    const res = await fetch(`${getApiBaseUrl()}/cart/items/${itemId}`, {
+    return safeFetch(`${getApiBaseUrl()}/cart/items/${itemId}`, {
       method: 'PATCH',
       headers: getHeaders(),
       body: JSON.stringify({ quantity }),
     });
-    return res.json();
   },
 
   async removeCartItem(itemId: string) {
-    const res = await fetch(`${getApiBaseUrl()}/cart/items/${itemId}`, {
+    return safeFetch(`${getApiBaseUrl()}/cart/items/${itemId}`, {
       method: 'DELETE',
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   // Wishlist
   async getWishlist() {
-    const res = await fetch(`${getApiBaseUrl()}/wishlist`, {
+    return safeFetch(`${getApiBaseUrl()}/wishlist`, {
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   async addToWishlist(productId: string) {
-    const res = await fetch(`${getApiBaseUrl()}/wishlist`, {
+    return safeFetch(`${getApiBaseUrl()}/wishlist`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ productId }),
     });
-    return res.json();
   },
 
   async removeFromWishlist(productId: string) {
-    const res = await fetch(`${getApiBaseUrl()}/wishlist/${productId}`, {
+    return safeFetch(`${getApiBaseUrl()}/wishlist/${productId}`, {
       method: 'DELETE',
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   // Orders
   async createOrder(orderData: any) {
-    const res = await fetch(`${getApiBaseUrl()}/orders`, {
+    return safeFetch(`${getApiBaseUrl()}/orders`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(orderData),
     });
-    return res.json();
   },
 
   async getUserOrders() {
-    const res = await fetch(`${getApiBaseUrl()}/orders`, {
+    return safeFetch(`${getApiBaseUrl()}/orders`, {
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   // Room Studio
   async getRooms() {
-    const res = await fetch(`${getApiBaseUrl()}/rooms`);
-    return res.json();
+    return safeFetch(`${getApiBaseUrl()}/rooms`);
   },
 
   async getRoomBySlug(slug: string) {
-    const res = await fetch(`${getApiBaseUrl()}/rooms/${slug}`);
-    return res.json();
+    return safeFetch(`${getApiBaseUrl()}/rooms/${slug}`);
   },
 
   // Admin
   async getAdminDashboard() {
-    const res = await fetch(`${getApiBaseUrl()}/admin/dashboard`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/dashboard`, {
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   async getAdminProducts() {
-    const res = await fetch(`${getApiBaseUrl()}/admin/products`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/products`, {
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   async createAdminProduct(productData: any) {
-    const res = await fetch(`${getApiBaseUrl()}/admin/products`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/products`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(productData),
     });
-    return res.json();
   },
 
   async updateAdminProduct(id: string, productData: any) {
-    const res = await fetch(`${getApiBaseUrl()}/admin/products/${id}`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/products/${id}`, {
       method: 'PATCH',
       headers: getHeaders(),
       body: JSON.stringify(productData),
     });
-    return res.json();
   },
 
   async deleteAdminProduct(id: string) {
-    const res = await fetch(`${getApiBaseUrl()}/admin/products/${id}`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/products/${id}`, {
       method: 'DELETE',
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   async getAdminOrders() {
-    const res = await fetch(`${getApiBaseUrl()}/admin/orders`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/orders`, {
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   async updateAdminOrderStatus(id: string, status: string) {
-    const res = await fetch(`${getApiBaseUrl()}/admin/orders/${id}/status`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/orders/${id}/status`, {
       method: 'PATCH',
       headers: getHeaders(),
       body: JSON.stringify({ status }),
     });
-    return res.json();
   },
 
   async getAdminCustomers() {
-    const res = await fetch(`${getApiBaseUrl()}/admin/customers`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/customers`, {
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   async getAdminInventory() {
-    const res = await fetch(`${getApiBaseUrl()}/admin/inventory`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/inventory`, {
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   async getAdminPromotions() {
-    const res = await fetch(`${getApiBaseUrl()}/admin/promotions`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/promotions`, {
       headers: getHeaders(),
     });
-    return res.json();
   },
 
   async createAdminPromotion(promoData: any) {
-    const res = await fetch(`${getApiBaseUrl()}/admin/promotions`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/promotions`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(promoData),
     });
-    return res.json();
   },
 };

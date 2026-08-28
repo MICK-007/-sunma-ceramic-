@@ -35,7 +35,7 @@ export const th = {
   home: {
     featuredTitle: 'สินค้าแผ่นแกรนิตและพอร์ซเลนแนะนำ',
     featuredSubtitle: 'คัดสรรพื้นผิวดีไซน์ระดับสถาปัตยกรรมโมเดิร์น',
-    roomStudioBannerTitle: 'SUNMA Room Studio V1',
+    roomStudioBannerTitle: 'SUNMA Room Studio',
     roomStudioBannerSubtitle: 'จำลองการปูกระเบื้องจริงบนพื้นที่สถาปัตยกรรมแบบเรียลไทม์ ก่อนตัดสินใจสั่งซื้อ',
     roomStudioButton: 'เปิดใช้งานโปรแกรมจำลอง',
     importedTitle: 'คอลเลกชันนำเข้าจากยุโรป',
@@ -97,7 +97,7 @@ export const th = {
   },
   roomStudio: {
     title: 'SUNMA ROOM STUDIO',
-    subtitle: 'ระบบจำลองการปูกระเบื้องสถาปัตยกรรม V1',
+    subtitle: 'ระบบจำลองการปูกระเบื้องสถาปัตยกรรม',
     selectRoom: '1. เลือกห้องจำลอง',
     selectArea: '2. เลือกโซนพื้นผิวที่ต้องการปู',
     selectTile: '3.เลือกลายกระเบื้อง',

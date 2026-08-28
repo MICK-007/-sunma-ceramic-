@@ -52,12 +52,12 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
 
   const [activeRoom, setActiveRoom] = useState<Room>(rooms[0]);
   const [activeArea, setActiveArea] = useState<RoomArea>(rooms[0]?.areas[0]);
-  const [selectedTile, setSelectedTile] = useState<TileProduct>(() => {
+  const [selectedTile, setSelectedTile] = useState<TileProduct | null>(() => {
     if (initialTileSlug) {
       const match = products.find(p => p.slug === initialTileSlug);
       if (match) return match;
     }
-    return products[0];
+    return null;
   });
 
   // Track map of areaId -> selectedTile
@@ -100,9 +100,7 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
 
   const handleReset = () => {
     setAppliedTiles({});
-    if (products.length > 0) {
-      setSelectedTile(products[0]);
-    }
+    setSelectedTile(null);
   };
 
   // Determine grid pattern sizing based on selected tile size
@@ -195,7 +193,7 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
 
         {/* Center Simulation Preview Canvas */}
         <div className="lg:col-span-6 flex flex-col space-y-4">
-          <div className="relative aspect-[16/10] w-full rounded-xl overflow-hidden border border-border-gold shadow-2xl bg-black">
+          <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden border border-border-gold shadow-2xl bg-black">
             {/* Background Room Base Image */}
             <Image
               src={activeRoom.imageUrl}
@@ -209,12 +207,13 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
             {/* SVG Mask Layer for Dynamic Texture Overlay */}
             <svg
               className="absolute inset-0 w-full h-full pointer-events-none"
-              viewBox="0 0 1400 900"
+              viewBox="0 0 1600 900"
               preserveAspectRatio="none"
             >
               <defs>
                 {activeRoom.areas.map(area => {
                   const tileForArea = appliedTiles[area.id] || selectedTile;
+                  if (!tileForArea) return null;
                   const patternId = `tile-pattern-${area.id}`;
                   return (
                     <pattern
@@ -245,40 +244,54 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
               </defs>
 
               {/* Render Mask Polygons with repeating tile patterns */}
-              {activeRoom.areas.map(area => (
-                <polygon
-                  key={area.id}
-                  points={area.maskSvgPolygon}
-                  fill={`url(#tile-pattern-${area.id})`}
-                  opacity="0.9"
-                  className="transition-all duration-500"
-                />
-              ))}
+              {activeRoom.areas.map(area => {
+                const tileForArea = appliedTiles[area.id] || selectedTile;
+                if (!tileForArea) return null;
+                return (
+                  <polygon
+                    key={area.id}
+                    points={area.maskSvgPolygon}
+                    fill={`url(#tile-pattern-${area.id})`}
+                    opacity="0.88"
+                    style={{ mixBlendMode: 'multiply' }}
+                    className="transition-all duration-500"
+                  />
+                );
+              })}
             </svg>
 
             {/* Active Area Indicator Tag */}
             <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full border border-gold/40 text-xs font-bold text-gold uppercase tracking-wider flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-gold animate-ping" />
-              Viewing: {activeArea?.name} ({selectedTile.name})
+              Viewing: {activeArea?.name} {selectedTile ? `(${selectedTile.name})` : '(Original Base Floor)'}
             </div>
           </div>
 
           {/* Active Applied Surface Spec Bar */}
-          <div className="bg-bg-card border border-border-subtle p-4 rounded-lg flex items-center justify-between text-xs">
-            <div>
-              <span className="text-stone uppercase text-[10px] block font-semibold">Active Tile Surface</span>
-              <span className="font-heading font-bold text-txt-main">{selectedTile.name}</span>
-              <span className="text-stone ml-2 font-mono">({selectedTile.size} cm)</span>
-            </div>
-            <div className="text-right">
-              <span className="text-gold font-bold block">฿{selectedTile.pricePerPiece.toLocaleString()} / pc</span>
-              <a
-                href={`/products/${selectedTile.slug}`}
-                className="text-[10px] text-stone hover:text-white underline inline-flex items-center gap-1"
-              >
-                Product Details <ArrowRight className="w-3 h-3" />
-              </a>
-            </div>
+          <div className="bg-bg-card border border-border-subtle p-4 rounded-lg flex items-center justify-between text-xs min-h-[64px]">
+            {selectedTile ? (
+              <>
+                <div>
+                  <span className="text-stone uppercase text-[10px] block font-semibold">Active Tile Surface</span>
+                  <span className="font-heading font-bold text-txt-main">{selectedTile.name}</span>
+                  <span className="text-stone ml-2 font-mono">({selectedTile.size} cm)</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-gold font-bold block">฿{selectedTile.pricePerPiece.toLocaleString()} / pc</span>
+                  <a
+                    href={`/products/${selectedTile.slug}`}
+                    className="text-[10px] text-stone hover:text-white underline inline-flex items-center gap-1"
+                  >
+                    Product Details <ArrowRight className="w-3 h-3" />
+                  </a>
+                </div>
+              </>
+            ) : (
+              <div className="text-stone-light text-xs italic flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-gold" />
+                เลือกลายกระเบื้องจากเมนูด้านขวามือ เพื่อแสดงผลจำลองบนพื้นห้อง
+              </div>
+            )}
           </div>
         </div>
 
@@ -292,7 +305,7 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
 
             <div className="grid grid-cols-2 gap-3">
               {products.map(tile => {
-                const isSelected = selectedTile.id === tile.id;
+                const isSelected = selectedTile?.id === tile.id;
                 return (
                   <button
                     key={tile.id}
