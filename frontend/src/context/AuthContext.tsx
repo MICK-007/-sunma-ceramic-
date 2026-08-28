@@ -58,11 +58,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Offline / Local Development Fallback if Backend is not running
       if (!res.success) {
+        const isAdminUser = email.toLowerCase() === 'admin@sunma.com' || email.toLowerCase().includes('admin');
         const mockUser: User = {
-          id: 'user-local-' + Date.now(),
+          id: isAdminUser ? 'user-admin' : 'user-local-' + Date.now(),
           email,
-          fullName: email.split('@')[0],
-          role: email.toLowerCase().includes('admin') ? 'ADMIN' : 'USER',
+          fullName: isAdminUser ? 'SUNMA Executive Admin' : email.split('@')[0],
+          role: isAdminUser ? 'ADMIN' : 'USER',
         };
         const mockToken = 'mock-dev-token-' + Date.now();
         setToken(mockToken);

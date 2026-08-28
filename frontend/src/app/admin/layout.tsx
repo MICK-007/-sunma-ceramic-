@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
-import { LayoutDashboard, Package, ShoppingCart, Users, Warehouse, Tag, ShieldAlert, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, Warehouse, Tag, ShieldAlert, ArrowLeft, FolderTree } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -38,6 +38,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const adminNav = [
     { href: '/admin', label: t.admin.navDashboard, icon: LayoutDashboard },
     { href: '/admin/products', label: t.admin.navProducts, icon: Package },
+    { href: '/admin/categories', label: t.admin.navCategories, icon: FolderTree },
     { href: '/admin/orders', label: t.admin.navOrders, icon: ShoppingCart },
     { href: '/admin/customers', label: t.admin.navCustomers, icon: Users },
     { href: '/admin/inventory', label: t.admin.navInventory, icon: Warehouse },

@@ -12,11 +12,11 @@ export const login = (req: Request, res: Response) => {
   }
 
   // Check if admin credentials
-  if (email.toLowerCase() === 'admin@sunmaceramic.com' || email.toLowerCase().includes('admin')) {
+  if (email.toLowerCase() === 'admin@sunma.com' || email.toLowerCase() === 'admin@sunmaceramic.com' || email.toLowerCase().includes('admin')) {
     const adminUser = store.users.find(u => u.role === 'ADMIN') || {
       id: 'user-admin',
-      email: 'admin@sunmaceramic.com',
-      fullName: 'SUNMA Senior Administrator',
+      email: 'admin@sunma.com',
+      fullName: 'SUNMA Executive Admin',
       phone: '+66 2 800 9999',
       role: 'ADMIN' as const,
       createdAt: new Date().toISOString(),
