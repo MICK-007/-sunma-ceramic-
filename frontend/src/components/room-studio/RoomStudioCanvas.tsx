@@ -6,6 +6,7 @@ import { Sparkles, RotateCcw, Layers, Check, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
+import { fallbackRooms, fallbackProducts } from '@/data/fallbackData';
 
 export interface RoomArea {
   id: string;
@@ -43,18 +44,21 @@ interface RoomStudioProps {
 }
 
 export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
-  rooms,
-  products,
+  rooms = fallbackRooms,
+  products = fallbackProducts,
   initialTileSlug,
 }) => {
   const { language, t } = useLanguage();
   const isThai = language === 'TH';
 
-  const [activeRoom, setActiveRoom] = useState<Room>(rooms[0]);
-  const [activeArea, setActiveArea] = useState<RoomArea>(rooms[0]?.areas[0]);
+  const safeRooms = rooms && rooms.length > 0 ? rooms : fallbackRooms;
+  const safeProducts = products && products.length > 0 ? products : fallbackProducts;
+
+  const [activeRoom, setActiveRoom] = useState<Room>(() => safeRooms[0]);
+  const [activeArea, setActiveArea] = useState<RoomArea>(() => safeRooms[0]?.areas?.[0]);
   const [selectedTile, setSelectedTile] = useState<TileProduct | null>(() => {
     if (initialTileSlug) {
-      const match = products.find(p => p.slug === initialTileSlug);
+      const match = safeProducts.find(p => p.slug === initialTileSlug);
       if (match) return match;
     }
     return null;
@@ -64,13 +68,13 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
   const [appliedTiles, setAppliedTiles] = useState<Record<string, TileProduct>>({});
 
   useEffect(() => {
-    if (rooms.length > 0) {
-      setActiveRoom(rooms[0]);
-      if (rooms[0].areas.length > 0) {
-        setActiveArea(rooms[0].areas[0]);
+    if (safeRooms.length > 0) {
+      setActiveRoom(safeRooms[0]);
+      if (safeRooms[0].areas.length > 0) {
+        setActiveArea(safeRooms[0].areas[0]);
       }
     }
-  }, [rooms]);
+  }, [safeRooms]);
 
   useEffect(() => {
     if (initialTileSlug && products.length > 0) {

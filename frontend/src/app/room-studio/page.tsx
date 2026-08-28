@@ -6,21 +6,36 @@ import { api } from '@/services/api';
 import { RoomStudioCanvas } from '@/components/room-studio/RoomStudioCanvas';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { useLanguage } from '@/context/LanguageContext';
+import { fallbackRooms, fallbackProducts } from '@/data/fallbackData';
 
 function RoomStudioContent() {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const initialTileSlug = searchParams.get('tile') || undefined;
 
-  const [rooms, setRooms] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+  const [rooms, setRooms] = useState<any[]>(fallbackRooms);
+  const [products, setProducts] = useState<any[]>(fallbackProducts);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     Promise.all([api.getRooms(), api.getProducts({ limit: 30 })])
       .then(([roomRes, prodRes]) => {
-        if (roomRes.success) setRooms(roomRes.data || []);
-        if (prodRes.success) setProducts(prodRes.data || []);
+        if (roomRes.success && Array.isArray(roomRes.data) && roomRes.data.length > 0) {
+          setRooms(roomRes.data);
+        } else {
+          setRooms(fallbackRooms);
+        }
+
+        if (prodRes.success && Array.isArray(prodRes.data) && prodRes.data.length > 0) {
+          setProducts(prodRes.data);
+        } else {
+          setProducts(fallbackProducts);
+        }
+      })
+      .catch(err => {
+        console.warn('API error, falling back to local dataset:', err);
+        setRooms(fallbackRooms);
+        setProducts(fallbackProducts);
       })
       .finally(() => setIsLoading(false));
   }, []);
