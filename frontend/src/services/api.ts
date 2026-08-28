@@ -8,7 +8,7 @@ const getApiBaseUrl = () => {
       return `http://${host}:5000/api`;
     }
   }
-  return 'http://localhost:5000/api';
+  return 'https://sunma-ceramic.onrender.com/api';
 };
 
 const getHeaders = (token?: string | null) => {
