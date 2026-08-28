@@ -3,8 +3,9 @@ import postgres from 'postgres';
 import * as schema from '../schema';
 import { seedCategories, seedBrands, seedCollections, seedProducts, seedRooms, seedPromotions } from './data';
 import * as dotenv from 'dotenv';
+import path from 'path';
 
-dotenv.config({ path: '../.env' });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 async function seed() {
   const connectionString = process.env.DATABASE_URL;
