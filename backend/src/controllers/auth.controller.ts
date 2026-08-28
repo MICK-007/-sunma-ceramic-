@@ -8,49 +8,31 @@ export const login = (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ success: false, message: 'Email and password are required.' });
+    return res.status(400).json({ success: false, message: 'กรุณากรอกอีเมลและรหัสผ่าน' });
   }
 
-  // Check if admin credentials
-  if (email.toLowerCase() === 'admin@sunma.com' || email.toLowerCase() === 'admin@sunmaceramic.com' || email.toLowerCase().includes('admin')) {
-    const adminUser = store.users.find(u => u.role === 'ADMIN') || {
-      id: 'user-admin',
-      email: 'admin@sunma.com',
-      fullName: 'SUNMA Executive Admin',
-      phone: '+66 2 800 9999',
-      role: 'ADMIN' as const,
-      createdAt: new Date().toISOString(),
-    };
+  const cleanEmail = email.trim().toLowerCase();
 
-    const token = jwt.sign(
-      { id: adminUser.id, email: adminUser.email, role: 'ADMIN', fullName: adminUser.fullName },
-      config.jwtSecret,
-      { expiresIn: '7d' }
-    );
+  // Find user in database
+  const user = store.users.find(u => u.email.toLowerCase() === cleanEmail);
 
-    return res.json({
-      success: true,
-      message: 'Admin authentication successful.',
-      user: adminUser,
-      token: token || 'admin-token-secret-2026',
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      message: 'อีเมลนี้ยังไม่ได้ลงทะเบียนในระบบ กรุณากดลงทะเบียนสมัครสมาชิกก่อนเข้าสู่ระบบ',
     });
   }
 
-  // Standard user login / registration on-the-fly for demo
-  let existingUser = store.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  if (!existingUser) {
-    existingUser = {
-      id: `user-${Date.now()}`,
-      email,
-      fullName: email.split('@')[0],
-      role: 'USER',
-      createdAt: new Date().toISOString(),
-    };
-    store.users.push(existingUser);
+  // Validate password
+  if (user.password && user.password !== password) {
+    return res.status(401).json({
+      success: false,
+      message: 'รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง',
+    });
   }
 
   const token = jwt.sign(
-    { id: existingUser.id, email: existingUser.email, role: existingUser.role, fullName: existingUser.fullName },
+    { id: user.id, email: user.email, role: user.role, fullName: user.fullName },
     config.jwtSecret,
     { expiresIn: '7d' }
   );
@@ -58,8 +40,15 @@ export const login = (req: Request, res: Response) => {
   return res.json({
     success: true,
     message: 'User authentication successful.',
-    user: existingUser,
-    token: token || 'user-token-secret-2026',
+    user: {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      phone: user.phone,
+      role: user.role,
+      createdAt: user.createdAt,
+    },
+    token,
   });
 };
 
@@ -67,20 +56,22 @@ export const register = (req: Request, res: Response) => {
   const { email, password, fullName, phone } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ success: false, message: 'Email and password are required.' });
+    return res.status(400).json({ success: false, message: 'กรุณากรอกอีเมลและรหัสผ่าน' });
   }
 
-  const existing = store.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const cleanEmail = email.trim().toLowerCase();
+  const existing = store.users.find(u => u.email.toLowerCase() === cleanEmail);
   if (existing) {
-    return res.status(400).json({ success: false, message: 'Account with this email already exists.' });
+    return res.status(400).json({ success: false, message: 'อีเมลนี้ถูกลงทะเบียนไว้แล้ว กรุณาเข้าสู่ระบบ' });
   }
 
   const newUser = {
     id: `user-${Date.now()}`,
-    email,
-    fullName: fullName || email.split('@')[0],
+    email: cleanEmail,
+    password,
+    fullName: fullName || cleanEmail.split('@')[0],
     phone: phone || '',
-    role: 'USER' as const,
+    role: cleanEmail.includes('admin') ? ('ADMIN' as const) : ('USER' as const),
     createdAt: new Date().toISOString(),
   };
 
@@ -95,7 +86,14 @@ export const register = (req: Request, res: Response) => {
   return res.status(201).json({
     success: true,
     message: 'Account registered successfully.',
-    user: newUser,
+    user: {
+      id: newUser.id,
+      email: newUser.email,
+      fullName: newUser.fullName,
+      phone: newUser.phone,
+      role: newUser.role,
+      createdAt: newUser.createdAt,
+    },
     token,
   });
 };

@@ -699,8 +699,9 @@ class StoreRepository {
   public users: UserProfile[] = [
     {
       id: 'user-admin',
-      email: 'admin@sunmaceramic.com',
-      fullName: 'SUNMA Senior Administrator',
+      email: 'admin@sunma.com',
+      password: 'admin1234',
+      fullName: 'SUNMA Executive Admin',
       phone: '+66 2 800 9999',
       role: 'ADMIN',
       createdAt: '2026-01-01T00:00:00Z',
@@ -708,6 +709,7 @@ class StoreRepository {
     {
       id: 'user-architect',
       email: 'architect@studio-lux.com',
+      password: 'password123',
       fullName: 'Somchai Studio Lux',
       phone: '+66 81 234 5678',
       role: 'USER',
