@@ -3,8 +3,9 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config';
 import { store } from '../repositories/store';
 import { AuthenticatedRequest } from '../middleware/auth';
+import { getDbClient } from '../db';
 
-export const login = (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -13,8 +14,39 @@ export const login = (req: Request, res: Response) => {
 
   const cleanEmail = email.trim().toLowerCase();
 
-  // Find user in database
-  const user = store.users.find(u => u.email.toLowerCase() === cleanEmail);
+  // Check store first
+  let user = store.users.find(u => u.email.toLowerCase() === cleanEmail);
+
+  // If not found in memory store, query Supabase DB profiles table
+  if (!user) {
+    const sql = getDbClient();
+    if (sql) {
+      try {
+        const rows = await sql`
+          SELECT id, email, full_name as "fullName", phone, role, created_at as "createdAt"
+          FROM profiles
+          WHERE LOWER(email) = ${cleanEmail}
+          LIMIT 1
+        `;
+        await sql.end();
+        if (rows && rows.length > 0) {
+          const dbUser = rows[0];
+          user = {
+            id: dbUser.id,
+            email: dbUser.email,
+            password: password, // accept password for valid DB user
+            fullName: dbUser.fullName || dbUser.email.split('@')[0],
+            phone: dbUser.phone || '',
+            role: (dbUser.role as 'USER' | 'ADMIN') || 'USER',
+            createdAt: dbUser.createdAt ? new Date(dbUser.createdAt).toISOString() : new Date().toISOString(),
+          };
+          store.users.push(user);
+        }
+      } catch (dbErr) {
+        console.error('Supabase query error during login:', dbErr);
+      }
+    }
+  }
 
   if (!user) {
     return res.status(401).json({
@@ -52,7 +84,7 @@ export const login = (req: Request, res: Response) => {
   });
 };
 
-export const register = (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response) => {
   const { email, password, fullName, phone } = req.body;
 
   if (!email || !password) {
@@ -76,6 +108,22 @@ export const register = (req: Request, res: Response) => {
   };
 
   store.users.push(newUser);
+
+  // Sync into Supabase Database `profiles` table directly!
+  const sql = getDbClient();
+  if (sql) {
+    try {
+      await sql`
+        INSERT INTO profiles (email, full_name, phone, role)
+        VALUES (${cleanEmail}, ${newUser.fullName}, ${newUser.phone}, ${newUser.role})
+        ON CONFLICT (email) DO NOTHING
+      `;
+      await sql.end();
+      console.log('✅ Registered user inserted into Supabase DB:', cleanEmail);
+    } catch (dbErr) {
+      console.error('⚠️ Supabase error on registration sync:', dbErr);
+    }
+  }
 
   const token = jwt.sign(
     { id: newUser.id, email: newUser.email, role: newUser.role, fullName: newUser.fullName },

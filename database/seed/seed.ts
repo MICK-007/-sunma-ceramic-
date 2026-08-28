@@ -74,20 +74,27 @@ async function seed() {
     }
 
     // 4. Seed Admin & Demo Users
-    console.log('Inserting initial admin profile...');
-    const [adminProfile] = await db.insert(schema.profiles).values({
-      email: 'admin@sunmaceramic.com',
-      fullName: 'SUNMA Senior Administrator',
+    console.log('Inserting initial profiles...');
+    await db.insert(schema.profiles).values({
+      email: 'admin@sunma.com',
+      fullName: 'SUNMA Executive Admin',
       phone: '+66 2 800 9999',
       role: 'ADMIN',
-    }).onConflictDoNothing().returning();
+    }).onConflictDoNothing();
 
-    const [userProfile] = await db.insert(schema.profiles).values({
+    await db.insert(schema.profiles).values({
       email: 'architect@studio-lux.com',
-      fullName: 'Architect Customer',
+      fullName: 'Somchai Studio Lux',
       phone: '+66 81 234 5678',
       role: 'USER',
-    }).onConflictDoNothing().returning();
+    }).onConflictDoNothing();
+
+    await db.insert(schema.profiles).values({
+      email: 'prachakchai.srimala@gmail.com',
+      fullName: 'dil',
+      phone: '0000000000',
+      role: 'USER',
+    }).onConflictDoNothing();
 
     // 5. Seed Products & Images & Variants
     console.log('Inserting products, images, and variants...');
