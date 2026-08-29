@@ -179,6 +179,8 @@ export const en = {
     close: 'Close',
   },
   auth: {
+    loginLabel: 'Username or Email Address',
+    userNotFound: 'Account not found. Please check your username or email address.',
     emailNotRegistered: 'This email is not registered in our system. Please sign up first.',
     invalidPassword: 'Invalid password. Please check your password and try again.',
     emailAlreadyExists: 'An account with this email already exists. Please log in.',

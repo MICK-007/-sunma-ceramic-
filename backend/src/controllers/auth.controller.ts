@@ -6,18 +6,19 @@ import { AuthenticatedRequest } from '../middleware/auth';
 import { getDbClient } from '../db';
 
 export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, username, password } = req.body;
+  const identifier = (email || username || '').trim().toLowerCase();
 
-  if (!email || !password) {
-    return res.status(400).json({ success: false, message: 'กรุณากรอกอีเมลและรหัสผ่าน' });
+  if (!identifier || !password) {
+    return res.status(400).json({ success: false, message: 'กรุณากรอกชื่อผู้ใช้/อีเมล และรหัสผ่าน' });
   }
 
-  const cleanEmail = email.trim().toLowerCase();
+  // Check store first (matching email OR fullName)
+  let user = store.users.find(
+    u => u.email.toLowerCase() === identifier || u.fullName.toLowerCase() === identifier
+  );
 
-  // Check store first
-  let user = store.users.find(u => u.email.toLowerCase() === cleanEmail);
-
-  // If not found in memory store, query Supabase DB profiles table
+  // If not found in memory store, query Supabase DB profiles table by email OR full_name
   if (!user) {
     const sql = getDbClient();
     if (sql) {
@@ -25,7 +26,7 @@ export const login = async (req: Request, res: Response) => {
         const rows = await sql`
           SELECT id, email, full_name as "fullName", phone, role, created_at as "createdAt"
           FROM profiles
-          WHERE LOWER(email) = ${cleanEmail}
+          WHERE LOWER(email) = ${identifier} OR LOWER(full_name) = ${identifier}
           LIMIT 1
         `;
         await sql.end();
@@ -51,7 +52,7 @@ export const login = async (req: Request, res: Response) => {
   if (!user) {
     return res.status(401).json({
       success: false,
-      message: 'อีเมลนี้ยังไม่ได้ลงทะเบียนในระบบ กรุณากดลงทะเบียนสมัครสมาชิกก่อนเข้าสู่ระบบ',
+      message: 'ไม่พบบัญชีผู้ใช้นี้ในระบบ กรุณาตรวจสอบชื่อผู้ใช้/อีเมล หรือสมัครสมาชิกใหม่',
     });
   }
 

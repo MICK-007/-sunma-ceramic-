@@ -86,14 +86,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { success: true };
       }
 
-      // Strict registration check in Local DB / Storage
+      // Strict registration check in Local DB / Storage (matching email OR fullName)
       const registered = getRegisteredUsers();
-      const match = registered.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
+      const cleanInput = email.trim().toLowerCase();
+      const match = registered.find(
+        (u: any) =>
+          u.email.toLowerCase() === cleanInput ||
+          (u.fullName && u.fullName.toLowerCase() === cleanInput)
+      );
 
       if (!match) {
         return {
           success: false,
-          message: 'อีเมลนี้ยังไม่ได้ลงทะเบียนในระบบ กรุณากดลงทะเบียนสมัครสมาชิกก่อนเข้าสู่ระบบ',
+          message: 'ไม่พบบัญชีผู้ใช้นี้ในระบบ กรุณาตรวจสอบชื่อผู้ใช้/อีเมล หรือสมัครสมาชิกใหม่',
         };
       }
 

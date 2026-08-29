@@ -25,7 +25,7 @@ function LoginContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setErrorMsg('Please provide email and password.');
+      setErrorMsg((t as any).auth?.requiredFields || 'Please provide username/email and password.');
       return;
     }
 
@@ -39,7 +39,9 @@ function LoginContent() {
       router.push(redirect);
     } else {
       let msg = res.message || 'Login failed.';
-      if (msg.includes('ยังไม่ได้ลงทะเบียน') || msg.includes('not registered') || msg.includes('EMAIL_NOT_REGISTERED')) {
+      if (msg.includes('ไม่พบบัญชี') || msg.includes('userNotFound') || msg.includes('not found')) {
+        msg = (t as any).auth?.userNotFound || 'Account not found. Please check your username/email or sign up.';
+      } else if (msg.includes('ยังไม่ได้ลงทะเบียน') || msg.includes('not registered') || msg.includes('EMAIL_NOT_REGISTERED')) {
         msg = (t as any).auth?.emailNotRegistered || 'This email is not registered in our system. Please sign up first.';
       } else if (msg.includes('รหัสผ่านไม่ถูกต้อง') || msg.includes('Invalid password') || msg.includes('INVALID_PASSWORD')) {
         msg = (t as any).auth?.invalidPassword || 'Invalid password. Please check your password and try again.';
@@ -77,13 +79,15 @@ function LoginContent() {
 
       <form onSubmit={handleSubmit} className="bg-bg-card border border-border-subtle p-6 rounded-lg space-y-4">
         <div className="space-y-1 text-xs">
-          <label className="block text-stone font-semibold">Email Address</label>
+          <label className="block text-stone font-semibold">
+            {(t as any).auth?.loginLabel || 'Username or Email Address'}
+          </label>
           <input
-            type="email"
+            type="text"
             required
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder="architect@studio-lux.com"
+            placeholder="Somchai or architect@studio-lux.com"
             className="w-full bg-bg-secondary border border-border-subtle rounded p-2.5 text-white focus:outline-none focus:border-gold"
           />
         </div>
