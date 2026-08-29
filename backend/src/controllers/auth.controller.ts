@@ -41,7 +41,7 @@ export const login = async (req: Request, res: Response) => {
           createdAt: dbUser.createdAt ? new Date(dbUser.createdAt).toISOString() : new Date().toISOString(),
         };
 
-        // Cache in memory store
+        // Sync with in-memory store
         const existingIdx = store.users.findIndex(u => u.id === user.id || u.email.toLowerCase() === user.email.toLowerCase());
         if (existingIdx !== -1) {
           store.users[existingIdx] = user;
@@ -49,7 +49,7 @@ export const login = async (req: Request, res: Response) => {
           store.users.push(user);
         }
       } else {
-        // If DB explicitly confirms user is not in Supabase, purge any stale memory records
+        // If DB explicitly confirms user is not in Supabase, purge any stale RAM memory records!
         store.users = store.users.filter(
           u => u.email.toLowerCase() !== identifier && u.fullName.toLowerCase() !== identifier
         );
@@ -133,6 +133,9 @@ export const register = async (req: Request, res: Response) => {
           message: 'อีเมลนี้ถูกลงทะเบียนไว้แล้ว กรุณาใช้รหัสผ่านเพื่อเข้าสู่ระบบ',
         });
       }
+
+      // Purge any stale RAM memory records before inserting new profile into Supabase
+      store.users = store.users.filter(u => u.email.toLowerCase() !== cleanEmail);
 
       await sql`
         INSERT INTO profiles (email, full_name, phone, role, password)
