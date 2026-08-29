@@ -2,10 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import { errorHandler } from './middleware/error';
 import { csrfProtection } from './middleware/csrf';
+import { apiLimiter, authLimiter, refreshLimiter, orderLimiter } from './middleware/rateLimit';
 
 import authRoutes from './routes/auth.routes';
 import productRoutes from './routes/product.routes';
@@ -17,6 +17,8 @@ import wishlistRoutes from './routes/wishlist.routes';
 import promotionRoutes from './routes/promotion.routes';
 import roomRoutes from './routes/room.routes';
 import adminRoutes from './routes/admin.routes';
+
+export { apiLimiter, authLimiter, refreshLimiter, orderLimiter };
 
 const app = express();
 
@@ -67,52 +69,7 @@ app.use(
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ limit: '1mb', extended: true }));
 
-// 5. Rate Limiters Strategy
-export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 login/register requests per IP
-  message: {
-    success: false,
-    message: 'Too many authentication attempts. Please try again after 15 minutes.',
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-export const refreshLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 30, // 30 refresh requests per 15m
-  message: {
-    success: false,
-    message: 'Too many session refresh attempts. Please wait a few minutes.',
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-export const orderLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 15, // 15 order creation requests per 15m
-  message: {
-    success: false,
-    message: 'Too many order requests. Please wait a moment before creating another order.',
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 500, // 500 read requests per 15m for Catalog & 3D Studio responsiveness
-  message: {
-    success: false,
-    message: 'Rate limit exceeded. Please slow down your requests.',
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Apply general API rate limiter to all API endpoints
+// 5. Apply general API rate limiter to all API endpoints
 app.use('/api', apiLimiter);
 
 // 6. Double Submit CSRF Protection Middleware

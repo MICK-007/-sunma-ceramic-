@@ -3,7 +3,7 @@ import { login, register, refresh, me, logout } from '../controllers/auth.contro
 import { authenticateUser } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import { loginSchema, registerSchema } from '../schemas/auth.schema';
-import { authLimiter, refreshLimiter } from '../index';
+import { authLimiter, refreshLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 

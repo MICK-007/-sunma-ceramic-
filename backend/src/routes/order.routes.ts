@@ -3,7 +3,7 @@ import { createOrder, getUserOrders, getOrderById } from '../controllers/order.c
 import { authenticateUser } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import { createOrderSchema } from '../schemas/order.schema';
-import { orderLimiter } from '../index';
+import { orderLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 
