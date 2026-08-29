@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { store } from '../repositories/store';
 import { Product, Category, Brand, OrderStatus, Promotion } from '../types';
+import { AuthenticatedRequest } from '../middleware/auth';
+import { logSecurityEvent } from '../utils/logger';
 
 export const getDashboardStats = (req: Request, res: Response) => {
   const totalSales = store.orders
@@ -100,6 +102,7 @@ export const createAdminProduct = (req: Request, res: Response) => {
   };
 
   store.products.unshift(newProduct);
+  logSecurityEvent('ADMIN_PRODUCT_CREATE', (req as AuthenticatedRequest).user?.id || null, req, { productId: newProduct.id, productCode: newProduct.productCode });
   return res.status(201).json({ success: true, message: 'Product created successfully.', data: newProduct });
 };
 
@@ -160,12 +163,14 @@ export const updateAdminProduct = (req: Request, res: Response) => {
   };
 
   store.products[index] = updatedProduct;
+  logSecurityEvent('ADMIN_PRODUCT_UPDATE', (req as AuthenticatedRequest).user?.id || null, req, { productId: id });
   return res.json({ success: true, message: 'Product updated successfully.', data: updatedProduct });
 };
 
 export const deleteAdminProduct = (req: Request, res: Response) => {
   const { id } = req.params;
   store.products = store.products.filter(p => p.id !== id);
+  logSecurityEvent('ADMIN_PRODUCT_DELETE', (req as AuthenticatedRequest).user?.id || null, req, { productId: id });
   return res.json({ success: true, message: 'Product deleted.' });
 };
 
@@ -190,6 +195,7 @@ export const updateOrderStatus = (req: Request, res: Response) => {
 
   order.status = status;
   order.updatedAt = new Date().toISOString();
+  logSecurityEvent('ADMIN_ORDER_STATUS_UPDATE', (req as AuthenticatedRequest).user?.id || null, req, { orderId: id, newStatus: status });
 
   return res.json({ success: true, message: `Order status updated to ${status}.`, data: order });
 };

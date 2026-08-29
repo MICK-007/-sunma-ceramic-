@@ -4,13 +4,23 @@ import path from 'path';
 const ROOT_DIR = path.resolve(__dirname, '../../..');
 
 const BACKDOOR_TOKENS = ['admin-token-secret-2026', 'user-token-secret-2026'];
-const FORBIDDEN_FRONTEND_SECRETS = ['SUPABASE_SERVICE_ROLE_KEY', 'JWT_SECRET'];
+const FORBIDDEN_FRONTEND_PATTERNS = [
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'DATABASE_URL',
+  'JWT_SECRET',
+  'REFRESH_TOKEN_SECRET',
+  'postgresql://',
+];
+const HARDCODED_SECRET_PATTERNS = [
+  /postgres:[a-zA-Z0-9_.-]+@/g, // Raw postgres connection strings with passwords
+  /eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/g, // Hardcoded JWT tokens
+];
 
-function scanDir(dir: string, results: { backdoors: string[]; frontendSecrets: string[] }) {
+function scanDir(dir: string, results: { backdoors: string[]; frontendSecrets: string[]; hardcodedSecrets: string[] }) {
   const files = fs.readdirSync(dir);
 
   for (const file of files) {
-    if (file === 'node_modules' || file === '.git' || file === '.next' || file === 'dist' || file === 'scripts') continue;
+    if (file === 'node_modules' || file === '.git' || file === '.next' || file === 'dist' || file === 'scripts' || file.endsWith('.example')) continue;
     const fullPath = path.join(dir, file);
     const stat = fs.statSync(fullPath);
 
@@ -27,9 +37,18 @@ function scanDir(dir: string, results: { backdoors: string[]; frontendSecrets: s
         }
 
         if (fullPath.includes(path.join('frontend', 'src'))) {
-          for (const secret of FORBIDDEN_FRONTEND_SECRETS) {
-            if (content.includes(secret) && !file.includes('.example')) {
-              results.frontendSecrets.push(`${fullPath}: contains ${secret}`);
+          for (const pattern of FORBIDDEN_FRONTEND_PATTERNS) {
+            if (content.includes(pattern)) {
+              results.frontendSecrets.push(`${fullPath}: contains ${pattern}`);
+            }
+          }
+        }
+
+        // Exclude test script files from hardcoded string checks
+        if (!file.includes('test_') && !file.includes('migrate_')) {
+          for (const regex of HARDCODED_SECRET_PATTERNS) {
+            if (regex.test(content)) {
+              results.hardcodedSecrets.push(`${fullPath}: contains hardcoded secret pattern ${regex}`);
             }
           }
         }
@@ -39,19 +58,22 @@ function scanDir(dir: string, results: { backdoors: string[]; frontendSecrets: s
 }
 
 async function runScan() {
-  console.log('🔍 Scanning production source code for hardcoded backdoors & frontend secret leaks...\n');
-  const results = { backdoors: [], frontendSecrets: [] };
+  console.log('🔍 Scanning production source code for hardcoded backdoors, database credentials, & frontend secret leaks...\n');
+  const results = { backdoors: [], frontendSecrets: [], hardcodedSecrets: [] };
   scanDir(ROOT_DIR, results);
 
   console.log('--- SCAN RESULTS ---');
-  console.log(`Backdoor Tokens Found in Source Code: ${results.backdoors.length}`);
+  console.log(`Backdoor Tokens Found: ${results.backdoors.length}`);
   results.backdoors.forEach(b => console.log('  ❌', b));
 
   console.log(`Frontend Secret Leaks Found: ${results.frontendSecrets.length}`);
   results.frontendSecrets.forEach(s => console.log('  ❌', s));
 
-  if (results.backdoors.length === 0 && results.frontendSecrets.length === 0) {
-    console.log('\n✅ NO BACKDOORS OR FRONTEND SECRET LEAKS FOUND IN PRODUCTION SOURCE CODE!');
+  console.log(`Hardcoded Secrets Found: ${results.hardcodedSecrets.length}`);
+  results.hardcodedSecrets.forEach(h => console.log('  ❌', h));
+
+  if (results.backdoors.length === 0 && results.frontendSecrets.length === 0 && results.hardcodedSecrets.length === 0) {
+    console.log('\n✅ NO BACKDOORS, HARDCODED SECRETS, OR FRONTEND SECRET LEAKS FOUND IN PRODUCTION SOURCE CODE!');
   } else {
     console.error('\n❌ SECURITY SCAN FAILED!');
     process.exit(1);

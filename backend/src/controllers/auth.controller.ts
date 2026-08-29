@@ -6,8 +6,8 @@ import { config } from '../config';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { getDbClient } from '../db';
 import { generateCsrfToken, setCsrfCookie } from '../middleware/csrf';
+import { logSecurityEvent } from '../utils/logger';
 
-// Helper: HMAC-SHA256 hash of Refresh Token for O(1) indexed lookup
 export function hashRefreshToken(token: string): string {
   return crypto.createHmac('sha256', config.refreshTokenSecret).update(token).digest('hex');
 }

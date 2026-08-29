@@ -13,9 +13,8 @@ dist/
 # Logs & Environment secrets
 *.log
 .env
-.env.local
-.env.development.local
-.env.production.local
+.env.*
+!.env.example
 
 # OS / IDE
 .DS_Store
