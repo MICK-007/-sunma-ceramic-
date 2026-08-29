@@ -113,7 +113,7 @@ export const register = async (req: Request, res: Response) => {
 
   const cleanEmail = email.trim().toLowerCase();
   const cleanName = (fullName || cleanEmail.split('@')[0]).trim();
-  const role = cleanEmail.includes('admin') ? ('ADMIN' as const) : ('USER' as const);
+  const roleStr = cleanEmail.includes('admin') ? 'ADMIN' : 'USER';
 
   // 1. Check & Insert directly in Supabase PostgreSQL database
   const sql = getDbClient();
@@ -137,15 +137,21 @@ export const register = async (req: Request, res: Response) => {
       // Purge any stale RAM memory records before inserting new profile into Supabase
       store.users = store.users.filter(u => u.email.toLowerCase() !== cleanEmail);
 
+      // Explicitly cast to user_role PostgreSQL enum type
       await sql`
         INSERT INTO profiles (email, full_name, phone, role, password)
-        VALUES (${cleanEmail}, ${cleanName}, ${phone || ''}, ${role}, ${password})
+        VALUES (${cleanEmail}, ${cleanName}, ${phone || ''}, ${roleStr}::user_role, ${password})
         ON CONFLICT (email) DO UPDATE SET password = ${password}, full_name = ${cleanName}
       `;
       await sql.end();
       console.log('✅ Registered new user in Supabase DB profiles:', cleanEmail);
-    } catch (dbErr) {
+    } catch (dbErr: any) {
       console.error('⚠️ Supabase error during registration:', dbErr);
+      if (sql) await sql.end().catch(() => {});
+      return res.status(500).json({
+        success: false,
+        message: 'ไม่สามารถบันทึกข้อมูลลงฐานข้อมูล Supabase ได้: ' + (dbErr?.message || dbErr),
+      });
     }
   }
 
@@ -155,7 +161,7 @@ export const register = async (req: Request, res: Response) => {
     password,
     fullName: cleanName,
     phone: phone || '',
-    role,
+    role: roleStr as 'ADMIN' | 'USER',
     createdAt: new Date().toISOString(),
   };
 

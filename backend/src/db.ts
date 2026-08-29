@@ -3,12 +3,16 @@ import { config } from './config';
 
 const FALLBACK_DATABASE_URL = "postgresql://postgres.xacaeysrrfqhwpkdjkvm:1103703370197Aa@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres";
 
+export function getDbUrl() {
+  return process.env.DATABASE_URL || config.databaseUrl || FALLBACK_DATABASE_URL;
+}
+
 export function getDbClient() {
-  const dbUrl = process.env.DATABASE_URL || config.databaseUrl || FALLBACK_DATABASE_URL;
+  const dbUrl = getDbUrl();
   try {
     return postgres(dbUrl, {
-      max: 3,
-      idle_timeout: 10,
+      max: 1,
+      idle_timeout: 5,
       connect_timeout: 10,
       ssl: { rejectUnauthorized: false },
     });
