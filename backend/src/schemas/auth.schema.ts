@@ -24,21 +24,24 @@ export const registerSchema = z.object({
     .trim(),
   username: z
     .string()
-    .min(2, 'Username must be at least 2 characters.')
     .max(100, 'Username must not exceed 100 characters.')
-    .regex(/^[a-zA-Z0-9_.-]+$/, 'Username can only contain alphanumeric characters, underscores, hyphens, and dots.')
-    .trim()
-    .optional(),
+    .optional()
+    .or(z.literal(''))
+    .nullable(),
   password: z
     .string({ required_error: 'Password is required.' })
-    .min(8, 'Password must be at least 8 characters long.')
+    .min(6, 'Password must be at least 6 characters long.')
     .max(100, 'Password must not exceed 100 characters.'),
   fullName: z
     .string()
     .max(255, 'Full name must not exceed 255 characters.')
-    .optional(),
+    .optional()
+    .or(z.literal(''))
+    .nullable(),
   phone: z
     .string()
     .max(50, 'Phone number must not exceed 50 characters.')
-    .optional(),
+    .optional()
+    .or(z.literal(''))
+    .nullable(),
 });

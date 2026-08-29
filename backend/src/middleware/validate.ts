@@ -13,9 +13,11 @@ export const validateBody = (schema: ZodSchema) => {
           message: err.message,
         }));
 
+        const primaryMessage = formattedErrors.length > 0 ? formattedErrors[0].message : 'Validation failed. Invalid request payload.';
+
         return res.status(400).json({
           success: false,
-          message: 'Validation failed. Invalid request payload.',
+          message: primaryMessage,
           errors: formattedErrors,
         });
       }
@@ -36,9 +38,11 @@ export const validateParams = (schema: ZodSchema) => {
           message: err.message,
         }));
 
+        const primaryMessage = formattedErrors.length > 0 ? formattedErrors[0].message : 'Validation failed. Invalid path parameter.';
+
         return res.status(400).json({
           success: false,
-          message: 'Validation failed. Invalid path parameter.',
+          message: primaryMessage,
           errors: formattedErrors,
         });
       }
@@ -59,9 +63,11 @@ export const validateQuery = (schema: ZodSchema) => {
           message: err.message,
         }));
 
+        const primaryMessage = formattedErrors.length > 0 ? formattedErrors[0].message : 'Validation failed. Invalid query parameters.';
+
         return res.status(400).json({
           success: false,
-          message: 'Validation failed. Invalid query parameters.',
+          message: primaryMessage,
           errors: formattedErrors,
         });
       }
