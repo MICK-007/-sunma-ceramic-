@@ -14,11 +14,13 @@ export const login = async (req: Request, res: Response) => {
   }
 
   let user: any = null;
+  let dbChecked = false;
 
   // 1. Primary DB Query: Fetch directly from Supabase PostgreSQL profiles table
   const sql = getDbClient();
   if (sql) {
     try {
+      dbChecked = true;
       const rows = await sql`
         SELECT id, email, full_name as "fullName", phone, role, password, created_at as "createdAt"
         FROM profiles
@@ -40,20 +42,25 @@ export const login = async (req: Request, res: Response) => {
         };
 
         // Cache in memory store
-        const existingIdx = store.users.findIndex(u => u.id === user.id || u.email === user.email);
+        const existingIdx = store.users.findIndex(u => u.id === user.id || u.email.toLowerCase() === user.email.toLowerCase());
         if (existingIdx !== -1) {
           store.users[existingIdx] = user;
         } else {
           store.users.push(user);
         }
+      } else {
+        // If DB explicitly confirms user is not in Supabase, purge any stale memory records
+        store.users = store.users.filter(
+          u => u.email.toLowerCase() !== identifier && u.fullName.toLowerCase() !== identifier
+        );
       }
     } catch (dbErr) {
       console.error('Supabase query error during login:', dbErr);
     }
   }
 
-  // 2. Fallback to memory store if DB query was skipped
-  if (!user) {
+  // 2. Fallback to memory store ONLY if DB query failed/skipped
+  if (!user && !dbChecked) {
     user = store.users.find(
       u => u.email.toLowerCase() === identifier || u.fullName.toLowerCase() === identifier
     );
@@ -108,14 +115,14 @@ export const register = async (req: Request, res: Response) => {
   const cleanName = (fullName || cleanEmail.split('@')[0]).trim();
   const role = cleanEmail.includes('admin') ? ('ADMIN' as const) : ('USER' as const);
 
-  // 1. Insert directly into Supabase PostgreSQL database
+  // 1. Check & Insert directly in Supabase PostgreSQL database
   const sql = getDbClient();
   if (sql) {
     try {
       // Check existing in Supabase DB
       const existing = await sql`
         SELECT id FROM profiles 
-        WHERE LOWER(email) = ${cleanEmail} OR LOWER(full_name) = ${cleanName.toLowerCase()}
+        WHERE LOWER(email) = ${cleanEmail}
         LIMIT 1
       `;
 
@@ -123,7 +130,7 @@ export const register = async (req: Request, res: Response) => {
         await sql.end();
         return res.status(400).json({
           success: false,
-          message: 'อีเมลหรือชื่อผู้ใช้นี้ถูกลงทะเบียนไว้แล้ว กรุณาเข้าสู่ระบบ',
+          message: 'อีเมลนี้ถูกลงทะเบียนไว้แล้ว กรุณาใช้รหัสผ่านเพื่อเข้าสู่ระบบ',
         });
       }
 

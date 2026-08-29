@@ -33,20 +33,6 @@ const DEFAULT_USERS = [
     role: 'ADMIN' as const,
   },
   {
-    email: 'prachakchai.srimala@gmail.com',
-    password: 'password123',
-    fullName: 'dil',
-    phone: '0000000000',
-    role: 'USER' as const,
-  },
-  {
-    email: 'woonsen240506@gmail.com',
-    password: 'password123',
-    fullName: 'woon',
-    phone: '0000000000',
-    role: 'USER' as const,
-  },
-  {
     email: 'architect@studio-lux.com',
     password: 'password123',
     fullName: 'Somchai Studio Lux',
@@ -66,16 +52,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const stored = localStorage.getItem('sunma_registered_users');
     if (stored) {
       try {
-        const parsed = JSON.parse(stored);
-        // Ensure default Supabase users exist
-        const merged = [...parsed];
-        for (const defU of DEFAULT_USERS) {
-          if (!merged.some((u: any) => u.email.toLowerCase() === defU.email.toLowerCase())) {
-            merged.push(defU);
-          }
-        }
-        localStorage.setItem('sunma_registered_users', JSON.stringify(merged));
-        return merged;
+        return JSON.parse(stored);
       } catch (e) {}
     }
     localStorage.setItem('sunma_registered_users', JSON.stringify(DEFAULT_USERS));
