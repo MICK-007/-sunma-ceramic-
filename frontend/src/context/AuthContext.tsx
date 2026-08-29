@@ -109,12 +109,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { success: true };
       }
 
-      // If backend explicitly returned password error, pass it back!
-      if (res.message && (res.message.includes('รหัสผ่านไม่ถูกต้อง') || res.message.includes('Invalid password'))) {
+      // If backend explicitly returned a message (e.g. Account not found or Invalid password), return it directly!
+      if (res.message) {
         return { success: false, message: res.message };
       }
 
-      // Fallback Storage Check
+      // Offline / Local Storage Fallback Check
       const registered = getRegisteredUsers();
       const cleanInput = email.trim().toLowerCase();
       const match = registered.find(
@@ -123,38 +123,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           (u.fullName && u.fullName.toLowerCase() === cleanInput)
       );
 
-      const isKnownUser =
-        match ||
-        cleanInput.includes('prachakchai') ||
-        cleanInput.includes('admin') ||
-        cleanInput.includes('woonsen') ||
-        cleanInput.includes('architect') ||
-        cleanInput.includes('@');
-
-      if (!isKnownUser) {
+      if (!match) {
         return {
           success: false,
           message: 'ไม่พบบัญชีผู้ใช้นี้ในระบบ กรุณาตรวจสอบชื่อผู้ใช้/อีเมล หรือสมัครสมาชิกใหม่',
         };
       }
 
-      // Auto-sync password for known user in local storage
-      if (match) {
-        match.password = password;
-        const updatedList = registered.map((u: any) =>
-          u.email.toLowerCase() === match.email.toLowerCase() ? { ...u, password } : u
-        );
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('sunma_registered_users', JSON.stringify(updatedList));
-        }
+      // Enforce strict password checking
+      if (match.password && match.password !== password) {
+        return {
+          success: false,
+          message: 'รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง',
+        };
       }
 
       const mockUser: User = {
-        id: match?.id || 'user-' + Date.now(),
-        email: match?.email || (cleanInput.includes('@') ? cleanInput : `${cleanInput}@sunma.com`),
-        fullName: match?.fullName || cleanInput,
-        phone: match?.phone || '',
-        role: match?.role || (cleanInput.includes('admin') ? 'ADMIN' : 'USER'),
+        id: match.id || 'user-' + Date.now(),
+        email: match.email,
+        fullName: match.fullName || match.email.split('@')[0],
+        phone: match.phone || '',
+        role: match.role || (match.email.includes('admin') ? 'ADMIN' : 'USER'),
       };
       const mockToken = 'auth-token-' + Date.now();
       setToken(mockToken);

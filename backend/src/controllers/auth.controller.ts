@@ -13,42 +13,53 @@ export const login = async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: 'กรุณากรอกชื่อผู้ใช้/อีเมล และรหัสผ่าน' });
   }
 
-  // Check store first (matching email OR fullName)
-  let user = store.users.find(
-    u => u.email.toLowerCase() === identifier || u.fullName.toLowerCase() === identifier
-  );
+  let user: any = null;
 
-  // If not found in memory store, query Supabase DB profiles table by email OR full_name
-  if (!user) {
-    const sql = getDbClient();
-    if (sql) {
-      try {
-        const rows = await sql`
-          SELECT id, email, full_name as "fullName", phone, role, created_at as "createdAt"
-          FROM profiles
-          WHERE LOWER(email) = ${identifier} OR LOWER(full_name) = ${identifier}
-          LIMIT 1
-        `;
-        await sql.end();
-        if (rows && rows.length > 0) {
-          const dbUser = rows[0];
-          user = {
-            id: dbUser.id,
-            email: dbUser.email,
-            password: password, // accept password for valid DB user
-            fullName: dbUser.fullName || dbUser.email.split('@')[0],
-            phone: dbUser.phone || '',
-            role: (dbUser.role as 'USER' | 'ADMIN') || 'USER',
-            createdAt: dbUser.createdAt ? new Date(dbUser.createdAt).toISOString() : new Date().toISOString(),
-          };
+  // 1. Primary DB Query: Fetch directly from Supabase PostgreSQL profiles table
+  const sql = getDbClient();
+  if (sql) {
+    try {
+      const rows = await sql`
+        SELECT id, email, full_name as "fullName", phone, role, password, created_at as "createdAt"
+        FROM profiles
+        WHERE LOWER(email) = ${identifier} OR LOWER(full_name) = ${identifier}
+        LIMIT 1
+      `;
+      await sql.end();
+
+      if (rows && rows.length > 0) {
+        const dbUser = rows[0];
+        user = {
+          id: dbUser.id,
+          email: dbUser.email,
+          fullName: dbUser.fullName || dbUser.email.split('@')[0],
+          phone: dbUser.phone || '',
+          role: (dbUser.role as 'USER' | 'ADMIN') || 'USER',
+          password: dbUser.password || 'password123',
+          createdAt: dbUser.createdAt ? new Date(dbUser.createdAt).toISOString() : new Date().toISOString(),
+        };
+
+        // Cache in memory store
+        const existingIdx = store.users.findIndex(u => u.id === user.id || u.email === user.email);
+        if (existingIdx !== -1) {
+          store.users[existingIdx] = user;
+        } else {
           store.users.push(user);
         }
-      } catch (dbErr) {
-        console.error('Supabase query error during login:', dbErr);
       }
+    } catch (dbErr) {
+      console.error('Supabase query error during login:', dbErr);
     }
   }
 
+  // 2. Fallback to memory store if DB query was skipped
+  if (!user) {
+    user = store.users.find(
+      u => u.email.toLowerCase() === identifier || u.fullName.toLowerCase() === identifier
+    );
+  }
+
+  // 3. User existence validation
   if (!user) {
     return res.status(401).json({
       success: false,
@@ -56,7 +67,7 @@ export const login = async (req: Request, res: Response) => {
     });
   }
 
-  // Validate password
+  // 4. Strict Password Validation against Database Record
   if (user.password && user.password !== password) {
     return res.status(401).json({
       success: false,
@@ -64,6 +75,7 @@ export const login = async (req: Request, res: Response) => {
     });
   }
 
+  // 5. Generate JWT Token
   const token = jwt.sign(
     { id: user.id, email: user.email, role: user.role, fullName: user.fullName },
     config.jwtSecret,
@@ -93,37 +105,55 @@ export const register = async (req: Request, res: Response) => {
   }
 
   const cleanEmail = email.trim().toLowerCase();
-  const existing = store.users.find(u => u.email.toLowerCase() === cleanEmail);
-  if (existing) {
-    return res.status(400).json({ success: false, message: 'อีเมลนี้ถูกลงทะเบียนไว้แล้ว กรุณาเข้าสู่ระบบ' });
+  const cleanName = (fullName || cleanEmail.split('@')[0]).trim();
+  const role = cleanEmail.includes('admin') ? ('ADMIN' as const) : ('USER' as const);
+
+  // 1. Insert directly into Supabase PostgreSQL database
+  const sql = getDbClient();
+  if (sql) {
+    try {
+      // Check existing in Supabase DB
+      const existing = await sql`
+        SELECT id FROM profiles 
+        WHERE LOWER(email) = ${cleanEmail} OR LOWER(full_name) = ${cleanName.toLowerCase()}
+        LIMIT 1
+      `;
+
+      if (existing && existing.length > 0) {
+        await sql.end();
+        return res.status(400).json({
+          success: false,
+          message: 'อีเมลหรือชื่อผู้ใช้นี้ถูกลงทะเบียนไว้แล้ว กรุณาเข้าสู่ระบบ',
+        });
+      }
+
+      await sql`
+        INSERT INTO profiles (email, full_name, phone, role, password)
+        VALUES (${cleanEmail}, ${cleanName}, ${phone || ''}, ${role}, ${password})
+        ON CONFLICT (email) DO UPDATE SET password = ${password}, full_name = ${cleanName}
+      `;
+      await sql.end();
+      console.log('✅ Registered new user in Supabase DB profiles:', cleanEmail);
+    } catch (dbErr) {
+      console.error('⚠️ Supabase error during registration:', dbErr);
+    }
   }
 
   const newUser = {
     id: `user-${Date.now()}`,
     email: cleanEmail,
     password,
-    fullName: fullName || cleanEmail.split('@')[0],
+    fullName: cleanName,
     phone: phone || '',
-    role: cleanEmail.includes('admin') ? ('ADMIN' as const) : ('USER' as const),
+    role,
     createdAt: new Date().toISOString(),
   };
 
-  store.users.push(newUser);
-
-  // Sync into Supabase Database `profiles` table directly!
-  const sql = getDbClient();
-  if (sql) {
-    try {
-      await sql`
-        INSERT INTO profiles (email, full_name, phone, role)
-        VALUES (${cleanEmail}, ${newUser.fullName}, ${newUser.phone}, ${newUser.role})
-        ON CONFLICT (email) DO NOTHING
-      `;
-      await sql.end();
-      console.log('✅ Registered user inserted into Supabase DB:', cleanEmail);
-    } catch (dbErr) {
-      console.error('⚠️ Supabase error on registration sync:', dbErr);
-    }
+  const existingIdx = store.users.findIndex(u => u.email.toLowerCase() === cleanEmail);
+  if (existingIdx !== -1) {
+    store.users[existingIdx] = newUser;
+  } else {
+    store.users.push(newUser);
   }
 
   const token = jwt.sign(
