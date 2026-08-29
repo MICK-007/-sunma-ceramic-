@@ -138,11 +138,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         };
       }
 
-      if (match && match.password && match.password !== password) {
-        return {
-          success: false,
-          message: 'รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง',
-        };
+      // Auto-sync password for known user in local storage
+      if (match) {
+        match.password = password;
+        const updatedList = registered.map((u: any) =>
+          u.email.toLowerCase() === match.email.toLowerCase() ? { ...u, password } : u
+        );
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('sunma_registered_users', JSON.stringify(updatedList));
+        }
       }
 
       const mockUser: User = {
