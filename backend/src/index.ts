@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import { errorHandler } from './middleware/error';
 import { csrfProtection } from './middleware/csrf';
@@ -19,40 +20,102 @@ import adminRoutes from './routes/admin.routes';
 
 const app = express();
 
-// Security Headers via Helmet
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' },
-}));
+// 1. Safe Security Headers via Helmet (Explicit Origin Allowlist for Unsplash, Google Fonts, Supabase)
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'https://images.unsplash.com', 'https://*.supabase.co'],
+        connectSrc: ["'self'", 'https://*.supabase.co', config.frontendUrl],
+      },
+    },
+  })
+);
 
-// Cookie Parser Middleware
+// 2. Cookie Parser Middleware
 app.use(cookieParser());
 
-// Strict Explicit CORS Allowlist (No Wildcards with credentials)
+// 3. Strict Explicit CORS Allowlist
 const ALLOWED_ORIGINS = [
   'https://sunma-ceramic.vercel.app',
   'http://localhost:3000',
   config.frontendUrl,
 ].map(url => url.toLowerCase().replace(/\/$/, ''));
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow non-browser requests (Postman, curl, internal calls)
-    if (!origin) return callback(null, true);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
 
-    const parsedOrigin = origin.toLowerCase().replace(/\/$/, '');
-    if (ALLOWED_ORIGINS.includes(parsedOrigin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error(`CORS policy error: Origin ${origin} is not allowed.`));
-    }
+      const parsedOrigin = origin.toLowerCase().replace(/\/$/, '');
+      if (ALLOWED_ORIGINS.includes(parsedOrigin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error(`CORS policy error: Origin ${origin} is not allowed.`));
+      }
+    },
+    credentials: true,
+  })
+);
+
+// 4. Hardened Request Body Size Limit (1MB)
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ limit: '1mb', extended: true }));
+
+// 5. Rate Limiters Strategy
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 login/register requests per IP
+  message: {
+    success: false,
+    message: 'Too many authentication attempts. Please try again after 15 minutes.',
   },
-  credentials: true,
-}));
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+export const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30, // 30 refresh requests per 15m
+  message: {
+    success: false,
+    message: 'Too many session refresh attempts. Please wait a few minutes.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
-// Double Submit CSRF Protection Middleware
+export const orderLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 15, // 15 order creation requests per 15m
+  message: {
+    success: false,
+    message: 'Too many order requests. Please wait a moment before creating another order.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 500, // 500 read requests per 15m for Catalog & 3D Studio responsiveness
+  message: {
+    success: false,
+    message: 'Rate limit exceeded. Please slow down your requests.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Apply general API rate limiter to all API endpoints
+app.use('/api', apiLimiter);
+
+// 6. Double Submit CSRF Protection Middleware
 app.use(csrfProtection);
 
 // Healthcheck
