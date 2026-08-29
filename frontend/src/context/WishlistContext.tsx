@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { api } from '../services/api';
-import { useRouter } from 'next/navigation';
 
 interface WishlistContextType {
   wishlistProductIds: string[];
@@ -15,45 +14,79 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 
 export const WishlistProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
-  const router = useRouter();
   const [wishlistProductIds, setWishlistProductIds] = useState<string[]>([]);
 
+  // Load Wishlist on mount or when user session changes
   useEffect(() => {
     if (user) {
-      api.getWishlist().then(res => {
-        if (res.success && res.productIds) {
-          setWishlistProductIds(res.productIds);
-        }
-      }).catch(err => console.error(err));
+      api
+        .getWishlist()
+        .then(res => {
+          if (res.success && Array.isArray(res.productIds)) {
+            setWishlistProductIds(res.productIds);
+          }
+        })
+        .catch(err => console.error('Error fetching user wishlist:', err));
     } else {
-      setWishlistProductIds([]);
+      // Read guest wishlist from localStorage
+      try {
+        const saved = localStorage.getItem('sunma_guest_wishlist');
+        if (saved) {
+          setWishlistProductIds(JSON.parse(saved));
+        } else {
+          setWishlistProductIds([]);
+        }
+      } catch (e) {
+        setWishlistProductIds([]);
+      }
     }
   }, [user]);
 
   const toggleWishlist = async (productId: string): Promise<boolean> => {
-    if (!user) {
-      router.push('/login?redirect=/shop&notice=wishlist');
-      return false;
-    }
-
     const isFav = wishlistProductIds.includes(productId);
-    try {
-      if (isFav) {
-        const res = await api.removeFromWishlist(productId);
-        if (res.success && res.productIds) {
-          setWishlistProductIds(res.productIds);
-        }
+
+    if (isFav) {
+      // 1. Optimistic removal from state
+      const nextIds = wishlistProductIds.filter(id => id !== productId);
+      setWishlistProductIds(nextIds);
+
+      if (!user) {
+        try {
+          localStorage.setItem('sunma_guest_wishlist', JSON.stringify(nextIds));
+        } catch (e) {}
         return false;
-      } else {
-        const res = await api.addToWishlist(productId);
-        if (res.success && res.productIds) {
+      }
+
+      try {
+        const res = await api.removeFromWishlist(productId);
+        if (res.success && Array.isArray(res.productIds)) {
           setWishlistProductIds(res.productIds);
         }
+      } catch (e) {
+        console.error('Error removing from wishlist backend:', e);
+      }
+      return false;
+    } else {
+      // 2. Optimistic addition to state
+      const nextIds = [...wishlistProductIds, productId];
+      setWishlistProductIds(nextIds);
+
+      if (!user) {
+        try {
+          localStorage.setItem('sunma_guest_wishlist', JSON.stringify(nextIds));
+        } catch (e) {}
         return true;
       }
-    } catch (e) {
-      console.error(e);
-      return isFav;
+
+      try {
+        const res = await api.addToWishlist(productId);
+        if (res.success && Array.isArray(res.productIds)) {
+          setWishlistProductIds(res.productIds);
+        }
+      } catch (e) {
+        console.error('Error adding to wishlist backend:', e);
+      }
+      return true;
     }
   };
 
