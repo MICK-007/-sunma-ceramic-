@@ -161,14 +161,24 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const register = async (req: Request, res: Response) => {
-  const { email, username, password, fullName, phone } = req.body;
+  const { username, email, password, phone } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ success: false, message: 'กรุณากรอกอีเมลและรหัสผ่าน' });
+  if (!username || !email || !password) {
+    return res.status(400).json({ success: false, message: 'กรุณากรอกชื่อผู้ใช้ อีเมล และรหัสผ่าน' });
   }
 
+  const cleanUsername = username.trim().toLowerCase();
   const cleanEmail = email.trim().toLowerCase();
-  const cleanName = (fullName || cleanEmail.split('@')[0]).trim();
+  const cleanName = cleanUsername;
+
+  if (cleanUsername.length < 3) {
+    return res.status(400).json({ success: false, message: 'ชื่อผู้ใช้ต้องมีความยาวอย่างน้อย 3 ตัวอักษร' });
+  }
+
+  const usernameRegex = /^[a-zA-Z0-9_.-]+$/;
+  if (!usernameRegex.test(cleanUsername)) {
+    return res.status(400).json({ success: false, message: 'ชื่อผู้ใช้สามารถใช้ได้เฉพาะตัวอักษรภาษาอังกฤษ ตัวเลข _ . และ -' });
+  }
   
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(cleanEmail)) {
@@ -179,10 +189,7 @@ export const register = async (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร' });
   }
 
-  let cleanUsername = (username || cleanEmail.split('@')[0]).trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
-  if (!cleanUsername) cleanUsername = 'user';
-
-  const roleStr = cleanEmail.includes('admin') ? 'ADMIN' : 'USER';
+  const roleStr = cleanEmail.includes('admin') || cleanUsername.includes('admin') ? 'ADMIN' : 'USER';
   const sql = getDbClient();
   if (!sql) {
     return res.status(500).json({ success: false, message: 'Database connection failure.' });

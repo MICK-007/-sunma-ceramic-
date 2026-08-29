@@ -13,17 +13,28 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const { t } = useLanguage();
 
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      setErrorMsg('Please complete all required fields.');
+    if (!username || !email || !password) {
+      setErrorMsg('Please complete all required fields (Username, Email, Password).');
+      return;
+    }
+
+    if (username.length < 3) {
+      setErrorMsg('ชื่อผู้ใช้ต้องมีความยาวอย่างน้อย 3 ตัวอักษร (Username must be at least 3 characters long.)');
+      return;
+    }
+
+    const usernameRegex = /^[a-zA-Z0-9_.-]+$/;
+    if (!usernameRegex.test(username)) {
+      setErrorMsg('ชื่อผู้ใช้สามารถใช้ได้เฉพาะตัวอักษรภาษาอังกฤษ ตัวเลข _ . และ - (Username can only contain letters, numbers, underscores, hyphens, and dots.)');
       return;
     }
 
@@ -35,7 +46,7 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     setErrorMsg('');
 
-    const res = await register(email, password, fullName, phone);
+    const res = await register(email, password, username, phone, username);
     setIsSubmitting(false);
 
     if (res.success) {
@@ -67,30 +78,20 @@ export default function RegisterPage() {
 
       <form onSubmit={handleSubmit} className="bg-bg-card border border-border-subtle p-6 rounded-lg space-y-4">
         <div className="space-y-1 text-xs">
-          <label className="block text-stone font-semibold">Full Name / Business Representative</label>
+          <label className="block text-stone font-semibold">Username * (ชื่อผู้ใช้)</label>
           <input
             type="text"
             required
-            value={fullName}
-            onChange={e => setFullName(e.target.value)}
-            placeholder="Somchai Studio Lux"
+            minLength={3}
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            placeholder="somchai_studio"
             className="w-full bg-bg-secondary border border-border-subtle rounded p-2.5 text-white focus:outline-none focus:border-gold"
           />
         </div>
 
         <div className="space-y-1 text-xs">
-          <label className="block text-stone font-semibold">Phone Number</label>
-          <input
-            type="text"
-            value={phone}
-            onChange={e => setPhone(e.target.value)}
-            placeholder="081-234-5678"
-            className="w-full bg-bg-secondary border border-border-subtle rounded p-2.5 text-white focus:outline-none focus:border-gold"
-          />
-        </div>
-
-        <div className="space-y-1 text-xs">
-          <label className="block text-stone font-semibold">Email Address *</label>
+          <label className="block text-stone font-semibold">Email Address * (อีเมล)</label>
           <input
             type="email"
             required
@@ -102,7 +103,18 @@ export default function RegisterPage() {
         </div>
 
         <div className="space-y-1 text-xs">
-          <label className="block text-stone font-semibold">Password * (at least 8 characters / อย่างน้อย 8 ตัวอักษร)</label>
+          <label className="block text-stone font-semibold">Phone Number (เบอร์โทรศัพท์)</label>
+          <input
+            type="text"
+            value={phone}
+            onChange={e => setPhone(e.target.value)}
+            placeholder="081-234-5678"
+            className="w-full bg-bg-secondary border border-border-subtle rounded p-2.5 text-white focus:outline-none focus:border-gold"
+          />
+        </div>
+
+        <div className="space-y-1 text-xs">
+          <label className="block text-stone font-semibold">Password * (รหัสผ่านอย่างน้อย 8 ตัวอักษร)</label>
           <input
             type="password"
             required
@@ -114,7 +126,7 @@ export default function RegisterPage() {
           />
         </div>
 
-        <Button type="submit" variant="gold" size="lg" className="w-full" disabled={isSubmitting || password.length < 8}>
+        <Button type="submit" variant="gold" size="lg" className="w-full" disabled={isSubmitting || username.length < 3 || password.length < 8}>
           <UserPlus className="w-4 h-4 mr-2" />
           {isSubmitting ? 'Creating Account...' : t.nav.register}
         </Button>
