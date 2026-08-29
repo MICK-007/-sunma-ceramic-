@@ -12,12 +12,22 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export const authenticateUser = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  // 1. Read Access Token from HttpOnly Cookie FIRST
+  let token = req.cookies?.sunma_access_token;
+
+  // 2. Fallback to Authorization Bearer header
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    }
+  }
+
+  if (!token) {
     return res.status(401).json({ success: false, message: 'Authentication required. Please log in.' });
   }
 
-  const token = authHeader.split(' ')[1];
+  // 3. Stateless Access Token verification (0 DB queries per request for maximum performance)
   try {
     const decoded = jwt.verify(token, config.jwtSecret, { algorithms: ['HS256'] }) as {
       sub?: string;
@@ -52,9 +62,15 @@ export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: Nex
 };
 
 export const optionalUser = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
+  let token = req.cookies?.sunma_access_token;
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    }
+  }
+
+  if (token) {
     try {
       const decoded = jwt.verify(token, config.jwtSecret, { algorithms: ['HS256'] }) as {
         sub?: string;

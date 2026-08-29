@@ -1,7 +1,10 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import { config } from './config';
 import { errorHandler } from './middleware/error';
+import { csrfProtection } from './middleware/csrf';
 
 import authRoutes from './routes/auth.routes';
 import productRoutes from './routes/product.routes';
@@ -16,13 +19,41 @@ import adminRoutes from './routes/admin.routes';
 
 const app = express();
 
-// Middlewares
+// Security Headers via Helmet
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
+
+// Cookie Parser Middleware
+app.use(cookieParser());
+
+// Strict Explicit CORS Allowlist (No Wildcards with credentials)
+const ALLOWED_ORIGINS = [
+  'https://sunma-ceramic.vercel.app',
+  'http://localhost:3000',
+  config.frontendUrl,
+].map(url => url.toLowerCase().replace(/\/$/, ''));
+
 app.use(cors({
-  origin: '*',
+  origin: (origin, callback) => {
+    // Allow non-browser requests (Postman, curl, internal calls)
+    if (!origin) return callback(null, true);
+
+    const parsedOrigin = origin.toLowerCase().replace(/\/$/, '');
+    if (ALLOWED_ORIGINS.includes(parsedOrigin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error(`CORS policy error: Origin ${origin} is not allowed.`));
+    }
+  },
   credentials: true,
 }));
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Double Submit CSRF Protection Middleware
+app.use(csrfProtection);
 
 // Healthcheck
 app.get('/api/health', (req, res) => {
