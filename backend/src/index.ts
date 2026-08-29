@@ -21,6 +21,7 @@ import adminRoutes from './routes/admin.routes';
 export { apiLimiter, authLimiter, refreshLimiter, orderLimiter };
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Render / Vercel load balancers) so express-rate-limit reads actual client IP
 
 // 1. Safe Security Headers via Helmet (Explicit Origin Allowlist for Unsplash, Google Fonts, Supabase)
 app.use(
