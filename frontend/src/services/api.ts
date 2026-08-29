@@ -1,3 +1,4 @@
+// API Service Client for SUNMA CERAMIC E-Commerce Platform (Updated: August 2026)
 const getApiBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
