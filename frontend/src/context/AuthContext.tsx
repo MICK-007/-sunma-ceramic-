@@ -6,6 +6,7 @@ import { api } from '../services/api';
 export interface User {
   id: string;
   email: string;
+  username?: string;
   fullName: string;
   phone?: string;
   role: 'USER' | 'ADMIN';
@@ -16,69 +17,45 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
-  register: (email: string, password: string, fullName?: string, phone?: string) => Promise<{ success: boolean; message?: string }>;
+  login: (identifier: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  register: (email: string, password: string, fullName?: string, phone?: string, username?: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const DEFAULT_USERS = [
-  {
-    email: 'admin@sunma.com',
-    password: 'admin1234',
-    fullName: 'SUNMA Executive Admin',
-    phone: '02-800-9999',
-    role: 'ADMIN' as const,
-  },
-  {
-    email: 'architect@studio-lux.com',
-    password: 'password123',
-    fullName: 'Somchai Studio Lux',
-    phone: '081-234-5678',
-    role: 'USER' as const,
-  },
-];
-
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Load persistent registered users from localStorage
-  const getRegisteredUsers = () => {
-    if (typeof window === 'undefined') return DEFAULT_USERS;
-    const stored = localStorage.getItem('sunma_registered_users');
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {}
-    }
-    localStorage.setItem('sunma_registered_users', JSON.stringify(DEFAULT_USERS));
-    return DEFAULT_USERS;
-  };
-
   useEffect(() => {
-    const storedToken = localStorage.getItem('sunma_auth_token');
-    const storedUser = localStorage.getItem('sunma_auth_user');
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem('sunma_auth_token');
+      const storedUser = localStorage.getItem('sunma_auth_user');
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error('Error parsing cached user:', e);
+      if (storedToken && storedUser) {
+        setToken(storedToken);
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (e) {
+          console.error('Error parsing stored user:', e);
+          localStorage.removeItem('sunma_auth_token');
+          localStorage.removeItem('sunma_auth_user');
+        }
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (identifier: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await api.login(email, password);
-      if (res.success && res.token) {
+      const res = await api.login(identifier, password);
+      if (res.success && res.token && res.user) {
         setToken(res.token);
         setUser(res.user);
         localStorage.setItem('sunma_auth_token', res.token);
@@ -86,48 +63,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { success: true };
       }
 
-      // If backend explicitly returned a message (e.g. Account not found or Invalid password), return it directly!
-      if (res.message) {
-        return { success: false, message: res.message };
-      }
-
-      // Offline / Local Storage Fallback Check
-      const registered = getRegisteredUsers();
-      const cleanInput = email.trim().toLowerCase();
-      const match = registered.find(
-        (u: any) =>
-          u.email.toLowerCase() === cleanInput ||
-          (u.fullName && u.fullName.toLowerCase() === cleanInput)
-      );
-
-      if (!match) {
-        return {
-          success: false,
-          message: 'ไม่พบบัญชีผู้ใช้นี้ในระบบ กรุณาตรวจสอบชื่อผู้ใช้/อีเมล หรือสมัครสมาชิกใหม่',
-        };
-      }
-
-      // Enforce strict password checking
-      if (match.password && match.password !== password) {
-        return {
-          success: false,
-          message: 'รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง',
-        };
-      }
-
-      const mockUser: User = {
-        id: match.id || 'user-' + Date.now(),
-        email: match.email,
-        fullName: match.fullName || match.email.split('@')[0],
-        phone: match.phone || '',
-        role: match.role || (match.email.includes('admin') ? 'ADMIN' : 'USER'),
+      return {
+        success: false,
+        message: res.message || 'อีเมล/ชื่อผู้ใช้ หรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง',
       };
-      const mockToken = 'auth-token-' + Date.now();
-      setToken(mockToken);
-      setUser(mockUser);
-      localStorage.setItem('sunma_auth_token', mockToken);
-      localStorage.setItem('sunma_auth_user', JSON.stringify(mockUser));
-      return { success: true };
     } catch (err: any) {
       return { success: false, message: err.message || 'Server error during login.' };
     } finally {
@@ -135,35 +74,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const register = async (email: string, password: string, fullName?: string, phone?: string) => {
+  const register = async (email: string, password: string, fullName?: string, phone?: string, username?: string) => {
     setIsLoading(true);
     try {
-      // 1. Send registration request to Backend & Supabase Database first
-      const res = await api.register(email, password, fullName, phone);
+      const res = await api.register(email, password, fullName, phone, username);
 
-      if (res.message && !res.success) {
-        return { success: false, message: res.message };
-      }
-
-      const registered = getRegisteredUsers();
-      const cleanEmail = email.trim().toLowerCase();
-      const cleanName = (fullName || cleanEmail.split('@')[0]).trim();
-
-      const newUser = {
-        id: res.user?.id || `user-${Date.now()}`,
-        email: cleanEmail,
-        password,
-        fullName: cleanName,
-        phone: phone || '',
-        role: cleanEmail.includes('admin') ? ('ADMIN' as const) : ('USER' as const),
-      };
-
-      // Save to registered storage for fallback, but require user to log in explicitly via /login
-      const updatedList = registered.filter((u: any) => u.email.toLowerCase() !== cleanEmail);
-      updatedList.push(newUser);
-
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('sunma_registered_users', JSON.stringify(updatedList));
+      if (!res.success) {
+        return { success: false, message: res.message || 'Registration failed.' };
       }
 
       return { success: true };

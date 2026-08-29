@@ -1,12 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
-import { store } from '../repositories/store';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
-    email: string;
+    email?: string;
     role: 'USER' | 'ADMIN';
     fullName?: string;
   };
@@ -20,36 +19,36 @@ export const authenticateUser = (req: AuthenticatedRequest, res: Response, next:
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, config.jwtSecret) as any;
+    const decoded = jwt.verify(token, config.jwtSecret, { algorithms: ['HS256'] }) as {
+      sub?: string;
+      id?: string;
+      email?: string;
+      role?: 'USER' | 'ADMIN';
+      fullName?: string;
+    };
+
+    const userId = decoded.sub || decoded.id;
+    if (!userId || !decoded.role) {
+      return res.status(401).json({ success: false, message: 'Invalid token payload structure.' });
+    }
+
     req.user = {
-      id: decoded.id,
-      email: decoded.email,
+      id: userId,
+      email: decoded.email || '',
       role: decoded.role,
       fullName: decoded.fullName,
     };
-    next();
-  } catch (error) {
-    // Check if token matches mock test token
-    if (token === 'admin-token-secret-2026') {
-      req.user = {
-        id: 'user-admin',
-        email: 'admin@sunmaceramic.com',
-        role: 'ADMIN',
-        fullName: 'SUNMA Administrator',
-      };
-      return next();
-    } else if (token === 'user-token-secret-2026') {
-      req.user = {
-        id: 'user-architect',
-        email: 'architect@studio-lux.com',
-        role: 'USER',
-        fullName: 'Somchai Studio Lux',
-      };
-      return next();
-    }
-
+    return next();
+  } catch (error: any) {
     return res.status(401).json({ success: false, message: 'Invalid or expired session token.' });
   }
+};
+
+export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  if (!req.user || req.user.role !== 'ADMIN') {
+    return res.status(403).json({ success: false, message: 'Access denied. Administrator privileges required.' });
+  }
+  next();
 };
 
 export const optionalUser = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -57,19 +56,25 @@ export const optionalUser = (req: AuthenticatedRequest, res: Response, next: Nex
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1];
     try {
-      const decoded = jwt.verify(token, config.jwtSecret) as any;
-      req.user = {
-        id: decoded.id,
-        email: decoded.email,
-        role: decoded.role,
-        fullName: decoded.fullName,
+      const decoded = jwt.verify(token, config.jwtSecret, { algorithms: ['HS256'] }) as {
+        sub?: string;
+        id?: string;
+        email?: string;
+        role?: 'USER' | 'ADMIN';
+        fullName?: string;
       };
-    } catch {
-      if (token === 'admin-token-secret-2026') {
-        req.user = { id: 'user-admin', email: 'admin@sunmaceramic.com', role: 'ADMIN' };
-      } else if (token === 'user-token-secret-2026') {
-        req.user = { id: 'user-architect', email: 'architect@studio-lux.com', role: 'USER' };
+
+      const userId = decoded.sub || decoded.id;
+      if (userId && decoded.role) {
+        req.user = {
+          id: userId,
+          email: decoded.email || '',
+          role: decoded.role,
+          fullName: decoded.fullName,
+        };
       }
+    } catch {
+      // Ignore invalid token on optional route
     }
   }
   next();

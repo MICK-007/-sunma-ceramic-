@@ -22,6 +22,8 @@ export const profiles = pgTable('profiles', {
   id: uuid('id').primaryKey().defaultRandom(),
   supabaseAuthId: varchar('supabase_auth_id', { length: 255 }).unique(),
   email: varchar('email', { length: 255 }).notNull().unique(),
+  username: varchar('username', { length: 100 }).unique(),
+  passwordHash: text('password_hash'),
   fullName: varchar('full_name', { length: 255 }),
   phone: varchar('phone', { length: 50 }),
   role: userRoleEnum('role').default('USER').notNull(),
@@ -263,4 +265,30 @@ export const roomAreas = pgTable('room_areas', {
   areaType: areaTypeEnum('area_type').notNull(),
   maskSvgPolygon: text('mask_svg_polygon').notNull(), // SVG polygon coordinates string e.g. "0,700 1200,700 1200,900 0,900"
   defaultTileAspectRatio: varchar('default_tile_aspect_ratio', { length: 50 }).default('1:1'),
+});
+
+// Sessions Table
+export const sessions = pgTable('sessions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
+  jti: uuid('jti').notNull().unique(),
+  refreshTokenHash: text('refresh_token_hash').notNull(),
+  ipAddress: varchar('ip_address', { length: 45 }),
+  userAgent: text('user_agent'),
+  expiresAt: timestamp('expires_at').notNull(),
+  revokedAt: timestamp('revoked_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  lastUsedAt: timestamp('last_used_at').defaultNow().notNull(),
+});
+
+// Security Audit Events Table
+export const securityEvents = pgTable('security_events', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => profiles.id, { onDelete: 'set null' }),
+  eventType: varchar('event_type', { length: 100 }).notNull(),
+  details: jsonb('details'),
+  ipAddress: varchar('ip_address', { length: 45 }),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });

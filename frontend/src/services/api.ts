@@ -50,11 +50,11 @@ export const api = {
     });
   },
 
-  async register(email: string, password: string, fullName?: string, phone?: string) {
+  async register(email: string, password: string, fullName?: string, phone?: string, username?: string) {
     return safeFetch(`${getApiBaseUrl()}/auth/register`, {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({ email, password, fullName, phone }),
+      body: JSON.stringify({ email, password, fullName, phone, username }),
     });
   },
 
