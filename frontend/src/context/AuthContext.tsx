@@ -161,28 +161,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const register = async (email: string, password: string, fullName?: string, phone?: string) => {
     setIsLoading(true);
     try {
-      const registered = getRegisteredUsers();
-      const existing = registered.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
-      if (existing) {
-        return {
-          success: false,
-          message: 'อีเมลนี้ถูกลงทะเบียนไว้แล้ว กรุณาใช้รหัสผ่านเพื่อเข้าสู่ระบบ',
-        };
-      }
-
+      // 1. Send registration request to Backend & Supabase Database first
       const res = await api.register(email, password, fullName, phone);
 
+      if (res.message && !res.success) {
+        return { success: false, message: res.message };
+      }
+
+      const registered = getRegisteredUsers();
+      const cleanEmail = email.trim().toLowerCase();
+      const cleanName = (fullName || cleanEmail.split('@')[0]).trim();
+
       const newUser = {
-        id: `user-${Date.now()}`,
-        email,
+        id: res.user?.id || `user-${Date.now()}`,
+        email: cleanEmail,
         password,
-        fullName: fullName || email.split('@')[0],
+        fullName: cleanName,
         phone: phone || '',
-        role: email.toLowerCase().includes('admin') ? ('ADMIN' as const) : ('USER' as const),
+        role: cleanEmail.includes('admin') ? ('ADMIN' as const) : ('USER' as const),
       };
 
-      // Save to registered DB
-      const updatedList = [...registered, newUser];
+      // Filter out any stale local record with the same email and update local list
+      const updatedList = registered.filter((u: any) => u.email.toLowerCase() !== cleanEmail);
+      updatedList.push(newUser);
+
       if (typeof window !== 'undefined') {
         localStorage.setItem('sunma_registered_users', JSON.stringify(updatedList));
       }
