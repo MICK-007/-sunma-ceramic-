@@ -67,14 +67,16 @@ export const addToWishlist = async (req: AuthenticatedRequest, res: Response) =>
         wishlistId = wishlistRows[0].id;
       }
 
-      // 2. Insert item into wishlist_items if not already present
+      // 2. Insert item into wishlist_items safely using WHERE NOT EXISTS
       await sql`
         INSERT INTO wishlist_items (wishlist_id, product_id)
-        VALUES (${wishlistId}, ${productId})
-        ON CONFLICT DO NOTHING;
+        SELECT ${wishlistId}, ${productId}::uuid
+        WHERE NOT EXISTS (
+          SELECT 1 FROM wishlist_items WHERE wishlist_id = ${wishlistId} AND product_id = ${productId}::uuid
+        );
       `;
 
-      // 3. Return updated productIds
+      // 3. Return updated productIds for this user
       const updatedRows = await sql`
         SELECT product_id as "productId" FROM wishlist_items WHERE wishlist_id = ${wishlistId};
       `;
@@ -111,7 +113,7 @@ export const removeFromWishlist = async (req: AuthenticatedRequest, res: Respons
       await sql`
         DELETE FROM wishlist_items
         WHERE wishlist_id IN (SELECT id FROM wishlists WHERE user_id = ${userId})
-          AND product_id = ${productId};
+          AND product_id = ${productId}::uuid;
       `;
 
       const updatedRows = await sql`
