@@ -4,11 +4,14 @@ import { AuthenticatedRequest } from '../middleware/auth';
 import { Order, OrderItem } from '../types';
 
 export const createOrder = (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user) {
+  if (!req.user || !req.user.id) {
     return res.status(401).json({ success: false, message: 'Authentication required to complete order.' });
   }
 
+  // 1. User Identity derived EXCLUSIVELY from server-verified req.user.id
   const userId = req.user.id;
+
+  // 2. Explicit Field Destructuring (Mass Assignment Prevention)
   const {
     items,
     shippingAddress,
@@ -61,7 +64,6 @@ export const createOrder = (req: AuthenticatedRequest, res: Response) => {
       thumbnail: product.thumbnail,
     });
 
-    // Decrement inventory in pieces
     product.stockPieces -= item.quantity;
   }
 
@@ -74,7 +76,7 @@ export const createOrder = (req: AuthenticatedRequest, res: Response) => {
   const newOrder: Order = {
     id: `ord-${Date.now()}`,
     orderNumber,
-    userId,
+    userId, // Strictly user.id
     userEmail: req.user.email,
     status: 'Pending',
     totalAmount,
@@ -110,18 +112,19 @@ export const createOrder = (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const getUserOrders = (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user) {
+  if (!req.user || !req.user.id) {
     return res.status(401).json({ success: false, message: 'Authentication required.' });
   }
 
   const userId = req.user.id;
-  const userOrders = store.orders.filter(o => o.userId === userId || o.userEmail === req.user?.email);
+  // Filter strictly by req.user.id
+  const userOrders = store.orders.filter(o => o.userId === userId || (req.user?.email && o.userEmail === req.user.email));
 
   return res.json({ success: true, data: userOrders });
 };
 
 export const getOrderById = (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user) {
+  if (!req.user || !req.user.id) {
     return res.status(401).json({ success: false, message: 'Authentication required.' });
   }
 
@@ -132,9 +135,15 @@ export const getOrderById = (req: AuthenticatedRequest, res: Response) => {
     return res.status(404).json({ success: false, message: 'Order not found.' });
   }
 
-  // Ensure user owns order or is admin
-  if (req.user.role !== 'ADMIN' && order.userId !== req.user.id && order.userEmail !== req.user.email) {
-    return res.status(403).json({ success: false, message: 'Access denied.' });
+  // IDOR Protection: Ensure user owns order or is ADMIN
+  const isOwner = order.userId === req.user.id || (req.user.email && order.userEmail === req.user.email);
+  const isAdmin = req.user.role === 'ADMIN';
+
+  if (!isOwner && !isAdmin) {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. You do not have permission to access this order.',
+    });
   }
 
   return res.json({ success: true, data: order });

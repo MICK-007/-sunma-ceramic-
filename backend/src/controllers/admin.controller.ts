@@ -45,49 +45,56 @@ export const getAdminProducts = (req: Request, res: Response) => {
 };
 
 export const createAdminProduct = (req: Request, res: Response) => {
-  const data = req.body;
-  if (!data.name || !data.productCode || !data.categoryId || !data.pricePerPiece) {
+  // Explicit Field Destructuring (Mass Assignment Prevention)
+  const {
+    name, nameTh, productCode, slug, description, descriptionTh, shortDescription, shortDescriptionTh,
+    categoryId, brandId, thumbnail, images, size, width, height, thickness, material, surface, color,
+    pattern, indoorOutdoor, countryOfOrigin, piecesPerBox, coveragePerBox, weightPerBox, pricePerPiece,
+    pricePerBox, stockPieces, status, featured
+  } = req.body;
+
+  if (!name || !productCode || !categoryId || !pricePerPiece) {
     return res.status(400).json({ success: false, message: 'Missing required product parameters.' });
   }
 
-  const category = store.categories.find(c => c.id === data.categoryId);
-  const brand = store.brands.find(b => b.id === data.brandId);
+  const category = store.categories.find(c => c.id === categoryId);
+  const brand = store.brands.find(b => b.id === brandId);
 
   const newProduct: Product = {
     id: `prod-${Date.now()}`,
-    productCode: data.productCode,
-    name: data.name,
-    nameTh: data.nameTh || data.name,
-    slug: data.slug || data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-    description: data.description || '',
-    descriptionTh: data.descriptionTh || '',
-    shortDescription: data.shortDescription || '',
-    shortDescriptionTh: data.shortDescriptionTh || '',
-    categoryId: data.categoryId,
+    productCode,
+    name,
+    nameTh: nameTh || name,
+    slug: slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    description: description || '',
+    descriptionTh: descriptionTh || '',
+    shortDescription: shortDescription || '',
+    shortDescriptionTh: shortDescriptionTh || '',
+    categoryId,
     categoryName: category?.name || 'General',
-    brandId: data.brandId,
+    brandId,
     brandName: brand?.name || 'SUNMA Atelier',
-    thumbnail: data.thumbnail || 'https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=1000&q=80',
-    images: data.images || ['https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=1000&q=80'],
-    size: data.size || '60x60',
-    width: data.width || 60,
-    height: data.height || 60,
-    thickness: data.thickness || 10,
-    material: data.material || 'Porcelain',
-    surface: data.surface || 'Matt',
-    color: data.color || 'Stone',
-    pattern: data.pattern || 'Marble',
-    indoorOutdoor: data.indoorOutdoor || 'Indoor',
-    countryOfOrigin: data.countryOfOrigin || 'Thailand',
-    piecesPerBox: Number(data.piecesPerBox) || 4,
-    coveragePerBox: Number(data.coveragePerBox) || 1.44,
-    weightPerBox: Number(data.weightPerBox) || 30.0,
-    pricePerPiece: Number(data.pricePerPiece),
-    pricePerBox: Number(data.pricePerBox) || Number(data.pricePerPiece) * (Number(data.piecesPerBox) || 4),
-    stockPieces: Number(data.stockPieces) || 100,
+    thumbnail: thumbnail || 'https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=1000&q=80',
+    images: images || ['https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=1000&q=80'],
+    size: size || '60x60',
+    width: width || 60,
+    height: height || 60,
+    thickness: thickness || 10,
+    material: material || 'Porcelain',
+    surface: surface || 'Matt',
+    color: color || 'Stone',
+    pattern: pattern || 'Marble',
+    indoorOutdoor: indoorOutdoor || 'Indoor',
+    countryOfOrigin: countryOfOrigin || 'Thailand',
+    piecesPerBox: Number(piecesPerBox) || 4,
+    coveragePerBox: Number(coveragePerBox) || 1.44,
+    weightPerBox: Number(weightPerBox) || 30.0,
+    pricePerPiece: Number(pricePerPiece),
+    pricePerBox: Number(pricePerBox) || Number(pricePerPiece) * (Number(piecesPerBox) || 4),
+    stockPieces: Number(stockPieces) || 100,
     minimumOrderQuantity: 1,
-    status: data.status || 'PUBLISHED',
-    featured: !!data.featured,
+    status: status || 'PUBLISHED',
+    featured: !!featured,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -105,9 +112,50 @@ export const updateAdminProduct = (req: Request, res: Response) => {
   }
 
   const existing = store.products[index];
+  const {
+    name, nameTh, productCode, slug, description, descriptionTh, shortDescription, shortDescriptionTh,
+    categoryId, brandId, thumbnail, images, size, width, height, thickness, material, surface, color,
+    pattern, indoorOutdoor, countryOfOrigin, piecesPerBox, coveragePerBox, weightPerBox, pricePerPiece,
+    pricePerBox, stockPieces, status, featured
+  } = req.body;
+
+  const category = categoryId ? store.categories.find(c => c.id === categoryId) : null;
+  const brand = brandId ? store.brands.find(b => b.id === brandId) : null;
+
   const updatedProduct: Product = {
     ...existing,
-    ...req.body,
+    name: name !== undefined ? name : existing.name,
+    nameTh: nameTh !== undefined ? nameTh : existing.nameTh,
+    productCode: productCode !== undefined ? productCode : existing.productCode,
+    slug: slug !== undefined ? slug : existing.slug,
+    description: description !== undefined ? description : existing.description,
+    descriptionTh: descriptionTh !== undefined ? descriptionTh : existing.descriptionTh,
+    shortDescription: shortDescription !== undefined ? shortDescription : existing.shortDescription,
+    shortDescriptionTh: shortDescriptionTh !== undefined ? shortDescriptionTh : existing.shortDescriptionTh,
+    categoryId: categoryId !== undefined ? categoryId : existing.categoryId,
+    categoryName: category ? category.name : existing.categoryName,
+    brandId: brandId !== undefined ? brandId : existing.brandId,
+    brandName: brand ? brand.name : existing.brandName,
+    thumbnail: thumbnail !== undefined ? thumbnail : existing.thumbnail,
+    images: images !== undefined ? images : existing.images,
+    size: size !== undefined ? size : existing.size,
+    width: width !== undefined ? Number(width) : existing.width,
+    height: height !== undefined ? Number(height) : existing.height,
+    thickness: thickness !== undefined ? Number(thickness) : existing.thickness,
+    material: material !== undefined ? material : existing.material,
+    surface: surface !== undefined ? surface : existing.surface,
+    color: color !== undefined ? color : existing.color,
+    pattern: pattern !== undefined ? pattern : existing.pattern,
+    indoorOutdoor: indoorOutdoor !== undefined ? indoorOutdoor : existing.indoorOutdoor,
+    countryOfOrigin: countryOfOrigin !== undefined ? countryOfOrigin : existing.countryOfOrigin,
+    piecesPerBox: piecesPerBox !== undefined ? Number(piecesPerBox) : existing.piecesPerBox,
+    coveragePerBox: coveragePerBox !== undefined ? Number(coveragePerBox) : existing.coveragePerBox,
+    weightPerBox: weightPerBox !== undefined ? Number(weightPerBox) : existing.weightPerBox,
+    pricePerPiece: pricePerPiece !== undefined ? Number(pricePerPiece) : existing.pricePerPiece,
+    pricePerBox: pricePerBox !== undefined ? Number(pricePerBox) : existing.pricePerBox,
+    stockPieces: stockPieces !== undefined ? Number(stockPieces) : existing.stockPieces,
+    status: status !== undefined ? status : existing.status,
+    featured: featured !== undefined ? !!featured : existing.featured,
     updatedAt: new Date().toISOString(),
   };
 
@@ -152,9 +200,14 @@ export const getAdminCustomers = (req: Request, res: Response) => {
     const userOrders = store.orders.filter(o => o.userId === u.id || o.userEmail === u.email);
     const totalSpent = userOrders.reduce((sum, o) => sum + o.totalAmount, 0);
     return {
-      ...u,
+      id: u.id,
+      email: u.email,
+      fullName: u.fullName,
+      phone: u.phone,
+      role: u.role,
       ordersCount: userOrders.length,
       totalSpent,
+      createdAt: u.createdAt,
     };
   });
   return res.json({ success: true, data: customers });
@@ -182,12 +235,18 @@ export const getAdminPromotions = (req: Request, res: Response) => {
 };
 
 export const createAdminPromotion = (req: Request, res: Response) => {
-  const { name, discountPercentage, startDate, endDate, isActive, minQuantity, categoryIds } = req.body;
+  const { code, title, description, discountPercentage, discountAmount, minPurchaseAmount, maxDiscountAmount, startDate, endDate, isActive, minQuantity, categoryIds } = req.body;
 
   const newPromo: Promotion = {
     id: `promo-${Date.now()}`,
-    name,
-    discountPercentage: Number(discountPercentage),
+    code: code || `PROMO-${Date.now()}`,
+    name: title || 'Promotion',
+    title: title || 'Special Offer',
+    description: description || '',
+    discountPercentage: Number(discountPercentage) || 0,
+    discountAmount: Number(discountAmount) || 0,
+    minPurchaseAmount: Number(minPurchaseAmount) || 0,
+    maxDiscountAmount: Number(maxDiscountAmount) || 0,
     startDate: startDate || new Date().toISOString(),
     endDate: endDate || new Date(Date.now() + 30 * 86400000).toISOString(),
     isActive: isActive !== undefined ? !!isActive : true,
@@ -207,9 +266,23 @@ export const updateAdminPromotion = (req: Request, res: Response) => {
     return res.status(404).json({ success: false, message: 'Promotion not found.' });
   }
 
+  const existing = store.promotions[index];
+  const { code, title, description, discountPercentage, discountAmount, minPurchaseAmount, maxDiscountAmount, startDate, endDate, isActive, minQuantity, categoryIds } = req.body;
+
   store.promotions[index] = {
-    ...store.promotions[index],
-    ...req.body,
+    ...existing,
+    code: code !== undefined ? code : existing.code,
+    title: title !== undefined ? title : existing.title,
+    description: description !== undefined ? description : existing.description,
+    discountPercentage: discountPercentage !== undefined ? Number(discountPercentage) : existing.discountPercentage,
+    discountAmount: discountAmount !== undefined ? Number(discountAmount) : existing.discountAmount,
+    minPurchaseAmount: minPurchaseAmount !== undefined ? Number(minPurchaseAmount) : existing.minPurchaseAmount,
+    maxDiscountAmount: maxDiscountAmount !== undefined ? Number(maxDiscountAmount) : existing.maxDiscountAmount,
+    startDate: startDate !== undefined ? startDate : existing.startDate,
+    endDate: endDate !== undefined ? endDate : existing.endDate,
+    isActive: isActive !== undefined ? !!isActive : existing.isActive,
+    minQuantity: minQuantity !== undefined ? Number(minQuantity) : existing.minQuantity,
+    categoryIds: categoryIds !== undefined ? categoryIds : existing.categoryIds,
   };
 
   return res.json({ success: true, message: 'Promotion updated.', data: store.promotions[index] });

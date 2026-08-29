@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
+import { getDbClient } from '../db';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -27,7 +28,7 @@ export const authenticateUser = (req: AuthenticatedRequest, res: Response, next:
     return res.status(401).json({ success: false, message: 'Authentication required. Please log in.' });
   }
 
-  // 3. Stateless Access Token verification (0 DB queries per request for maximum performance)
+  // 3. Stateless Access Token verification
   try {
     const decoded = jwt.verify(token, config.jwtSecret, { algorithms: ['HS256'] }) as {
       sub?: string;
@@ -54,10 +55,42 @@ export const authenticateUser = (req: AuthenticatedRequest, res: Response, next:
   }
 };
 
-export const requireAdmin = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  if (!req.user || req.user.role !== 'ADMIN') {
+// requireAdmin: Performs Real-Time Database Re-Verification to eliminate JWT role staleness
+export const requireAdmin = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ success: false, message: 'Authentication required.' });
+  }
+
+  // Real-Time DB Role Lookup
+  const sql = getDbClient();
+  if (sql) {
+    try {
+      const rows = await sql`
+        SELECT role FROM profiles WHERE id = ${req.user.id} LIMIT 1
+      `;
+      await sql.end();
+
+      if (!rows || rows.length === 0 || rows[0].role !== 'ADMIN') {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Administrator privileges required.',
+        });
+      }
+
+      // Sync verified DB role
+      req.user.role = 'ADMIN';
+      return next();
+    } catch (err) {
+      console.error('Error during real-time admin role verification:', err);
+      if (sql) await sql.end().catch(() => {});
+    }
+  }
+
+  // Fallback check against req.user.role if DB query failed
+  if (req.user.role !== 'ADMIN') {
     return res.status(403).json({ success: false, message: 'Access denied. Administrator privileges required.' });
   }
+
   next();
 };
 

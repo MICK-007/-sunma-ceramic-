@@ -4,7 +4,12 @@ import { AuthenticatedRequest } from '../middleware/auth';
 import { Cart, CartItem } from '../types';
 
 export const getCart = (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user?.id || 'guest-session';
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ success: false, message: 'Authentication required to view cart.' });
+  }
+
+  // 1. Strict Identity from req.user.id (Ignores req.body.userId / req.query.userId)
+  const userId = req.user.id;
   let cart = store.carts.get(userId);
 
   if (!cart) {
@@ -23,7 +28,7 @@ export const getCart = (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const addToCart = (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user) {
+  if (!req.user || !req.user.id) {
     return res.status(401).json({
       success: false,
       message: 'Authentication required to add items to cart.',
@@ -31,8 +36,9 @@ export const addToCart = (req: AuthenticatedRequest, res: Response) => {
     });
   }
 
+  // 1. Explicit Field Destructuring (Mass Assignment & IDOR Prevention)
   const { productId, quantity = 1, variantId } = req.body;
-  const userId = req.user.id;
+  const userId = req.user.id; // Ignore req.body.userId
 
   const product = store.products.find(p => p.id === productId);
   if (!product) {
@@ -83,7 +89,6 @@ export const addToCart = (req: AuthenticatedRequest, res: Response) => {
     cart.items.push(newItem);
   }
 
-  // Recalculate subtotal
   cart.subtotal = cart.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
   cart.total = cart.subtotal;
   cart.updatedAt = new Date().toISOString();
@@ -94,7 +99,7 @@ export const addToCart = (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const updateCartItem = (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user) {
+  if (!req.user || !req.user.id) {
     return res.status(401).json({ success: false, message: 'Authentication required.' });
   }
 
@@ -136,7 +141,7 @@ export const updateCartItem = (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const removeCartItem = (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user) {
+  if (!req.user || !req.user.id) {
     return res.status(401).json({ success: false, message: 'Authentication required.' });
   }
 
@@ -159,7 +164,7 @@ export const removeCartItem = (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const clearCart = (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user) {
+  if (!req.user || !req.user.id) {
     return res.status(401).json({ success: false, message: 'Authentication required.' });
   }
 

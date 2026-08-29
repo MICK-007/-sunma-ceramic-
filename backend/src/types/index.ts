@@ -167,14 +167,21 @@ export interface Order {
 
 export interface Promotion {
   id: string;
+  code?: string;
   name: string;
+  title?: string;
+  description?: string;
   discountPercentage: number;
+  discountAmount?: number;
+  minPurchaseAmount?: number;
+  maxDiscountAmount?: number;
   startDate: string;
   endDate: string;
   isActive: boolean;
   minQuantity: number;
   productIds?: string[];
   categoryIds?: string[];
+  bannerUrl?: string;
 }
 
 export interface RoomArea {

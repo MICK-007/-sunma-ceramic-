@@ -3,10 +3,11 @@ import { store } from '../repositories/store';
 import { AuthenticatedRequest } from '../middleware/auth';
 
 export const getWishlist = (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user) {
-    return res.status(401).json({ success: false, message: 'Authentication required.' });
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ success: false, message: 'Authentication required to view wishlist.' });
   }
 
+  // Enforce ownership strictly via req.user.id
   const userId = req.user.id;
   const productIds = store.wishlists.get(userId) || [];
   const items = store.products.filter(p => productIds.includes(p.id));
@@ -15,12 +16,17 @@ export const getWishlist = (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const addToWishlist = (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user) {
+  if (!req.user || !req.user.id) {
     return res.status(401).json({ success: false, message: 'Authentication required.' });
   }
 
+  // Explicit Field Destructuring (Ignore req.body.userId)
   const { productId } = req.body;
   const userId = req.user.id;
+
+  if (!productId) {
+    return res.status(400).json({ success: false, message: 'Product ID is required.' });
+  }
 
   let productIds = store.wishlists.get(userId) || [];
   if (!productIds.includes(productId)) {
@@ -32,7 +38,7 @@ export const addToWishlist = (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const removeFromWishlist = (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user) {
+  if (!req.user || !req.user.id) {
     return res.status(401).json({ success: false, message: 'Authentication required.' });
   }
 
