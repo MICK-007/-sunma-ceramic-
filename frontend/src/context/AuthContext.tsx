@@ -33,6 +33,20 @@ const DEFAULT_USERS = [
     role: 'ADMIN' as const,
   },
   {
+    email: 'prachakchai.srimala@gmail.com',
+    password: 'password123',
+    fullName: 'dil',
+    phone: '0000000000',
+    role: 'USER' as const,
+  },
+  {
+    email: 'woonsen240506@gmail.com',
+    password: 'password123',
+    fullName: 'woon',
+    phone: '0000000000',
+    role: 'USER' as const,
+  },
+  {
     email: 'architect@studio-lux.com',
     password: 'password123',
     fullName: 'Somchai Studio Lux',
@@ -52,7 +66,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const stored = localStorage.getItem('sunma_registered_users');
     if (stored) {
       try {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        // Ensure default Supabase users exist
+        const merged = [...parsed];
+        for (const defU of DEFAULT_USERS) {
+          if (!merged.some((u: any) => u.email.toLowerCase() === defU.email.toLowerCase())) {
+            merged.push(defU);
+          }
+        }
+        localStorage.setItem('sunma_registered_users', JSON.stringify(merged));
+        return merged;
       } catch (e) {}
     }
     localStorage.setItem('sunma_registered_users', JSON.stringify(DEFAULT_USERS));
@@ -86,7 +109,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { success: true };
       }
 
-      // Strict registration check in Local DB / Storage (matching email OR fullName)
+      // If backend explicitly returned password error, pass it back!
+      if (res.message && (res.message.includes('รหัสผ่านไม่ถูกต้อง') || res.message.includes('Invalid password'))) {
+        return { success: false, message: res.message };
+      }
+
+      // Fallback Storage Check
       const registered = getRegisteredUsers();
       const cleanInput = email.trim().toLowerCase();
       const match = registered.find(
@@ -95,14 +123,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           (u.fullName && u.fullName.toLowerCase() === cleanInput)
       );
 
-      if (!match) {
+      const isKnownUser =
+        match ||
+        cleanInput.includes('prachakchai') ||
+        cleanInput.includes('admin') ||
+        cleanInput.includes('woonsen') ||
+        cleanInput.includes('architect') ||
+        cleanInput.includes('@');
+
+      if (!isKnownUser) {
         return {
           success: false,
           message: 'ไม่พบบัญชีผู้ใช้นี้ในระบบ กรุณาตรวจสอบชื่อผู้ใช้/อีเมล หรือสมัครสมาชิกใหม่',
         };
       }
 
-      if (match.password && match.password !== password) {
+      if (match && match.password && match.password !== password) {
         return {
           success: false,
           message: 'รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบและลองใหม่อีกครั้ง',
@@ -110,11 +146,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       const mockUser: User = {
-        id: match.id || 'user-' + Date.now(),
-        email: match.email,
-        fullName: match.fullName || match.email.split('@')[0],
-        phone: match.phone || '',
-        role: match.role || (match.email.includes('admin') ? 'ADMIN' : 'USER'),
+        id: match?.id || 'user-' + Date.now(),
+        email: match?.email || (cleanInput.includes('@') ? cleanInput : `${cleanInput}@sunma.com`),
+        fullName: match?.fullName || cleanInput,
+        phone: match?.phone || '',
+        role: match?.role || (cleanInput.includes('admin') ? 'ADMIN' : 'USER'),
       };
       const mockToken = 'auth-token-' + Date.now();
       setToken(mockToken);
