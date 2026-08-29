@@ -1,16 +1,19 @@
 import { z } from 'zod';
 
-export const loginSchema = z.object({
-  identifier: z
-    .string({ required_error: 'Username or email is required.' })
-    .min(1, 'Username or email cannot be empty.')
-    .max(255, 'Identifier length must not exceed 255 characters.')
-    .trim(),
-  password: z
-    .string({ required_error: 'Password is required.' })
-    .min(1, 'Password cannot be empty.')
-    .max(100, 'Password length must not exceed 100 characters.'),
-});
+export const loginSchema = z
+  .object({
+    identifier: z.string().max(255).trim().optional(),
+    email: z.string().max(255).trim().optional(),
+    username: z.string().max(255).trim().optional(),
+    password: z
+      .string({ required_error: 'Password is required.' })
+      .min(1, 'Password cannot be empty.')
+      .max(100, 'Password length must not exceed 100 characters.'),
+  })
+  .refine(data => data.identifier || data.email || data.username, {
+    message: 'Username or email is required.',
+    path: ['identifier'],
+  });
 
 export const registerSchema = z.object({
   email: z
@@ -20,20 +23,20 @@ export const registerSchema = z.object({
     .toLowerCase()
     .trim(),
   username: z
-    .string({ required_error: 'Username is required.' })
-    .min(3, 'Username must be at least 3 characters.')
+    .string()
+    .min(2, 'Username must be at least 2 characters.')
     .max(100, 'Username must not exceed 100 characters.')
     .regex(/^[a-zA-Z0-9_.-]+$/, 'Username can only contain alphanumeric characters, underscores, hyphens, and dots.')
-    .trim(),
+    .trim()
+    .optional(),
   password: z
     .string({ required_error: 'Password is required.' })
     .min(8, 'Password must be at least 8 characters long.')
     .max(100, 'Password must not exceed 100 characters.'),
   fullName: z
-    .string({ required_error: 'Full name is required.' })
-    .min(2, 'Full name must be at least 2 characters.')
+    .string()
     .max(255, 'Full name must not exceed 255 characters.')
-    .trim(),
+    .optional(),
   phone: z
     .string()
     .max(50, 'Phone number must not exceed 50 characters.')
