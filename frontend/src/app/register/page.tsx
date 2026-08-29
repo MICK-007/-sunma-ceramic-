@@ -34,7 +34,7 @@ export default function RegisterPage() {
     setIsSubmitting(false);
 
     if (res.success) {
-      router.push('/shop');
+      router.push('/login?registered=success');
     } else {
       setErrorMsg(res.message || 'Registration failed.');
     }

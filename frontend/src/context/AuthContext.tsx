@@ -181,7 +181,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         role: cleanEmail.includes('admin') ? ('ADMIN' as const) : ('USER' as const),
       };
 
-      // Filter out any stale local record with the same email and update local list
+      // Save to registered storage for fallback, but require user to log in explicitly via /login
       const updatedList = registered.filter((u: any) => u.email.toLowerCase() !== cleanEmail);
       updatedList.push(newUser);
 
@@ -189,19 +189,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.setItem('sunma_registered_users', JSON.stringify(updatedList));
       }
 
-      const userState: User = {
-        id: newUser.id,
-        email: newUser.email,
-        fullName: newUser.fullName,
-        phone: newUser.phone,
-        role: newUser.role,
-      };
-
-      const userToken = res.token || 'reg-token-' + Date.now();
-      setToken(userToken);
-      setUser(userState);
-      localStorage.setItem('sunma_auth_token', userToken);
-      localStorage.setItem('sunma_auth_user', JSON.stringify(userState));
       return { success: true };
     } catch (err: any) {
       return { success: false, message: err.message || 'Server error during registration.' };

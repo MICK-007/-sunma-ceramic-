@@ -185,5 +185,6 @@ export const en = {
     invalidPassword: 'Invalid password. Please check your password and try again.',
     emailAlreadyExists: 'An account with this email already exists. Please log in.',
     requiredFields: 'Please complete all required fields.',
+    regSuccessNotice: 'Registration successful! Please log in with your account credentials.',
   },
 };

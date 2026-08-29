@@ -6,13 +6,14 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/Button';
-import { ShieldCheck, LogIn, AlertCircle } from 'lucide-react';
+import { ShieldCheck, LogIn, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/shop';
   const notice = searchParams.get('notice');
+  const registeredParam = searchParams.get('registered');
 
   const { login } = useAuth();
   const { t } = useLanguage();
@@ -63,6 +64,13 @@ function LoginContent() {
           {t.nav.login}
         </h1>
       </div>
+
+      {registeredParam === 'success' && (
+        <div className="p-3.5 bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 rounded text-xs font-semibold flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          {(t as any).auth?.regSuccessNotice || 'Registration successful! Please log in with your credentials.'}
+        </div>
+      )}
 
       {notice === 'cart' && (
         <div className="p-3 bg-gold/15 border border-gold/40 text-gold rounded text-xs font-semibold flex items-center gap-2">
