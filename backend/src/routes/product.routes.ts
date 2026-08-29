@@ -4,6 +4,7 @@ import { getProducts, getProductBySlug } from '../controllers/product.controller
 const router = Router();
 
 router.get('/', getProducts);
+router.get('/slug/:slug', getProductBySlug);
 router.get('/:slug', getProductBySlug);
 
 export default router;
