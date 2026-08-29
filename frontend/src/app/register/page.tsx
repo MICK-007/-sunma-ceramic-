@@ -27,6 +27,11 @@ export default function RegisterPage() {
       return;
     }
 
+    if (password.length < 8) {
+      setErrorMsg('รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร (Password must be at least 8 characters long.)');
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMsg('');
 
@@ -97,10 +102,11 @@ export default function RegisterPage() {
         </div>
 
         <div className="space-y-1 text-xs">
-          <label className="block text-stone font-semibold">Password *</label>
+          <label className="block text-stone font-semibold">Password * (at least 8 characters / อย่างน้อย 8 ตัวอักษร)</label>
           <input
             type="password"
             required
+            minLength={8}
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="••••••••"
@@ -108,7 +114,7 @@ export default function RegisterPage() {
           />
         </div>
 
-        <Button type="submit" variant="gold" size="lg" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" variant="gold" size="lg" className="w-full" disabled={isSubmitting || password.length < 8}>
           <UserPlus className="w-4 h-4 mr-2" />
           {isSubmitting ? 'Creating Account...' : t.nav.register}
         </Button>
