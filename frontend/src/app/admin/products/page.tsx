@@ -131,7 +131,7 @@ export default function AdminProductsPage() {
     const payload = {
       productCode,
       name,
-      nameTh,
+      nameTh: nameTh || name,
       categoryId,
       brandId,
       size,
@@ -144,13 +144,19 @@ export default function AdminProductsPage() {
       images: [thumbnail || '/images/tiles/calacatta-marble.jpeg'],
     };
 
+    let res;
     if (editingId) {
-      await api.updateAdminProduct(editingId, payload);
+      res = await api.updateAdminProduct(editingId, payload);
     } else {
-      await api.createAdminProduct(payload);
+      res = await api.createAdminProduct(payload);
     }
-    setModalOpen(false);
-    loadData();
+
+    if (res && res.success) {
+      setModalOpen(false);
+      await loadData();
+    } else {
+      alert(res?.message || 'Error saving product. Please verify required fields.');
+    }
   };
 
   const handleDelete = async (id: string) => {

@@ -67,9 +67,9 @@ app.use(
   })
 );
 
-// 4. Hardened Request Body Size Limit (1MB)
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ limit: '1mb', extended: true }));
+// 4. Expanded Request Body Size Limit for Admin Image Base64 Uploads (20MB)
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
 // 5. Apply general API rate limiter to all API endpoints
 app.use('/api', apiLimiter);
