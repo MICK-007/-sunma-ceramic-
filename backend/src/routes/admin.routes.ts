@@ -31,6 +31,7 @@ router.get('/dashboard', getDashboardStats);
 router.get('/products', getAdminProducts);
 router.post('/products', validateBody(createProductSchema), createAdminProduct);
 router.patch('/products/:id', validateBody(updateProductSchema), updateAdminProduct);
+router.put('/products/:id', validateBody(updateProductSchema), updateAdminProduct);
 router.delete('/products/:id', deleteAdminProduct);
 
 router.get('/orders', getAdminOrders);

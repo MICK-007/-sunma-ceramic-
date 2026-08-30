@@ -331,22 +331,26 @@ export const api = {
     });
   },
 
+  async getAdminProducts() {
+    return safeFetch(`${getApiBaseUrl()}/admin/products`);
+  },
+
   async createAdminProduct(data: any) {
-    return safeFetch(`${getApiBaseUrl()}/products`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/products`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
   },
 
   async updateAdminProduct(id: string, data: any) {
-    return safeFetch(`${getApiBaseUrl()}/products/${id}`, {
-      method: 'PUT',
+    return safeFetch(`${getApiBaseUrl()}/admin/products/${id}`, {
+      method: 'PATCH',
       body: JSON.stringify(data),
     });
   },
 
   async deleteAdminProduct(id: string) {
-    return safeFetch(`${getApiBaseUrl()}/products/${id}`, {
+    return safeFetch(`${getApiBaseUrl()}/admin/products/${id}`, {
       method: 'DELETE',
     });
   },
@@ -395,10 +399,6 @@ export const api = {
 
   async getAdminDashboard() {
     return safeFetch(`${getApiBaseUrl()}/admin/stats`);
-  },
-
-  async getAdminProducts() {
-    return safeFetch(`${getApiBaseUrl()}/products`);
   },
 
   async removeCartItem(itemId: string) {
