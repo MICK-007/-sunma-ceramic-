@@ -11,29 +11,31 @@ export const getWishlist = async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user.id;
   const sql = getDbClient();
 
+  let productIds: string[] = [];
+
   if (sql) {
     try {
       // Fetch wishlist items for this user from Supabase PostgreSQL
       const rows = await sql`
-        SELECT wi.product_id as "productId", p.id, p.name, p.slug, p.product_code as "productCode",
-               p.price_per_piece as "pricePerPiece", p.thumbnail, p.size, p.material
+        SELECT wi.product_id as "productId"
         FROM wishlists w
         JOIN wishlist_items wi ON wi.wishlist_id = w.id
-        JOIN products p ON p.id = wi.product_id
         WHERE w.user_id = ${userId};
       `;
       await sql.end();
 
-      const productIds = rows.map((r: any) => r.productId);
-      return res.json({ success: true, data: rows, productIds });
+      productIds = rows.map((r: any) => r.productId);
     } catch (err) {
       if (sql) await sql.end().catch(() => {});
       console.error('Error fetching wishlist from DB:', err);
+      productIds = store.wishlists.get(userId) || [];
     }
+  } else {
+    productIds = store.wishlists.get(userId) || [];
   }
 
-  const productIds = store.wishlists.get(userId) || [];
-  const items = store.products.filter(p => productIds.includes(p.id));
+  // Map productIds to actual product objects from store
+  const items = store.products.filter(p => productIds.includes(p.id) || productIds.includes(p.slug));
   return res.json({ success: true, data: items, productIds });
 };
 
@@ -50,6 +52,8 @@ export const addToWishlist = async (req: AuthenticatedRequest, res: Response) =>
   }
 
   const sql = getDbClient();
+  let productIds: string[] = [];
+
   if (sql) {
     try {
       // 1. Ensure wishlist record exists for user
@@ -67,13 +71,11 @@ export const addToWishlist = async (req: AuthenticatedRequest, res: Response) =>
         wishlistId = wishlistRows[0].id;
       }
 
-      // 2. Insert item into wishlist_items safely using WHERE NOT EXISTS
+      // 2. Insert item into wishlist_items safely using ON CONFLICT DO NOTHING
       await sql`
         INSERT INTO wishlist_items (wishlist_id, product_id)
-        SELECT ${wishlistId}, ${productId}::uuid
-        WHERE NOT EXISTS (
-          SELECT 1 FROM wishlist_items WHERE wishlist_id = ${wishlistId} AND product_id = ${productId}::uuid
-        );
+        VALUES (${wishlistId}, ${productId})
+        ON CONFLICT (wishlist_id, product_id) DO NOTHING;
       `;
 
       // 3. Return updated productIds for this user
@@ -82,21 +84,26 @@ export const addToWishlist = async (req: AuthenticatedRequest, res: Response) =>
       `;
       await sql.end();
 
-      const productIds = updatedRows.map((r: any) => r.productId);
-      return res.json({ success: true, message: 'Added to wishlist.', productIds });
+      productIds = updatedRows.map((r: any) => r.productId);
     } catch (err) {
       if (sql) await sql.end().catch(() => {});
       console.error('Error adding to wishlist in DB:', err);
+      productIds = store.wishlists.get(userId) || [];
+      if (!productIds.includes(productId)) {
+        productIds.push(productId);
+        store.wishlists.set(userId, productIds);
+      }
+    }
+  } else {
+    productIds = store.wishlists.get(userId) || [];
+    if (!productIds.includes(productId)) {
+      productIds.push(productId);
+      store.wishlists.set(userId, productIds);
     }
   }
 
-  let productIds = store.wishlists.get(userId) || [];
-  if (!productIds.includes(productId)) {
-    productIds.push(productId);
-    store.wishlists.set(userId, productIds);
-  }
-
-  return res.json({ success: true, message: 'Added to wishlist.', productIds });
+  const items = store.products.filter(p => productIds.includes(p.id) || productIds.includes(p.slug));
+  return res.json({ success: true, message: 'Added to wishlist.', data: items, productIds });
 };
 
 export const removeFromWishlist = async (req: AuthenticatedRequest, res: Response) => {
@@ -108,12 +115,14 @@ export const removeFromWishlist = async (req: AuthenticatedRequest, res: Respons
   const userId = req.user.id;
 
   const sql = getDbClient();
+  let productIds: string[] = [];
+
   if (sql) {
     try {
       await sql`
         DELETE FROM wishlist_items
         WHERE wishlist_id IN (SELECT id FROM wishlists WHERE user_id = ${userId})
-          AND product_id = ${productId}::uuid;
+          AND product_id = ${productId};
       `;
 
       const updatedRows = await sql`
@@ -123,17 +132,20 @@ export const removeFromWishlist = async (req: AuthenticatedRequest, res: Respons
       `;
       await sql.end();
 
-      const productIds = updatedRows.map((r: any) => r.productId);
-      return res.json({ success: true, message: 'Removed from wishlist.', productIds });
+      productIds = updatedRows.map((r: any) => r.productId);
     } catch (err) {
       if (sql) await sql.end().catch(() => {});
       console.error('Error removing from wishlist in DB:', err);
+      productIds = store.wishlists.get(userId) || [];
+      productIds = productIds.filter(id => id !== productId);
+      store.wishlists.set(userId, productIds);
     }
+  } else {
+    productIds = store.wishlists.get(userId) || [];
+    productIds = productIds.filter(id => id !== productId);
+    store.wishlists.set(userId, productIds);
   }
 
-  let productIds = store.wishlists.get(userId) || [];
-  productIds = productIds.filter(id => id !== productId);
-  store.wishlists.set(userId, productIds);
-
-  return res.json({ success: true, message: 'Removed from wishlist.', productIds });
+  const items = store.products.filter(p => productIds.includes(p.id) || productIds.includes(p.slug));
+  return res.json({ success: true, message: 'Removed from wishlist.', data: items, productIds });
 };

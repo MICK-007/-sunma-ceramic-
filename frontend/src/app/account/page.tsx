@@ -39,7 +39,7 @@ function AccountContent() {
         if (wishRes.success) setWishlistProducts(wishRes.data || []);
       })
       .finally(() => setIsLoading(false));
-  }, [user, router]);
+  }, [user, router, activeTab, wishlistProductIds]);
 
   if (!user) return null;
 
