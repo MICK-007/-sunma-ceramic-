@@ -24,7 +24,7 @@ export const WishlistProvider = ({ children }: { children: React.ReactNode }) =>
       api
         .getWishlist()
         .then(res => {
-          if (res.success && Array.isArray(res.productIds)) {
+          if (res && res.success && Array.isArray(res.productIds)) {
             setWishlistProductIds(res.productIds);
           }
         })
@@ -43,23 +43,32 @@ export const WishlistProvider = ({ children }: { children: React.ReactNode }) =>
 
     const isFav = wishlistProductIds.includes(productId);
 
-    try {
-      if (isFav) {
+    if (isFav) {
+      // Instant UI feedback: remove from state while saving to DB
+      setWishlistProductIds(prev => prev.filter(id => id !== productId));
+
+      try {
         const res = await api.removeFromWishlist(productId);
-        if (res.success && Array.isArray(res.productIds)) {
+        if (res && res.success && Array.isArray(res.productIds)) {
           setWishlistProductIds(res.productIds);
         }
-        return false;
-      } else {
-        const res = await api.addToWishlist(productId);
-        if (res.success && Array.isArray(res.productIds)) {
-          setWishlistProductIds(res.productIds);
-        }
-        return true;
+      } catch (e) {
+        console.error('Error removing from wishlist DB:', e);
       }
-    } catch (e) {
-      console.error('Error toggling wishlist:', e);
-      return isFav;
+      return false;
+    } else {
+      // Instant UI feedback: highlight heart gold while saving to DB
+      setWishlistProductIds(prev => [...prev, productId]);
+
+      try {
+        const res = await api.addToWishlist(productId);
+        if (res && res.success && Array.isArray(res.productIds)) {
+          setWishlistProductIds(res.productIds);
+        }
+      } catch (e) {
+        console.error('Error adding to wishlist DB:', e);
+      }
+      return true;
     }
   };
 

@@ -32,7 +32,7 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
   const { language, t } = useLanguage();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
-  const isFav = isInWishlist(product.id);
+  const isFav = isInWishlist(product.id) || isInWishlist(product.slug);
   const isThai = language === 'TH';
 
   const handleWishlistClick = (e: React.MouseEvent) => {
@@ -59,21 +59,22 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
           <Badge variant="stone">{product.size}</Badge>
         </div>
 
-        {/* Wishlist Button */}
+        {/* Wishlist Button - z-30 to ensure it stays clickable above hover overlay */}
         <button
+          type="button"
           onClick={handleWishlistClick}
-          className={`absolute top-3 right-3 p-2 rounded-full border transition-all z-10 ${
+          className={`absolute top-3 right-3 p-2 rounded-full border transition-all z-30 cursor-pointer ${
             isFav
-              ? 'bg-gold text-bg-primary border-gold'
+              ? 'bg-gold text-bg-primary border-gold shadow-lg scale-105'
               : 'bg-black/60 backdrop-blur-md text-white border-white/20 hover:text-gold hover:border-gold'
           }`}
           title="Save to Wishlist"
         >
-          <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-current' : ''}`} />
+          <Heart className={`w-4 h-4 ${isFav ? 'fill-current text-bg-primary' : ''}`} />
         </button>
 
         {/* Quick Room Studio Hover Overlay */}
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 p-4">
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 p-4 z-10">
           <Link
             href={`/products/${product.slug}`}
             className="px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/30 text-white rounded text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors"
