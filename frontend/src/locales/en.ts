@@ -1,11 +1,12 @@
 export const en = {
   nav: {
-    home: 'Home',
-    shop: 'Shop',
-    collections: 'Collections',
-    roomStudio: 'Room Studio',
-    about: 'About',
-    contact: 'Contact',
+    home: 'HOME',
+    shop: 'TILES',
+    tiles: 'TILES',
+    categories: 'CATEGORIES',
+    roomStudio: 'ROOM STUDIO',
+    about: 'ABOUT',
+    contact: 'CONTACT',
     search: 'Search',
     wishlist: 'Wishlist',
     cart: 'Cart',

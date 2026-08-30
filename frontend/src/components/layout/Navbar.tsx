@@ -36,8 +36,8 @@ export const Navbar = () => {
 
   const navLinks = [
     { href: '/', label: t.nav.home },
-    { href: '/shop', label: t.nav.shop },
-    { href: '/categories', label: t.nav.shop + ' ' + t.categories.title.split(' ')[0] },
+    { href: '/shop', label: t.nav.tiles },
+    { href: '/categories', label: t.nav.categories },
     { href: '/room-studio', label: t.nav.roomStudio, badge: 'HOT' },
     { href: '/about', label: t.nav.about },
     { href: '/contact', label: t.nav.contact },

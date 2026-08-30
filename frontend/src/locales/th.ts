@@ -1,9 +1,10 @@
 export const th = {
   nav: {
     home: 'หน้าแรก',
-    shop: 'แคตตาล็อกสินค้า',
-    collections: 'คอลเลกชัน',
-    roomStudio: 'Room Studio',
+    shop: 'กระเบื้อง',
+    tiles: 'กระเบื้อง',
+    categories: 'หมวดหมู่',
+    roomStudio: 'ROOM STUDIO',
     about: 'เกี่ยวกับเรา',
     contact: 'ติดต่อเรา',
     search: 'ค้นหา',
