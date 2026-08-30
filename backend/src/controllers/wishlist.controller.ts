@@ -114,6 +114,10 @@ export const removeFromWishlist = async (req: AuthenticatedRequest, res: Respons
   const { productId } = req.params;
   const userId = req.user.id;
 
+  // Resolve all possible identifiers for target product (ID and slug)
+  const targetProduct = store.products.find(p => p.id === productId || p.slug === productId);
+  const targetIds = targetProduct ? Array.from(new Set([targetProduct.id, targetProduct.slug, productId])) : [productId];
+
   const sql = getDbClient();
   let productIds: string[] = [];
 
@@ -122,7 +126,7 @@ export const removeFromWishlist = async (req: AuthenticatedRequest, res: Respons
       await sql`
         DELETE FROM wishlist_items
         WHERE wishlist_id IN (SELECT id FROM wishlists WHERE user_id = ${userId})
-          AND product_id = ${productId};
+          AND (product_id = ANY(${targetIds}) OR LOWER(product_id) = LOWER(${productId}));
       `;
 
       const updatedRows = await sql`
@@ -137,12 +141,12 @@ export const removeFromWishlist = async (req: AuthenticatedRequest, res: Respons
       if (sql) await sql.end().catch(() => {});
       console.error('Error removing from wishlist in DB:', err);
       productIds = store.wishlists.get(userId) || [];
-      productIds = productIds.filter(id => id !== productId);
+      productIds = productIds.filter(id => !targetIds.includes(id));
       store.wishlists.set(userId, productIds);
     }
   } else {
     productIds = store.wishlists.get(userId) || [];
-    productIds = productIds.filter(id => id !== productId);
+    productIds = productIds.filter(id => !targetIds.includes(id));
     store.wishlists.set(userId, productIds);
   }
 
