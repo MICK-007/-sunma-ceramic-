@@ -388,6 +388,10 @@ export const me = async (req: AuthenticatedRequest, res: Response) => {
     return res.status(401).json({ success: false, message: 'Unauthenticated.' });
   }
 
+  if (!req.cookies?.sunma_csrf) {
+    setCsrfCookie(res, generateCsrfToken());
+  }
+
   const sql = getDbClient();
   if (sql) {
     try {
@@ -402,6 +406,7 @@ export const me = async (req: AuthenticatedRequest, res: Response) => {
         return res.json({ success: true, user: rows[0] });
       }
     } catch (e) {
+      if (sql) await sql.end().catch(() => {});
       console.error('Error in me controller:', e);
     }
   }
