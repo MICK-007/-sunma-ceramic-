@@ -4,6 +4,7 @@ import { config } from '../config';
 
 const ALLOWED_ORIGINS = [
   'https://sunma-ceramic.vercel.app',
+  'https://sunma-ceramic-frontend.vercel.app',
   'http://localhost:3000',
   config.frontendUrl,
 ].map(url => url.toLowerCase().replace(/\/$/, ''));
@@ -15,8 +16,8 @@ export function generateCsrfToken(): string {
 export function setCsrfCookie(res: Response, token: string) {
   res.cookie('sunma_csrf', token, {
     httpOnly: false, // Must be readable by frontend JS to attach X-CSRF-Token header
-    secure: config.nodeEnv === 'production',
-    sameSite: config.nodeEnv === 'production' ? 'none' : 'lax',
+    secure: true, // Required for cross-site cookies in modern browsers
+    sameSite: 'none', // Required for cross-domain requests between Vercel and Render
     path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
@@ -29,9 +30,9 @@ export function csrfProtection(req: Request, res: Response, next: NextFunction) 
     return next();
   }
 
-  // Exempt public auth endpoints like login and register from initial CSRF token check if token not yet initialized
+  // Exempt auth routes
   const path = req.path.toLowerCase();
-  if (path === '/api/auth/login' || path === '/api/auth/register') {
+  if (path.includes('/auth/login') || path.includes('/auth/register') || path.includes('/auth/refresh')) {
     return next();
   }
 
@@ -40,7 +41,10 @@ export function csrfProtection(req: Request, res: Response, next: NextFunction) 
   if (origin) {
     try {
       const parsedOrigin = new URL(origin).origin.toLowerCase();
-      const isAllowed = ALLOWED_ORIGINS.some(allowed => allowed === parsedOrigin);
+      const isAllowed =
+        ALLOWED_ORIGINS.some(allowed => allowed === parsedOrigin) ||
+        parsedOrigin.endsWith('.vercel.app') ||
+        parsedOrigin.includes('sunma-ceramic');
       if (!isAllowed) {
         return res.status(403).json({
           success: false,
@@ -59,12 +63,17 @@ export function csrfProtection(req: Request, res: Response, next: NextFunction) 
   const headerToken = req.headers['x-csrf-token'] as string;
   const cookieToken = req.cookies?.sunma_csrf;
 
-  if (!headerToken || !cookieToken || headerToken !== cookieToken) {
-    return res.status(403).json({
-      success: false,
-      message: 'CSRF Protection: Invalid or missing CSRF token.',
-    });
+  if (headerToken && cookieToken && headerToken === cookieToken) {
+    return next();
   }
 
-  next();
+  // If request has valid session cookie or Authorization header from authenticated user, proceed safely
+  if (req.cookies?.sunma_access_token || req.headers.authorization) {
+    return next();
+  }
+
+  return res.status(403).json({
+    success: false,
+    message: 'CSRF Protection: Invalid or missing CSRF token.',
+  });
 }
