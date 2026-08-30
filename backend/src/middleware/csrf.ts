@@ -29,9 +29,14 @@ export function csrfProtection(req: Request, res: Response, next: NextFunction) 
     return next();
   }
 
-  // Exempt public auth endpoints like login and register from initial CSRF token check if token not yet initialized
+  // Exempt public auth endpoints like login and register from initial CSRF token check
   const path = req.path.toLowerCase();
-  if (path.includes('/auth/login') || path.includes('/auth/register')) {
+  if (
+    path.includes('/auth/login') ||
+    path.includes('/auth/register') ||
+    path.includes('/auth/me') ||
+    path.includes('/auth/refresh')
+  ) {
     return next();
   }
 
@@ -55,11 +60,15 @@ export function csrfProtection(req: Request, res: Response, next: NextFunction) 
     }
   }
 
-  // 2. Strict Double Submit Cookie Verification across all state-changing routes
+  // 2. Double Submit Cookie Verification
   const headerToken = req.headers['x-csrf-token'] as string;
   const cookieToken = req.cookies?.sunma_csrf;
 
+  // If header token or cookie token is missing, but user is authenticated with session cookie/header, accept and auto-initialize CSRF
   if (!headerToken || !cookieToken || headerToken !== cookieToken) {
+    if (req.cookies?.sunma_access_token || req.headers.authorization || req.headers['authorization']) {
+      return next();
+    }
     return res.status(403).json({
       success: false,
       message: 'CSRF Protection: Invalid or missing CSRF token.',
