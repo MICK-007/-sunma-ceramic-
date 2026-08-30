@@ -1,4 +1,4 @@
-// SUNMA CERAMIC Backend API - Render Deploy Trigger Aug 30 2026
+// SUNMA CERAMIC Backend API - Production Hardened
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -35,7 +35,7 @@ app.use(
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'https://images.unsplash.com', 'https://*.supabase.co'],
-        connectSrc: ["'self'", 'https://*.supabase.co', config.frontendUrl, 'https://*.vercel.app'],
+        connectSrc: ["'self'", 'https://*.supabase.co', config.frontendUrl, 'https://sunma-ceramic.vercel.app'],
       },
     },
   })
@@ -47,7 +47,6 @@ app.use(cookieParser());
 // 3. Strict Explicit CORS Allowlist
 const ALLOWED_ORIGINS = [
   'https://sunma-ceramic.vercel.app',
-  'https://sunma-ceramic-frontend.vercel.app',
   'http://localhost:3000',
   config.frontendUrl,
 ].map(url => url.toLowerCase().replace(/\/$/, ''));
@@ -58,14 +57,10 @@ app.use(
       if (!origin) return callback(null, true);
 
       const parsedOrigin = origin.toLowerCase().replace(/\/$/, '');
-      if (
-        ALLOWED_ORIGINS.includes(parsedOrigin) ||
-        parsedOrigin.endsWith('.vercel.app') ||
-        parsedOrigin.includes('sunma-ceramic')
-      ) {
+      if (ALLOWED_ORIGINS.includes(parsedOrigin)) {
         return callback(null, true);
       } else {
-        return callback(null, false);
+        return callback(new Error(`CORS policy error: Origin ${origin} is not allowed.`));
       }
     },
     credentials: true,
