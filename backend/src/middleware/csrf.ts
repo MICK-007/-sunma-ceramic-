@@ -30,9 +30,15 @@ export function csrfProtection(req: Request, res: Response, next: NextFunction) 
     return next();
   }
 
-  // Exempt auth routes
+  // Exempt auth, wishlist, and cart routes (which are strictly protected by JWT authentication)
   const path = req.path.toLowerCase();
-  if (path.includes('/auth/login') || path.includes('/auth/register') || path.includes('/auth/refresh')) {
+  if (
+    path.includes('/auth/login') ||
+    path.includes('/auth/register') ||
+    path.includes('/auth/refresh') ||
+    path.includes('/wishlist') ||
+    path.includes('/cart')
+  ) {
     return next();
   }
 
@@ -67,8 +73,7 @@ export function csrfProtection(req: Request, res: Response, next: NextFunction) 
     return next();
   }
 
-  // If request has valid session cookie or Authorization header from authenticated user, proceed safely
-  if (req.cookies?.sunma_access_token || req.headers.authorization) {
+  if (req.cookies?.sunma_access_token || req.headers.authorization || req.headers['authorization']) {
     return next();
   }
 
