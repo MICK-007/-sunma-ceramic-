@@ -46,6 +46,7 @@ export default function AdminCmsStudioPage() {
   const [editingSection, setEditingSection] = useState<any | null>(null);
 
   // Item Form Modal State
+  const [isItemModalOpen, setIsItemModalOpen] = useState<boolean>(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
   const [itemForm, setItemForm] = useState<{
     id?: string;
@@ -183,6 +184,22 @@ export default function AdminCmsStudioPage() {
     }
   };
 
+  const handleCloseItemForm = () => {
+    setIsItemModalOpen(false);
+    setEditingItem(null);
+    setItemForm({
+      title: '',
+      description: '',
+      badgeTag: '',
+      linkUrl: '',
+      iconName: 'ShieldCheck',
+      customImageUrl: '',
+      mediaId: '',
+      sortOrder: 0,
+      isEnabled: true,
+    });
+  };
+
   // 4. Create / Edit Section Item
   const handleOpenItemForm = (item?: any) => {
     if (item) {
@@ -213,6 +230,7 @@ export default function AdminCmsStudioPage() {
         isEnabled: true,
       });
     }
+    setIsItemModalOpen(true);
   };
 
   const handleSaveItem = async (e: React.FormEvent) => {
@@ -242,8 +260,9 @@ export default function AdminCmsStudioPage() {
             ...prev,
             items: prev.items.map((i: any) => (i.id === editingItem.id ? res.data : i)),
           }));
+          setIsItemModalOpen(false);
           setEditingItem(null);
-          setSuccessMessage('Item updated in DRAFT.');
+          setSuccessMessage('บันทึกฉบับร่างรายการสำเร็จ (Item updated in DRAFT).');
         } else {
           setErrorMessage(res.message || 'Failed to update item.');
         }
@@ -266,8 +285,9 @@ export default function AdminCmsStudioPage() {
             ...prev,
             items: [...(prev.items || []), res.data],
           }));
+          setIsItemModalOpen(false);
           setEditingItem(null);
-          setSuccessMessage('Item created in DRAFT.');
+          setSuccessMessage('เพิ่มรายการฉบับร่างสำเร็จ (Item created in DRAFT).');
         } else {
           setErrorMessage(res.message || 'Failed to create item.');
         }
@@ -662,38 +682,40 @@ export default function AdminCmsStudioPage() {
       </div>
 
       {/* Item Create / Edit Dialog Modal */}
-      {(editingItem !== null || itemForm.title !== '') && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+      {isItemModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <form onSubmit={handleSaveItem} className="bg-bg-card border border-border-gold rounded-xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
             <h3 className="font-heading text-base font-bold text-white border-b border-border-subtle pb-3">
-              {editingItem ? 'Edit Section Item' : 'Add Section Item'}
+              {editingItem ? 'แก้ไขรายการ (Edit Item)' : 'เพิ่มรายการใหม่ (Add Item)'}
             </h3>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-stone font-bold uppercase mb-1">Title *</label>
+                <label className="block text-stone font-bold uppercase mb-1">ชื่อหัวข้อ (Title) *</label>
                 <input
                   type="text"
                   required
                   value={itemForm.title}
                   onChange={e => setItemForm(prev => ({ ...prev, title: e.target.value }))}
                   className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
+                  placeholder="กรอกชื่อรายการ..."
                 />
               </div>
 
               <div>
-                <label className="block text-stone font-bold uppercase mb-1">Description</label>
+                <label className="block text-stone font-bold uppercase mb-1">คำอธิบาย (Description)</label>
                 <textarea
                   rows={2}
                   value={itemForm.description}
                   onChange={e => setItemForm(prev => ({ ...prev, description: e.target.value }))}
                   className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
+                  placeholder="รายละเอียดเพิ่มเติม..."
                 />
               </div>
 
               {editingSection?.section_type === 'WHY_CHOOSE' && (
                 <div>
-                  <label className="block text-stone font-bold uppercase mb-1">Icon Whitelist</label>
+                  <label className="block text-stone font-bold uppercase mb-1">เลือก ไอคอน (Icon)</label>
                   <select
                     value={itemForm.iconName}
                     onChange={e => setItemForm(prev => ({ ...prev, iconName: e.target.value }))}
@@ -709,14 +731,14 @@ export default function AdminCmsStudioPage() {
               )}
 
               <div>
-                <label className="block text-stone font-bold uppercase mb-1">Image URL / Media ID</label>
+                <label className="block text-stone font-bold uppercase mb-1">รูปภาพ (Image URL / Media ID)</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={itemForm.customImageUrl}
                     onChange={e => setItemForm(prev => ({ ...prev, customImageUrl: e.target.value }))}
-                    className="flex-1 bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
-                    placeholder="https://... or choose from media"
+                    className="flex-1 bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold truncate"
+                    placeholder="เลือกจากคลังสื่อ หรือวาง URL รูปภาพ (สูงสุด 1,000 ตัวอักษร)"
                   />
                   <Button
                     type="button"
@@ -727,13 +749,14 @@ export default function AdminCmsStudioPage() {
                       setIsMediaOpen(true);
                     }}
                   >
-                    <ImageIcon className="w-4 h-4 mr-1" /> Choose
+                    <ImageIcon className="w-4 h-4 mr-1" /> เลือกรูปสื่อ
                   </Button>
                 </div>
+                <p className="text-[10px] text-stone mt-1">* หากรูปมาจาก Media Library ระบบจะอ้างอิง media_id และแสดงรูปให้อัตโนมัติ</p>
               </div>
 
               <div>
-                <label className="block text-stone font-bold uppercase mb-1">Destination Link URL</label>
+                <label className="block text-stone font-bold uppercase mb-1">ลิงก์ปลายทาง (Destination Link URL)</label>
                 <input
                   type="text"
                   value={itemForm.linkUrl}
@@ -745,11 +768,11 @@ export default function AdminCmsStudioPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-4 border-t border-border-subtle">
-              <Button type="button" variant="ghost" size="sm" onClick={() => setEditingItem(null)}>
-                Cancel
+              <Button type="button" variant="ghost" size="sm" onClick={handleCloseItemForm}>
+                ยกเลิก (Cancel)
               </Button>
               <Button type="submit" variant="gold" size="sm" disabled={saving}>
-                {saving ? 'Saving...' : 'Save Item Draft'}
+                {saving ? 'กำลังบันทึก...' : 'บันทึกฉบับร่าง (Save Draft)'}
               </Button>
             </div>
           </form>
