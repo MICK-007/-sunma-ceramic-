@@ -6,6 +6,7 @@ import { api } from '@/services/api';
 import { Button } from '@/components/ui/Button';
 import { MediaLibraryModal, CmsMediaItem } from '@/components/cms/MediaLibraryModal';
 import { ALLOWED_ICONS } from '@/lib/cms-utils';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   Eye,
   Save,
@@ -26,6 +27,7 @@ import {
 } from 'lucide-react';
 
 export default function AdminCmsStudioPage() {
+  const { t } = useLanguage();
   const [activeSlug, setActiveSlug] = useState<string>('home');
   const [pageData, setPageData] = useState<any>(null);
   const [sections, setSections] = useState<any[]>([]);
@@ -262,7 +264,7 @@ export default function AdminCmsStudioPage() {
           }));
           setIsItemModalOpen(false);
           setEditingItem(null);
-          setSuccessMessage('บันทึกฉบับร่างรายการสำเร็จ (Item updated in DRAFT).');
+          setSuccessMessage('Item updated in DRAFT.');
         } else {
           setErrorMessage(res.message || 'Failed to update item.');
         }
@@ -287,7 +289,7 @@ export default function AdminCmsStudioPage() {
           }));
           setIsItemModalOpen(false);
           setEditingItem(null);
-          setSuccessMessage('เพิ่มรายการฉบับร่างสำเร็จ (Item created in DRAFT).');
+          setSuccessMessage('Item created in DRAFT.');
         } else {
           setErrorMessage(res.message || 'Failed to create item.');
         }
@@ -397,7 +399,7 @@ export default function AdminCmsStudioPage() {
   };
 
   if (loading) {
-    return <div className="p-12 text-center text-gold font-bold">Loading CMS Studio...</div>;
+    return <div className="p-12 text-center text-gold font-bold">{t.common.loading}</div>;
   }
 
   return (
@@ -407,10 +409,10 @@ export default function AdminCmsStudioPage() {
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-gold font-bold text-lg">
             <Sparkles className="w-5 h-5" />
-            ระบบจัดการเนื้อหาเว็บไซต์ SUNMA CERAMIC CMS Studio
+            {t.cms.studioTitle}
           </div>
           <p className="text-xs text-stone-light">
-            จัดการส่วนการแสดงผล ข้อความ การ์ดสินค้า และสื่อรูปภาพอย่างปลอดภัย ข้อมูลทั้งหมดจะบันทึกเป็น <strong>ฉบับร่าง (DRAFT)</strong> อัตโนมัติ
+            {t.cms.studioSubtitle}
           </p>
         </div>
 
@@ -420,22 +422,22 @@ export default function AdminCmsStudioPage() {
             onChange={e => setActiveSlug(e.target.value)}
             className="bg-black border border-border-subtle text-white text-xs font-bold px-3 py-2 rounded focus:outline-none focus:border-gold"
           >
-            <option value="home">หน้าหลัก (Home Page)</option>
-            <option value="footer">ส่วนท้ายเว็บไซต์ (Global Footer)</option>
+            <option value="home">{t.cms.homePageOption}</option>
+            <option value="footer">{t.cms.footerOption}</option>
           </select>
 
           <Link href={`/admin/cms/preview/${activeSlug}`} target="_blank">
             <Button variant="outline" size="sm" className="gap-1 text-xs">
-              <Eye className="w-4 h-4" /> ดูตัวอย่างฉบับร่าง (Preview)
+              <Eye className="w-4 h-4" /> {t.cms.previewButton}
             </Button>
           </Link>
 
           <Button variant="outline" size="sm" onClick={() => fetchVersions(activeSlug)} className="gap-1 text-xs">
-            <History className="w-4 h-4" /> ประวัติเวอร์ชัน (History)
+            <History className="w-4 h-4" /> {t.cms.historyButton}
           </Button>
 
           <Button variant="gold" size="sm" onClick={() => setIsPublishConfirmOpen(true)} className="gap-1 text-xs">
-            <Send className="w-4 h-4" /> เผยแพร่จริง (Publish Live)
+            <Send className="w-4 h-4" /> {t.cms.publishButton}
           </Button>
         </div>
       </div>
@@ -462,9 +464,9 @@ export default function AdminCmsStudioPage() {
           <div className="bg-bg-card border border-border-subtle rounded-lg p-4 space-y-3">
             <div className="flex items-center justify-between border-b border-border-subtle pb-3">
               <h3 className="font-heading text-xs font-bold text-gold uppercase tracking-wider flex items-center gap-2">
-                <Layers className="w-4 h-4" /> โครงสร้างส่วนแสดงผลหน้าเว็บ (Page Section Manager)
+                <Layers className="w-4 h-4" /> {t.cms.sectionManagerTitle}
               </h3>
-              <span className="text-[10px] text-stone font-mono">{sections.length} ส่วน (Sections)</span>
+              <span className="text-[10px] text-stone font-mono">{sections.length} {t.cms.sectionCount}</span>
             </div>
 
             <div className="space-y-2">
@@ -486,7 +488,7 @@ export default function AdminCmsStudioPage() {
                           {sec.title || sec.section_key}
                         </span>
                         <span className="text-[9px] text-stone uppercase tracking-wider">
-                          ประเภท: {sec.section_type}
+                          {t.cms.sectionType} {sec.section_type}
                         </span>
                       </div>
                     </div>
@@ -495,7 +497,6 @@ export default function AdminCmsStudioPage() {
                       <button
                         onClick={() => handleToggleSectionEnabled(sec)}
                         className={`p-1 rounded ${sec.is_enabled ? 'text-emerald-400 hover:bg-emerald-950/50' : 'text-stone hover:bg-neutral-800'}`}
-                        title={sec.is_enabled ? 'ปิดการแสดงผลส่วนนี้' : 'เปิดการแสดงผลส่วนนี้'}
                       >
                         {sec.is_enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                       </button>
@@ -504,7 +505,6 @@ export default function AdminCmsStudioPage() {
                         onClick={() => handleMoveSection(idx, 'up')}
                         disabled={idx === 0 || reordering}
                         className="p-1 text-stone hover:text-white disabled:opacity-30"
-                        title="เลื่อนขึ้น"
                       >
                         <ArrowUp className="w-3.5 h-3.5" />
                       </button>
@@ -513,7 +513,6 @@ export default function AdminCmsStudioPage() {
                         onClick={() => handleMoveSection(idx, 'down')}
                         disabled={idx === sections.length - 1 || reordering}
                         className="p-1 text-stone hover:text-white disabled:opacity-30"
-                        title="เลื่อนลง"
                       >
                         <ArrowDown className="w-3.5 h-3.5" />
                       </button>
@@ -524,7 +523,7 @@ export default function AdminCmsStudioPage() {
                         onClick={() => setEditingSection(sec)}
                         className="h-6 px-2 text-[10px]"
                       >
-                        แก้ไข (Edit)
+                        {t.cms.editButton}
                       </Button>
                     </div>
                   </div>
@@ -541,7 +540,7 @@ export default function AdminCmsStudioPage() {
               <div className="flex items-center justify-between border-b border-border-subtle pb-4">
                 <div>
                   <span className="text-[10px] font-bold text-gold uppercase tracking-wider">
-                    กำลังแก้ไขส่วนแสดงผล ({editingSection.section_type})
+                    {editingSection.section_type}
                   </span>
                   <h2 className="font-heading text-lg font-bold text-white">
                     {editingSection.title || editingSection.section_key}
@@ -549,14 +548,14 @@ export default function AdminCmsStudioPage() {
                 </div>
 
                 <Button variant="gold" size="sm" onClick={handleSaveSectionConfig} disabled={saving}>
-                  <Save className="w-4 h-4 mr-1.5" /> {saving ? 'กำลังบันทึก...' : 'บันทึกฉบับร่าง (Save Section Draft)'}
+                  <Save className="w-4 h-4 mr-1.5" /> {saving ? t.cms.savingButton : t.cms.saveDraftButton}
                 </Button>
               </div>
 
               {/* Title & Subtitle Form */}
               <div className="grid grid-cols-1 gap-4 text-xs">
                 <div>
-                  <label className="block text-stone font-bold uppercase tracking-wider mb-1">หัวข้อหลักของส่วนนี้ (Section Title)</label>
+                  <label className="block text-stone font-bold uppercase tracking-wider mb-1">{t.cms.sectionTitleLabel}</label>
                   <input
                     type="text"
                     value={editingSection.title || ''}
@@ -566,7 +565,7 @@ export default function AdminCmsStudioPage() {
                 </div>
 
                 <div>
-                  <label className="block text-stone font-bold uppercase tracking-wider mb-1">หัวข้อย่อย (Section Subtitle / Eyebrow)</label>
+                  <label className="block text-stone font-bold uppercase tracking-wider mb-1">{t.cms.sectionSubtitleLabel}</label>
                   <input
                     type="text"
                     value={editingSection.subtitle || ''}
@@ -579,10 +578,10 @@ export default function AdminCmsStudioPage() {
               {/* Section-Specific Settings */}
               {editingSection.section_type === 'HERO' && (
                 <div className="space-y-4 pt-4 border-t border-border-subtle text-xs">
-                  <h4 className="font-bold text-gold uppercase tracking-wider">การตั้งค่าแบนเนอร์หลัก (Hero Banner Configuration)</h4>
+                  <h4 className="font-bold text-gold uppercase tracking-wider">{t.cms.heroConfigTitle}</h4>
 
                   <div>
-                    <label className="block text-stone font-bold uppercase tracking-wider mb-1">รูปภาพพื้นหลังแบนเนอร์ (Background Image)</label>
+                    <label className="block text-stone font-bold uppercase tracking-wider mb-1">{t.cms.bgImageLabel}</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
@@ -594,7 +593,7 @@ export default function AdminCmsStudioPage() {
                           }))
                         }
                         className="flex-1 bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
-                        placeholder="เลือกจากคลังสื่อ หรือวาง URL รูปภาพ"
+                        placeholder={t.cms.bgImagePlaceholder}
                       />
                       <Button
                         type="button"
@@ -605,14 +604,14 @@ export default function AdminCmsStudioPage() {
                           setIsMediaOpen(true);
                         }}
                       >
-                        <ImageIcon className="w-4 h-4 mr-1" /> เลือกรูปสื่อ (Choose)
+                        <ImageIcon className="w-4 h-4 mr-1" /> {t.cms.chooseMediaButton}
                       </Button>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-stone font-bold uppercase tracking-wider mb-1">ข้อความปุ่มที่ 1 (Button 1 Label)</label>
+                      <label className="block text-stone font-bold uppercase tracking-wider mb-1">{t.cms.btn1Label}</label>
                       <input
                         type="text"
                         value={editingSection.settings?.btn1Label || ''}
@@ -626,7 +625,7 @@ export default function AdminCmsStudioPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-stone font-bold uppercase tracking-wider mb-1">ลิงก์ปุ่มที่ 1 (Button 1 URL)</label>
+                      <label className="block text-stone font-bold uppercase tracking-wider mb-1">{t.cms.btn1Url}</label>
                       <input
                         type="text"
                         value={editingSection.settings?.btn1Url || ''}
@@ -647,9 +646,9 @@ export default function AdminCmsStudioPage() {
               {['COLLECTION_GRID', 'BRAND_GRID', 'WHY_CHOOSE'].includes(editingSection.section_type) && (
                 <div className="space-y-4 pt-4 border-t border-border-subtle">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-gold uppercase tracking-wider text-xs">รายการภายใต้ส่วนนี้ (Section Items)</h4>
+                    <h4 className="font-bold text-gold uppercase tracking-wider text-xs">{t.cms.sectionItemsTitle}</h4>
                     <Button size="sm" variant="gold" onClick={() => handleOpenItemForm()}>
-                      <Plus className="w-3.5 h-3.5 mr-1" /> เพิ่มรายการใหม่ (Add Item)
+                      <Plus className="w-3.5 h-3.5 mr-1" /> {t.cms.addItemButton}
                     </Button>
                   </div>
 
@@ -676,7 +675,7 @@ export default function AdminCmsStudioPage() {
             </div>
           ) : (
             <div className="p-12 text-center text-xs text-stone bg-bg-card border border-border-subtle rounded-lg">
-              เลือกส่วนการแสดงผลจากเมนูด้านซ้ายเพื่อเริ่มแก้ไขเนื้อหา
+              {t.cms.selectSectionPrompt}
             </div>
           )}
         </div>
@@ -687,36 +686,36 @@ export default function AdminCmsStudioPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <form onSubmit={handleSaveItem} className="bg-bg-card border border-border-gold rounded-xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
             <h3 className="font-heading text-base font-bold text-white border-b border-border-subtle pb-3">
-              {editingItem ? 'แก้ไขรายการ (Edit Item)' : 'เพิ่มรายการใหม่ (Add Item)'}
+              {editingItem ? t.cms.editItemTitle : t.cms.newItemTitle}
             </h3>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-stone font-bold uppercase mb-1">ชื่อหัวข้อ (Title) *</label>
+                <label className="block text-stone font-bold uppercase mb-1">{t.cms.itemTitleLabel}</label>
                 <input
                   type="text"
                   required
                   value={itemForm.title}
                   onChange={e => setItemForm(prev => ({ ...prev, title: e.target.value }))}
                   className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
-                  placeholder="กรอกชื่อรายการ..."
+                  placeholder={t.cms.itemTitlePlaceholder}
                 />
               </div>
 
               <div>
-                <label className="block text-stone font-bold uppercase mb-1">คำอธิบาย (Description)</label>
+                <label className="block text-stone font-bold uppercase mb-1">{t.cms.itemDescLabel}</label>
                 <textarea
                   rows={2}
                   value={itemForm.description}
                   onChange={e => setItemForm(prev => ({ ...prev, description: e.target.value }))}
                   className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
-                  placeholder="รายละเอียดเพิ่มเติม..."
+                  placeholder={t.cms.itemDescPlaceholder}
                 />
               </div>
 
               {editingSection?.section_type === 'WHY_CHOOSE' && (
                 <div>
-                  <label className="block text-stone font-bold uppercase mb-1">เลือก ไอคอน (Icon)</label>
+                  <label className="block text-stone font-bold uppercase mb-1">{t.cms.itemIconLabel}</label>
                   <select
                     value={itemForm.iconName}
                     onChange={e => setItemForm(prev => ({ ...prev, iconName: e.target.value }))}
@@ -732,14 +731,14 @@ export default function AdminCmsStudioPage() {
               )}
 
               <div>
-                <label className="block text-stone font-bold uppercase mb-1">รูปภาพ (Image URL / Media ID)</label>
+                <label className="block text-stone font-bold uppercase mb-1">{t.cms.itemImageLabel}</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={itemForm.customImageUrl}
                     onChange={e => setItemForm(prev => ({ ...prev, customImageUrl: e.target.value }))}
                     className="flex-1 bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold truncate"
-                    placeholder="เลือกจากคลังสื่อ หรือวาง URL รูปภาพ (สูงสุด 1,000 ตัวอักษร)"
+                    placeholder={t.cms.itemImagePlaceholder}
                   />
                   <Button
                     type="button"
@@ -750,30 +749,30 @@ export default function AdminCmsStudioPage() {
                       setIsMediaOpen(true);
                     }}
                   >
-                    <ImageIcon className="w-4 h-4 mr-1" /> เลือกรูปสื่อ
+                    <ImageIcon className="w-4 h-4 mr-1" /> {t.cms.chooseMediaButton}
                   </Button>
                 </div>
-                <p className="text-[10px] text-stone mt-1">* แนะนำให้กดปุ่ม "เลือกรูปสื่อ" เพื่อเลือกจากคลังสื่อ หรือใส่ URL รูปภาพที่มีขนาดไม่เกิน 1,000 ตัวอักษร (ห้ามวางรหัสรูปภาพ Base64 ยาวเกินไป)</p>
+                <p className="text-[10px] text-stone mt-1">{t.cms.itemImageHelp}</p>
               </div>
 
               <div>
-                <label className="block text-stone font-bold uppercase mb-1">ลิงก์ปลายทาง (Destination Link URL)</label>
+                <label className="block text-stone font-bold uppercase mb-1">{t.cms.itemLinkUrlLabel}</label>
                 <input
                   type="text"
                   value={itemForm.linkUrl}
                   onChange={e => setItemForm(prev => ({ ...prev, linkUrl: e.target.value }))}
                   className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
-                  placeholder="/shop?category=floor-tiles"
+                  placeholder={t.cms.itemLinkUrlPlaceholder}
                 />
               </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-4 border-t border-border-subtle">
               <Button type="button" variant="ghost" size="sm" onClick={handleCloseItemForm}>
-                ยกเลิก (Cancel)
+                {t.cms.cancelButton}
               </Button>
               <Button type="submit" variant="gold" size="sm" disabled={saving}>
-                {saving ? 'กำลังบันทึก...' : 'บันทึกฉบับร่าง (Save Draft)'}
+                {saving ? t.cms.savingButton : t.cms.saveItemDraftButton}
               </Button>
             </div>
           </form>
@@ -792,22 +791,22 @@ export default function AdminCmsStudioPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="bg-bg-card border border-gold rounded-xl w-full max-w-md p-6 space-y-4 shadow-2xl text-xs">
             <div className="flex items-center gap-2 text-gold font-bold text-base border-b border-border-subtle pb-3">
-              <Send className="w-5 h-5" /> ยืนยันการเผยแพร่หน้าเว็บ (Publish Live Website)
+              <Send className="w-5 h-5" /> {t.cms.publishModalTitle}
             </div>
             <p className="text-stone-light leading-relaxed">
-              คุณแน่ใจหรือไม่ว่าต้องการ <strong>เผยแพร่ (PUBLISH)</strong> ข้อมูลฉบับร่างล่าสุดของหน้า <code className="text-gold">{activeSlug}</code> ไปยังหน้าเว็บไซต์จริง?
+              {t.cms.publishModalText}
             </p>
             <div className="bg-black/60 border border-border-subtle p-3 rounded text-[11px] space-y-1">
-              <div>หน้าเว็บ: <strong className="text-white">{activeSlug}</strong></div>
-              <div>จำนวนส่วนที่แสดงผล: <strong className="text-white">{sections.length} ส่วน (Active Sections)</strong></div>
-              <div>ระบบความปลอดภัย: <strong className="text-emerald-400">Atomic Immutability Guaranteed</strong></div>
+              <div>{t.cms.pageLabel} <strong className="text-white">{activeSlug}</strong></div>
+              <div>{t.cms.sectionsLabel} <strong className="text-white">{sections.length} {t.cms.sectionCount}</strong></div>
+              <div>{t.cms.securityStatusLabel} <strong className="text-emerald-400">Atomic Immutability Guaranteed</strong></div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="ghost" size="sm" onClick={() => setIsPublishConfirmOpen(false)}>
-                ยกเลิก (Cancel)
+                {t.cms.cancelButton}
               </Button>
               <Button variant="gold" size="sm" onClick={handlePublish} disabled={publishing}>
-                {publishing ? 'กำลังเผยแพร่...' : 'ยืนยันเผยแพร่จริง (Confirm Publish)'}
+                {publishing ? t.cms.publishingButton : t.cms.confirmPublishButton}
               </Button>
             </div>
           </div>
@@ -820,14 +819,14 @@ export default function AdminCmsStudioPage() {
           <div className="bg-bg-card border border-border-gold rounded-xl w-full max-w-2xl p-6 space-y-4 shadow-2xl text-xs flex flex-col max-h-[85vh]">
             <div className="flex items-center justify-between border-b border-border-subtle pb-3">
               <div className="flex items-center gap-2 text-gold font-bold text-base">
-                <History className="w-5 h-5" /> ประวัติเวอร์ชันที่เคยเผยแพร่ ({activeSlug})
+                <History className="w-5 h-5" /> {t.cms.historyModalTitle} ({activeSlug})
               </div>
               <button onClick={() => setIsVersionsModalOpen(false)} className="text-stone hover:text-white">✕</button>
             </div>
 
             <div className="overflow-y-auto space-y-3 flex-1 pr-1">
               {versionsList.length === 0 ? (
-                <div className="py-8 text-center text-stone">ยังไม่มีประวัติการเผยแพร่สำหรับหน้านี้</div>
+                <div className="py-8 text-center text-stone">{t.cms.noHistory}</div>
               ) : (
                 versionsList.map(ver => {
                   const isCurrentPublished = ver.status === 'PUBLISHED';
@@ -835,13 +834,13 @@ export default function AdminCmsStudioPage() {
                     <div key={ver.id} className="p-3 bg-black/60 border border-border-subtle rounded flex items-center justify-between">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-heading font-bold text-white text-sm">เวอร์ชัน v{ver.version_number}</span>
+                          <span className="font-heading font-bold text-white text-sm">{t.cms.versionLabel}{ver.version_number}</span>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${isCurrentPublished ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40' : 'bg-neutral-900 text-stone'}`}>
-                            {isCurrentPublished ? 'กำลังใช้งานจริง (LIVE)' : 'เวอร์ชันเก่า (ARCHIVED)'}
+                            {isCurrentPublished ? t.cms.statusLive : t.cms.statusArchived}
                           </span>
                         </div>
                         <div className="text-[10px] text-stone">
-                          เผยแพร่เมื่อ {new Date(ver.created_at).toLocaleString('th-TH')} โดย {ver.author_name || ver.author_email || 'ผู้ดูแลระบบ'}
+                          {new Date(ver.created_at).toLocaleString()} - {ver.author_name || ver.author_email || 'Admin'}
                         </div>
                       </div>
 
@@ -853,7 +852,7 @@ export default function AdminCmsStudioPage() {
                             onClick={() => setSelectedRollbackVer(ver)}
                             className="h-7 text-[11px] gap-1"
                           >
-                            <RotateCcw className="w-3 h-3 text-gold" /> ย้อนคืนไปเวอร์ชัน v{ver.version_number} (Rollback)
+                            <RotateCcw className="w-3 h-3 text-gold" /> {t.cms.rollbackButton} v{ver.version_number}
                           </Button>
                         )}
                       </div>
@@ -871,21 +870,21 @@ export default function AdminCmsStudioPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
           <div className="bg-bg-card border border-amber-500 rounded-xl w-full max-w-md p-6 space-y-4 shadow-2xl text-xs">
             <div className="flex items-center gap-2 text-amber-400 font-bold text-base border-b border-border-subtle pb-3">
-              <RotateCcw className="w-5 h-5 animate-spin" /> ยืนยันการย้อนคืนเวอร์ชัน (Confirm Rollback)
+              <RotateCcw className="w-5 h-5 animate-spin" /> {t.cms.rollbackModalTitle}
             </div>
             <p className="text-stone-light leading-relaxed">
-              คุณแน่ใจหรือไม่ว่าต้องการย้อนคืนเนื้อหาไปที่ <strong>เวอร์ชัน v{selectedRollbackVer.version_number}</strong>?
+              {t.cms.rollbackConfirmText} <strong>v{selectedRollbackVer.version_number}</strong>?
             </p>
             <div className="bg-amber-950/40 border border-amber-500/40 p-3 rounded text-[11px] space-y-1 text-amber-200">
-              <div>• ประวัติเวอร์ชัน v{selectedRollbackVer.version_number} ในอดีตจะถูกรักษาความปลอดภัย <strong>ไม่ถูกแก้ไขหรือสูญหาย</strong></div>
-              <div>• ระบบจะสร้าง <strong>เวอร์ชันเผยแพร่ใหม่ (vNext)</strong> ที่คัดลอกข้อมูล snapshot จาก v{selectedRollbackVer.version_number} ให้อัตโนมัติ</div>
+              <div>{t.cms.rollbackNotice1}</div>
+              <div>{t.cms.rollbackNotice2}</div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="ghost" size="sm" onClick={() => setSelectedRollbackVer(null)}>
-                ยกเลิก (Cancel)
+                {t.cms.cancelButton}
               </Button>
               <Button variant="gold" size="sm" onClick={handleRollback} disabled={publishing}>
-                {publishing ? 'กำลังย้อนคืน...' : 'ยืนยันการย้อนคืน (Confirm Rollback)'}
+                {publishing ? t.cms.rollingBackText : t.cms.confirmRollbackButton}
               </Button>
             </div>
           </div>
