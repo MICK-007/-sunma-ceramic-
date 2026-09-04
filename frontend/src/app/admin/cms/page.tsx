@@ -261,17 +261,13 @@ export default function AdminCmsStudioPage() {
         });
 
         if (uploadRes.success && uploadRes.data) {
-          // media_id is Source of Truth; custom_image_url set to empty string
           finalMediaId = uploadRes.data.id;
-          finalImageUrl = '';
+          finalImageUrl = uploadRes.data.url;
         } else {
           setErrorMessage(uploadRes.message || 'Failed to auto-process pasted image.');
           setSaving(false);
           return;
         }
-      } else if (finalMediaId) {
-        // When media_id is present, do not duplicate into customImageUrl
-        finalImageUrl = '';
       }
 
       if (editingItem) {
@@ -365,7 +361,7 @@ export default function AdminCmsStudioPage() {
       setItemForm(prev => ({
         ...prev,
         mediaId: media.id,
-        customImageUrl: '', // Clear customImageUrl when mediaId is selected as Source of Truth
+        customImageUrl: media.url, // Display media.url in input so admin sees the selected asset path
       }));
     }
   };
