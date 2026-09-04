@@ -262,12 +262,15 @@ export default function AdminCmsStudioPage() {
 
         if (uploadRes.success && uploadRes.data) {
           finalMediaId = uploadRes.data.id;
-          finalImageUrl = uploadRes.data.url;
+          finalImageUrl = null;
         } else {
           setErrorMessage(uploadRes.message || 'Failed to auto-process pasted image.');
           setSaving(false);
           return;
         }
+      } else if (finalMediaId) {
+        // When mediaId is linked from Media Library, set customImageUrl to null for clean DB storage & Zod validation
+        finalImageUrl = null;
       }
 
       if (editingItem) {
