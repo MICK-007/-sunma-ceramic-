@@ -139,6 +139,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
         );
         setEditingMedia(null);
         setSuccessMessage(t.media.altSavedSuccess);
+        fetchMedia(searchQuery);
       } else {
         setErrorMessage(res.message || 'Failed to update alt text');
       }

@@ -24,6 +24,7 @@ export async function getAdminMedia(req: AuthenticatedRequest, res: Response) {
       mediaList = await sql`
         SELECT m.id, m.filename, m.original_name, m.mime_type, m.size_bytes, m.url, m.alt_text, m.uploaded_by, m.created_at, m.updated_at,
           (SELECT COUNT(*)::int FROM cms_section_items item WHERE item.media_id = m.id) as usage_count
+        FROM cms_media m
         WHERE m.original_name ILIKE ${'%' + search + '%'} OR m.alt_text ILIKE ${'%' + search + '%'}
         ORDER BY m.created_at DESC
       `;
