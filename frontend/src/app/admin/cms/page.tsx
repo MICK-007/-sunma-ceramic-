@@ -779,7 +779,6 @@ export default function AdminCmsStudioPage() {
                     <ImageIcon className="w-4 h-4 mr-1" /> {t.cms.chooseMediaButton}
                   </Button>
                 </div>
-                <p className="text-[10px] text-stone mt-1">{t.cms.itemImageHelp}</p>
               </div>
 
               <div>
