@@ -51,6 +51,16 @@ export const reorderCmsSectionsSchema = z.object({
   ).min(1, 'At least one section order must be provided'),
 }).strict();
 
+// Helper validation for external image URLs (only http and https allowed, max 2048 chars)
+const externalImageUrlSchema = z
+  .string()
+  .trim()
+  .max(2048, 'External image URL must contain at most 2048 characters')
+  .url('Invalid URL format')
+  .refine(url => /^https?:\/\//i.test(url), 'Only http:// and https:// image URLs are allowed')
+  .optional()
+  .nullable();
+
 // 6. Create Section Item Schema
 export const createCmsItemSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
@@ -60,7 +70,7 @@ export const createCmsItemSchema = z.object({
   linkUrl: z.string().max(1000).optional().nullable(),
   linkLabel: z.string().max(100).optional().nullable(),
   mediaId: z.string().uuid().optional().nullable(),
-  customImageUrl: z.string().optional().nullable(),
+  customImageUrl: externalImageUrlSchema,
   badgeTag: z.string().max(100).optional().nullable(),
   sortOrder: z.number().int().min(0).optional().default(0),
   isEnabled: z.boolean().optional().default(true),
@@ -76,7 +86,7 @@ export const updateCmsItemSchema = z.object({
   linkUrl: z.string().max(1000).optional().nullable(),
   linkLabel: z.string().max(100).optional().nullable(),
   mediaId: z.string().uuid().optional().nullable(),
-  customImageUrl: z.string().optional().nullable(),
+  customImageUrl: externalImageUrlSchema,
   badgeTag: z.string().max(100).optional().nullable(),
   sortOrder: z.number().int().min(0).optional(),
   isEnabled: z.boolean().optional(),

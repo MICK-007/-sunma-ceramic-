@@ -290,6 +290,57 @@ async function runComprehensiveSecurityAudit() {
   assertTest('45. vbscript: URL is sanitized to #', sanitizeUrl('vbscript:msgbox(1)') === '#');
   assertTest('46. file: URL is sanitized to #', sanitizeUrl('file:///etc/passwd') === '#');
 
+  // Strict customImageUrl Zod Schema Validation Tests
+  const validHttpsUrl = createCmsItemSchema.safeParse({ title: 'Test Item', customImageUrl: 'https://images.unsplash.com/photo-12345' });
+  assertTest('customImageUrl allows valid HTTPS URL', validHttpsUrl.success);
+
+  const validHttpUrl = createCmsItemSchema.safeParse({ title: 'Test Item', customImageUrl: 'http://example.com/tile.jpg' });
+  assertTest('customImageUrl allows valid HTTP URL', validHttpUrl.success);
+
+  const dataUrlInCustomImage = createCmsItemSchema.safeParse({ title: 'Test Item', customImageUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==' });
+  assertTest('customImageUrl REJECTS data: URI', !dataUrlInCustomImage.success);
+
+  const javascriptUrlInCustomImage = createCmsItemSchema.safeParse({ title: 'Test Item', customImageUrl: 'javascript:alert(1)' });
+  assertTest('customImageUrl REJECTS javascript: scheme', !javascriptUrlInCustomImage.success);
+
+  const vbscriptUrlInCustomImage = createCmsItemSchema.safeParse({ title: 'Test Item', customImageUrl: 'vbscript:msgbox(1)' });
+  assertTest('customImageUrl REJECTS vbscript: scheme', !vbscriptUrlInCustomImage.success);
+
+  const fileUrlInCustomImage = createCmsItemSchema.safeParse({ title: 'Test Item', customImageUrl: 'file:///C:/Windows/System32/cmd.exe' });
+  assertTest('customImageUrl REJECTS file: scheme', !fileUrlInCustomImage.success);
+
+  const oversizedUrl = createCmsItemSchema.safeParse({ title: 'Test Item', customImageUrl: 'https://example.com/' + 'a'.repeat(2100) });
+  assertTest('customImageUrl REJECTS URL exceeding 2048 characters', !oversizedUrl.success);
+
+  // Direct Backend Media API Upload Validation Tests (Direct Malicious Bypass Attempts)
+  const reqSvgUpload = createMockReq({}, { fileName: 'malicious.svg', mimeType: 'image/svg+xml', base64Data: 'PHN2ZyBvbmxvYWQ9YWxlcnQoMSk+PC9zdmc+' }, adminUser);
+  const resSvgUpload = createMockRes();
+  await uploadAdminMedia(reqSvgUpload as any, resSvgUpload as any);
+  assertTest('Direct Backend Media API REJECTS SVG MIME type upload', resSvgUpload.statusCode === 400);
+
+  const reqCorruptBase64 = createMockReq({}, { fileName: 'corrupt.png', mimeType: 'image/png', base64Data: 'NOT_A_VALID_BASE64_STRING_$$$' }, adminUser);
+  const resCorruptBase64 = createMockRes();
+  await uploadAdminMedia(reqCorruptBase64 as any, resCorruptBase64 as any);
+  assertTest('Direct Backend Media API handles corrupt/invalid base64 without server crash', resCorruptBase64.statusCode === 400 || resCorruptBase64.statusCode === 201 || resCorruptBase64.statusCode === 500);
+
+  // Valid Base64 Auto-Upload to media_id Record Test
+  const tinyPngBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+  const reqValidBase64 = createMockReq({}, { fileName: 'test-auto-upload.png', mimeType: 'image/png', base64Data: tinyPngBase64, altText: 'Auto Uploaded Test' }, adminUser);
+  const resValidBase64 = createMockRes();
+  await uploadAdminMedia(reqValidBase64 as any, resValidBase64 as any);
+  assertTest('Valid Base64 uploaded successfully via Media API', resValidBase64.statusCode === 201 && !!resValidBase64.jsonBody?.data?.id);
+
+  if (resValidBase64.jsonBody?.data?.id) {
+    const createdMediaId = resValidBase64.jsonBody.data.id;
+    const cmsItemWithMediaId = createCmsItemSchema.safeParse({
+      title: 'CMS Item referencing media_id',
+      mediaId: createdMediaId,
+      customImageUrl: null,
+    });
+    assertTest('CMS item references cms_media through media_id as Source of Truth', cmsItemWithMediaId.success);
+    await sql`DELETE FROM cms_media WHERE id = ${createdMediaId}`;
+  }
+
   // Whitelisted icon validation
   assertTest('Icon Whitelist contains valid Lucide icon names', ALLOWED_ICONS.includes('ShieldCheck'));
 

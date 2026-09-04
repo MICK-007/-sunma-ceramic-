@@ -246,7 +246,7 @@ export default function AdminCmsStudioPage() {
       let finalImageUrl = itemForm.customImageUrl;
       let finalMediaId = itemForm.mediaId || null;
 
-      // Automatically handle oversized Base64 strings pasted into customImageUrl
+      // Automatically handle Base64 strings pasted into customImageUrl via Media Library upload API
       if (finalImageUrl && finalImageUrl.startsWith('data:image')) {
         const mimeMatch = finalImageUrl.match(/^data:(image\/\w+);base64,/);
         const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
@@ -261,13 +261,17 @@ export default function AdminCmsStudioPage() {
         });
 
         if (uploadRes.success && uploadRes.data) {
-          finalImageUrl = uploadRes.data.url;
+          // media_id is Source of Truth; custom_image_url set to empty string
           finalMediaId = uploadRes.data.id;
+          finalImageUrl = '';
         } else {
           setErrorMessage(uploadRes.message || 'Failed to auto-process pasted image.');
           setSaving(false);
           return;
         }
+      } else if (finalMediaId) {
+        // When media_id is present, do not duplicate into customImageUrl
+        finalImageUrl = '';
       }
 
       if (editingItem) {
@@ -361,7 +365,7 @@ export default function AdminCmsStudioPage() {
       setItemForm(prev => ({
         ...prev,
         mediaId: media.id,
-        customImageUrl: media.url,
+        customImageUrl: '', // Clear customImageUrl when mediaId is selected as Source of Truth
       }));
     }
   };
