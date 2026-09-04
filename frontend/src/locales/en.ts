@@ -219,6 +219,7 @@ export const en = {
     itemTitlePlaceholder: 'Enter item title...',
     itemDescLabel: 'Description',
     itemDescPlaceholder: 'Enter description...',
+    itemIconLabel: 'Select Icon',
     itemImageLabel: 'Image (Image URL / Media ID / Base64)',
     itemImagePlaceholder: 'Choose from media library or paste image URL / Base64 data',
     itemLinkUrlPlaceholder: '/shop?category=floor-tiles',

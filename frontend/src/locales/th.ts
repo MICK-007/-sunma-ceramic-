@@ -219,6 +219,7 @@ export const th = {
     itemTitlePlaceholder: 'กรอกชื่อรายการ...',
     itemDescLabel: 'คำอธิบาย (Description)',
     itemDescPlaceholder: 'รายละเอียดเพิ่มเติม...',
+    itemIconLabel: 'เลือก ไอคอน (Icon)',
     itemImageLabel: 'รูปภาพ (Image URL / Media ID / Base64)',
     itemImagePlaceholder: 'เลือกจากคลังสื่อ หรือวาง URL รูปภาพ / รหัสภาพ Base64',
     itemLinkUrlPlaceholder: '/shop?category=floor-tiles',
