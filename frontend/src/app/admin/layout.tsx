@@ -37,6 +37,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const adminNav = [
     { href: '/admin', label: t.admin.navDashboard, icon: LayoutDashboard },
+    { href: '/admin/cms', label: 'CMS Studio', icon: FolderTree },
     { href: '/admin/products', label: t.admin.navProducts, icon: Package },
     { href: '/admin/categories', label: t.admin.navCategories, icon: FolderTree },
     { href: '/admin/orders', label: t.admin.navOrders, icon: ShoppingCart },

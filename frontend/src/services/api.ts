@@ -406,4 +406,95 @@ export const api = {
       method: 'DELETE',
     });
   },
+
+  // CMS Media Library
+  async getAdminMedia(search: string = '') {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/media${search ? `?search=${encodeURIComponent(search)}` : ''}`);
+  },
+
+  async uploadAdminMedia(payload: { fileName: string; mimeType: string; base64Data?: string; imageUrl?: string; altText?: string }) {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/media/upload`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async updateAdminMedia(id: string, altText: string) {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/media/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ altText }),
+    });
+  },
+
+  async deleteAdminMedia(id: string) {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/media/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Public CMS Content Fetch
+  async getPublicCmsPage(slug: string) {
+    return safeFetch(`${getApiBaseUrl()}/cms/public/pages/${slug}`);
+  },
+
+  // Protected Admin Draft CMS Page Fetch
+  async getAdminCmsDraftPage(slug: string) {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/pages/${slug}/draft`);
+  },
+
+  async reorderAdminCmsSections(pageSlug: string, sectionOrders: { id: string; sortOrder: number }[]) {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/sections/reorder`, {
+      method: 'PUT',
+      body: JSON.stringify({ pageSlug, sectionOrders }),
+    });
+  },
+
+  async updateAdminCmsSection(id: string, updates: any) {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/sections/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+  },
+
+  async createAdminCmsItem(sectionId: string, itemData: any) {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/sections/${sectionId}/items`, {
+      method: 'POST',
+      body: JSON.stringify(itemData),
+    });
+  },
+
+  async updateAdminCmsItem(id: string, updates: any) {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/items/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    });
+  },
+
+  async deleteAdminCmsItem(id: string) {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/items/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  async publishAdminCmsPage(slug: string) {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/pages/${slug}/publish`, {
+      method: 'POST',
+    });
+  },
+
+  async getAdminCmsPageVersions(slug: string) {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/pages/${slug}/versions`);
+  },
+
+  async rollbackAdminCmsPage(slug: string, versionNumber: number) {
+    return safeFetch(`${getApiBaseUrl()}/cms/admin/pages/${slug}/rollback`, {
+      method: 'POST',
+      body: JSON.stringify({ versionNumber }),
+    });
+  },
 };
+
+
+
+
+

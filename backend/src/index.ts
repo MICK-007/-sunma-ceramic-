@@ -18,6 +18,7 @@ import wishlistRoutes from './routes/wishlist.routes';
 import promotionRoutes from './routes/promotion.routes';
 import roomRoutes from './routes/room.routes';
 import adminRoutes from './routes/admin.routes';
+import cmsRoutes from './routes/cms.routes';
 
 export { apiLimiter, authLimiter, refreshLimiter, orderLimiter };
 
@@ -97,6 +98,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/cms', cmsRoutes);
 
 // Global Error Handler
 app.use(errorHandler);

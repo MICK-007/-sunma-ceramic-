@@ -9,6 +9,7 @@ import {
   timestamp,
   pgEnum,
   jsonb,
+  unique,
 } from 'drizzle-orm/pg-core';
 
 // Enums
@@ -292,3 +293,96 @@ export const securityEvents = pgTable('security_events', {
   userAgent: text('user_agent'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+// ==========================================
+// CMS TABLES (Structured Block-Based CMS)
+// ==========================================
+
+// 1. CMS Media Library Table
+export const cmsMedia = pgTable('cms_media', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  filename: varchar('filename', { length: 255 }).notNull(),
+  originalName: varchar('original_name', { length: 255 }).notNull(),
+  mimeType: varchar('mime_type', { length: 100 }).notNull(),
+  sizeBytes: integer('size_bytes').notNull(),
+  url: text('url').notNull(),
+  altText: text('alt_text').default(''),
+  uploadedBy: uuid('uploaded_by').references(() => profiles.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// 2. CMS Pages Table
+export const cmsPages = pgTable('cms_pages', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  slug: varchar('slug', { length: 100 }).notNull().unique(), // e.g. 'home', 'footer', 'global'
+  title: varchar('title', { length: 255 }).notNull(),
+  seoTitle: varchar('seo_title', { length: 255 }),
+  seoDescription: text('seo_description'),
+  isPublished: boolean('is_published').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// 3. CMS Page Sections Table
+export const cmsSections = pgTable('cms_sections', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  pageId: uuid('page_id').references(() => cmsPages.id, { onDelete: 'cascade' }).notNull(),
+  sectionKey: varchar('section_key', { length: 100 }).notNull(), // 'hero', 'collections', 'brands', 'why_choose', 'b2b', 'footer'
+  sectionType: varchar('section_type', { length: 100 }).notNull(), // 'HERO', 'COLLECTION_GRID', 'BRAND_GRID', 'WHY_CHOOSE', 'B2B_CTA', 'FOOTER'
+  title: varchar('title', { length: 255 }),
+  subtitle: text('subtitle'),
+  sortOrder: integer('sort_order').default(0).notNull(),
+  isEnabled: boolean('is_enabled').default(true).notNull(),
+  settings: jsonb('settings').default({}),
+  version: integer('version').default(1).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// 4. CMS Section Items Table
+export const cmsSectionItems = pgTable('cms_section_items', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  sectionId: uuid('section_id').references(() => cmsSections.id, { onDelete: 'cascade' }).notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
+  subtitle: text('subtitle'),
+  description: text('description'),
+  iconName: varchar('icon_name', { length: 100 }),
+  linkUrl: text('link_url'),
+  linkLabel: varchar('link_label', { length: 100 }),
+  mediaId: uuid('media_id').references(() => cmsMedia.id, { onDelete: 'set null' }),
+  customImageUrl: text('custom_image_url'),
+  badgeTag: varchar('badge_tag', { length: 100 }),
+  sortOrder: integer('sort_order').default(0).notNull(),
+  isEnabled: boolean('is_enabled').default(true).notNull(),
+  metadata: jsonb('metadata').default({}),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// 5. CMS Page Section Versions Table (Page-Level Atomic Snapshot)
+export const cmsSectionVersions = pgTable('cms_section_versions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  pageId: uuid('page_id').references(() => cmsPages.id, { onDelete: 'cascade' }),
+  sectionId: uuid('section_id').references(() => cmsSections.id, { onDelete: 'cascade' }),
+  versionNumber: integer('version_number').notNull(),
+  status: varchar('status', { length: 20 }).notNull(), // 'DRAFT', 'PUBLISHED', 'ARCHIVED'
+  contentPayload: jsonb('content_payload').notNull(),
+  createdBy: uuid('created_by').references(() => profiles.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  pageVersionUnique: unique('cms_section_versions_page_version_unique').on(table.pageId, table.versionNumber),
+}));
+
+// 6. CMS Security Audit Logs Table
+export const cmsAuditLogs = pgTable('cms_audit_logs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  actorId: uuid('actor_id').references(() => profiles.id, { onDelete: 'set null' }),
+  action: varchar('action', { length: 100 }).notNull(),
+  targetType: varchar('target_type', { length: 100 }).notNull(),
+  targetId: varchar('target_id', { length: 255 }),
+  details: jsonb('details').default({}),
+  ipAddress: varchar('ip_address', { length: 45 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+

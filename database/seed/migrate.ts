@@ -257,7 +257,101 @@ async function runMigrate() {
       );
     `;
 
-    console.log('✅ Schema tables created successfully on Supabase PostgreSQL!');
+    // 14. Create CMS Tables
+    await client`
+      CREATE TABLE IF NOT EXISTS "cms_media" (
+        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        "filename" varchar(255) NOT NULL,
+        "original_name" varchar(255) NOT NULL,
+        "mime_type" varchar(100) NOT NULL,
+        "size_bytes" integer NOT NULL,
+        "url" text NOT NULL,
+        "alt_text" text DEFAULT '',
+        "uploaded_by" uuid REFERENCES "profiles"("id") ON DELETE SET NULL,
+        "created_at" timestamp DEFAULT now() NOT NULL,
+        "updated_at" timestamp DEFAULT now() NOT NULL
+      );
+    `;
+
+    await client`
+      CREATE TABLE IF NOT EXISTS "cms_pages" (
+        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        "slug" varchar(100) NOT NULL UNIQUE,
+        "title" varchar(255) NOT NULL,
+        "seo_title" varchar(255),
+        "seo_description" text,
+        "is_published" boolean DEFAULT true NOT NULL,
+        "created_at" timestamp DEFAULT now() NOT NULL,
+        "updated_at" timestamp DEFAULT now() NOT NULL
+      );
+    `;
+
+    await client`
+      CREATE TABLE IF NOT EXISTS "cms_sections" (
+        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        "page_id" uuid REFERENCES "cms_pages"("id") ON DELETE CASCADE NOT NULL,
+        "section_key" varchar(100) NOT NULL,
+        "section_type" varchar(100) NOT NULL,
+        "title" varchar(255),
+        "subtitle" text,
+        "sort_order" integer DEFAULT 0 NOT NULL,
+        "is_enabled" boolean DEFAULT true NOT NULL,
+        "settings" jsonb DEFAULT '{}'::jsonb,
+        "version" integer DEFAULT 1 NOT NULL,
+        "created_at" timestamp DEFAULT now() NOT NULL,
+        "updated_at" timestamp DEFAULT now() NOT NULL,
+        CONSTRAINT "cms_sections_page_section_unique" UNIQUE ("page_id", "section_key")
+      );
+    `;
+
+    await client`
+      CREATE TABLE IF NOT EXISTS "cms_section_items" (
+        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        "section_id" uuid REFERENCES "cms_sections"("id") ON DELETE CASCADE NOT NULL,
+        "title" varchar(255) NOT NULL,
+        "subtitle" text,
+        "description" text,
+        "icon_name" varchar(100),
+        "link_url" text,
+        "link_label" varchar(100),
+        "media_id" uuid REFERENCES "cms_media"("id") ON DELETE SET NULL,
+        "custom_image_url" text,
+        "badge_tag" varchar(100),
+        "sort_order" integer DEFAULT 0 NOT NULL,
+        "is_enabled" boolean DEFAULT true NOT NULL,
+        "metadata" jsonb DEFAULT '{}'::jsonb,
+        "created_at" timestamp DEFAULT now() NOT NULL,
+        "updated_at" timestamp DEFAULT now() NOT NULL
+      );
+    `;
+
+    await client`
+      CREATE TABLE IF NOT EXISTS "cms_section_versions" (
+        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        "page_id" uuid REFERENCES "cms_pages"("id") ON DELETE CASCADE,
+        "section_id" uuid REFERENCES "cms_sections"("id") ON DELETE CASCADE,
+        "version_number" integer NOT NULL,
+        "status" varchar(20) NOT NULL,
+        "content_payload" jsonb NOT NULL,
+        "created_by" uuid REFERENCES "profiles"("id") ON DELETE SET NULL,
+        "created_at" timestamp DEFAULT now() NOT NULL
+      );
+    `;
+
+    await client`
+      CREATE TABLE IF NOT EXISTS "cms_audit_logs" (
+        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        "actor_id" uuid REFERENCES "profiles"("id") ON DELETE SET NULL,
+        "action" varchar(100) NOT NULL,
+        "target_type" varchar(100) NOT NULL,
+        "target_id" varchar(255),
+        "details" jsonb DEFAULT '{}'::jsonb,
+        "ip_address" varchar(45),
+        "created_at" timestamp DEFAULT now() NOT NULL
+      );
+    `;
+
+    console.log('✅ All CMS Schema tables created successfully on Supabase PostgreSQL!');
   } catch (err) {
     console.error('❌ Error during schema creation:', err);
   } finally {
@@ -266,3 +360,4 @@ async function runMigrate() {
 }
 
 runMigrate();
+
