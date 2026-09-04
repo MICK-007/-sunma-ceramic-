@@ -247,4 +247,16 @@ export const en = {
     confirmRollbackButton: 'Confirm Rollback',
     rollingBackText: 'Rolling back...',
   },
+  media: {
+    title: 'Media Library Studio',
+    searchPlaceholder: 'Search images...',
+    uploadButton: 'Upload Image',
+    uploadingText: 'Uploading...',
+    editAltTitle: 'Edit Image Alt Text',
+    saveAltButton: 'Save Alt',
+    selectButton: 'Select',
+    noItems: 'No media items found. Upload an image to start!',
+    loading: 'Loading media gallery...',
+    altSavedSuccess: 'Alt text updated successfully',
+  },
 };

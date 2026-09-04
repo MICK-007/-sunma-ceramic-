@@ -243,6 +243,33 @@ export default function AdminCmsStudioPage() {
     setErrorMessage('');
 
     try {
+      let finalImageUrl = itemForm.customImageUrl;
+      let finalMediaId = itemForm.mediaId || null;
+
+      // Automatically handle oversized Base64 strings pasted into customImageUrl
+      if (finalImageUrl && finalImageUrl.startsWith('data:image')) {
+        const mimeMatch = finalImageUrl.match(/^data:(image\/\w+);base64,/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const ext = mimeType.split('/')[1] || 'jpg';
+        const fileName = `pasted-image-${Date.now()}.${ext}`;
+
+        const uploadRes = await api.uploadAdminMedia({
+          fileName,
+          mimeType,
+          base64Data: finalImageUrl,
+          altText: itemForm.title || fileName,
+        });
+
+        if (uploadRes.success && uploadRes.data) {
+          finalImageUrl = uploadRes.data.url;
+          finalMediaId = uploadRes.data.id;
+        } else {
+          setErrorMessage(uploadRes.message || 'Failed to auto-process pasted image.');
+          setSaving(false);
+          return;
+        }
+      }
+
       if (editingItem) {
         // Update Existing Item
         const res = await api.updateAdminCmsItem(editingItem.id, {
@@ -251,8 +278,8 @@ export default function AdminCmsStudioPage() {
           badgeTag: itemForm.badgeTag,
           linkUrl: itemForm.linkUrl,
           iconName: itemForm.iconName as any,
-          customImageUrl: itemForm.customImageUrl,
-          mediaId: itemForm.mediaId || null,
+          customImageUrl: finalImageUrl,
+          mediaId: finalMediaId,
           sortOrder: itemForm.sortOrder,
           isEnabled: itemForm.isEnabled,
         });
@@ -276,8 +303,8 @@ export default function AdminCmsStudioPage() {
           badgeTag: itemForm.badgeTag,
           linkUrl: itemForm.linkUrl,
           iconName: itemForm.iconName as any,
-          customImageUrl: itemForm.customImageUrl,
-          mediaId: itemForm.mediaId || null,
+          customImageUrl: finalImageUrl,
+          mediaId: finalMediaId,
           sortOrder: itemForm.sortOrder,
           isEnabled: itemForm.isEnabled,
         });

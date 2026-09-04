@@ -247,4 +247,16 @@ export const th = {
     confirmRollbackButton: 'ยืนยันการย้อนคืน (Confirm Rollback)',
     rollingBackText: 'กำลังย้อนคืน...',
   },
+  media: {
+    title: 'คลังรูปภาพและสื่อ (Media Library Studio)',
+    searchPlaceholder: 'ค้นหารูปภาพ...',
+    uploadButton: 'อัปโหลดรูปภาพ',
+    uploadingText: 'กำลังอัปโหลด...',
+    editAltTitle: 'แก้ไขชื่อ/คำอธิบายรูปภาพ (Alt Text)',
+    saveAltButton: 'บันทึกชื่อรูปภาพ',
+    selectButton: 'เลือกรูปนี้',
+    noItems: 'ยังไม่มีรูปภาพในคลังสื่อ กดอัปโหลดรูปภาพเพื่อเริ่มต้นใช้งาน',
+    loading: 'กำลังโหลดคลังรูปภาพ...',
+    altSavedSuccess: 'บันทึกชื่อรูปภาพสำเร็จ',
+  },
 };
