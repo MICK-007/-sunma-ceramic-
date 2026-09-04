@@ -222,6 +222,7 @@ export const en = {
     itemIconLabel: 'Select Icon',
     itemImageLabel: 'Image (Image URL / Media ID / Base64)',
     itemImagePlaceholder: 'Choose from media library or paste image URL / Base64 data',
+    itemLinkUrlLabel: 'Destination Link URL',
     itemLinkUrlPlaceholder: '/shop?category=floor-tiles',
     cancelButton: 'Cancel',
     saveItemDraftButton: 'Save Draft',

@@ -222,6 +222,7 @@ export const th = {
     itemIconLabel: 'เลือก ไอคอน (Icon)',
     itemImageLabel: 'รูปภาพ (Image URL / Media ID / Base64)',
     itemImagePlaceholder: 'เลือกจากคลังสื่อ หรือวาง URL รูปภาพ / รหัสภาพ Base64',
+    itemLinkUrlLabel: 'ลิงก์ปลายทาง (Destination Link URL)',
     itemLinkUrlPlaceholder: '/shop?category=floor-tiles',
     cancelButton: 'ยกเลิก (Cancel)',
     saveItemDraftButton: 'บันทึกฉบับร่าง (Save Draft)',
