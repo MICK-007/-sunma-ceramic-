@@ -54,7 +54,7 @@ class StoreRepository {
             slug: 'wood-look-tiles',
             description: 'Authentic timber texture with zero maintenance, combining organic warmth with indestructible ceramic performance.',
             descriptionTh: 'กระเบื้องลายไม้ธรรมชาติเสมือนไม้จริง ทนทาน ไม่บวมน้ำ ดูแลรักษาง่าย',
-            image: 'https://images.unsplash.com/photo-1513161455074-7554c9146233?auto=format&fit=crop&w=1200&q=80',
+            image: 'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?auto=format&fit=crop&w=1200&q=80',
             sortOrder: 5,
             isActive: true,
         },

@@ -24,5 +24,8 @@ router.get('/promotions', admin_controller_1.getAdminPromotions);
 router.post('/promotions', (0, validate_1.validateBody)(promotion_schema_1.createPromotionSchema), admin_controller_1.createAdminPromotion);
 router.patch('/promotions/:id', (0, validate_1.validateBody)(promotion_schema_1.updatePromotionSchema), admin_controller_1.updateAdminPromotion);
 router.post('/categories', admin_controller_1.createAdminCategory);
+router.put('/categories/:id', admin_controller_1.updateAdminCategory);
+router.patch('/categories/:id', admin_controller_1.updateAdminCategory);
+router.delete('/categories/:id', admin_controller_1.deleteAdminCategory);
 router.post('/brands', admin_controller_1.createAdminBrand);
 exports.default = router;

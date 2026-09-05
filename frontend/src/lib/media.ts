@@ -33,7 +33,17 @@ export function resolveMediaUrl(url?: string | null): string {
     return cleanUrl;
   }
 
-  // Tier 2: Relative URL (/api/...) -> Prepend API Base
+  // Next.js frontend static public assets (pass through directly)
+  if (
+    cleanUrl.startsWith('/images/') ||
+    cleanUrl.startsWith('/icons/') ||
+    cleanUrl.startsWith('/logo') ||
+    cleanUrl.startsWith('/favicon')
+  ) {
+    return cleanUrl;
+  }
+
+  // Tier 2: Relative Backend URL (/api/... or /uploads/...) -> Prepend API Base
   if (cleanUrl.startsWith('/')) {
     return `${apiBase}${cleanUrl}`;
   }

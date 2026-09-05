@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAdminBrand = exports.createAdminCategory = exports.updateAdminPromotion = exports.createAdminPromotion = exports.getAdminPromotions = exports.getAdminInventory = exports.getAdminCustomers = exports.updateOrderStatus = exports.getAdminOrders = exports.deleteAdminProduct = exports.updateAdminProduct = exports.createAdminProduct = exports.getAdminProducts = exports.getDashboardStats = void 0;
+exports.createAdminBrand = exports.deleteAdminCategory = exports.updateAdminCategory = exports.createAdminCategory = exports.updateAdminPromotion = exports.createAdminPromotion = exports.getAdminPromotions = exports.getAdminInventory = exports.getAdminCustomers = exports.updateOrderStatus = exports.getAdminOrders = exports.deleteAdminProduct = exports.updateAdminProduct = exports.createAdminProduct = exports.getAdminProducts = exports.getDashboardStats = void 0;
 const store_1 = require("../repositories/store");
 const logger_1 = require("../utils/logger");
 const getDashboardStats = (req, res) => {
@@ -279,6 +279,39 @@ const createAdminCategory = (req, res) => {
     return res.status(201).json({ success: true, data: newCat });
 };
 exports.createAdminCategory = createAdminCategory;
+const updateAdminCategory = (req, res) => {
+    const { id } = req.params;
+    const index = store_1.store.categories.findIndex(c => c.id === id || c.slug === id);
+    if (index === -1) {
+        return res.status(404).json({ success: false, message: 'Category not found.' });
+    }
+    const existing = store_1.store.categories[index];
+    const { name, nameTh, slug, description, descriptionTh, image, sortOrder, isActive } = req.body;
+    const updatedCat = {
+        ...existing,
+        name: name !== undefined ? name : existing.name,
+        nameTh: nameTh !== undefined ? nameTh : existing.nameTh,
+        slug: slug !== undefined ? slug : existing.slug,
+        description: description !== undefined ? description : existing.description,
+        descriptionTh: descriptionTh !== undefined ? descriptionTh : existing.descriptionTh,
+        image: image !== undefined ? image : existing.image,
+        sortOrder: sortOrder !== undefined ? Number(sortOrder) : existing.sortOrder,
+        isActive: isActive !== undefined ? Boolean(isActive) : existing.isActive,
+    };
+    store_1.store.categories[index] = updatedCat;
+    return res.json({ success: true, data: updatedCat });
+};
+exports.updateAdminCategory = updateAdminCategory;
+const deleteAdminCategory = (req, res) => {
+    const { id } = req.params;
+    const index = store_1.store.categories.findIndex(c => c.id === id || c.slug === id);
+    if (index === -1) {
+        return res.status(404).json({ success: false, message: 'Category not found.' });
+    }
+    store_1.store.categories.splice(index, 1);
+    return res.json({ success: true, message: 'Category deleted successfully.' });
+};
+exports.deleteAdminCategory = deleteAdminCategory;
 const createAdminBrand = (req, res) => {
     const { name, slug, description, country, logo } = req.body;
     const newBrand = {

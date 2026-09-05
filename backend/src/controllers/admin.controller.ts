@@ -312,6 +312,45 @@ export const createAdminCategory = (req: Request, res: Response) => {
   return res.status(201).json({ success: true, data: newCat });
 };
 
+export const updateAdminCategory = (req: Request, res: Response) => {
+  const { id } = req.params;
+  const index = store.categories.findIndex(c => c.id === id || c.slug === id);
+
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Category not found.' });
+  }
+
+  const existing = store.categories[index];
+  const { name, nameTh, slug, description, descriptionTh, image, sortOrder, isActive } = req.body;
+
+  const updatedCat: Category = {
+    ...existing,
+    name: name !== undefined ? name : existing.name,
+    nameTh: nameTh !== undefined ? nameTh : existing.nameTh,
+    slug: slug !== undefined ? slug : existing.slug,
+    description: description !== undefined ? description : existing.description,
+    descriptionTh: descriptionTh !== undefined ? descriptionTh : existing.descriptionTh,
+    image: image !== undefined ? image : existing.image,
+    sortOrder: sortOrder !== undefined ? Number(sortOrder) : existing.sortOrder,
+    isActive: isActive !== undefined ? Boolean(isActive) : existing.isActive,
+  };
+
+  store.categories[index] = updatedCat;
+  return res.json({ success: true, data: updatedCat });
+};
+
+export const deleteAdminCategory = (req: Request, res: Response) => {
+  const { id } = req.params;
+  const index = store.categories.findIndex(c => c.id === id || c.slug === id);
+
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Category not found.' });
+  }
+
+  store.categories.splice(index, 1);
+  return res.json({ success: true, message: 'Category deleted successfully.' });
+};
+
 export const createAdminBrand = (req: Request, res: Response) => {
   const { name, slug, description, country, logo } = req.body;
   const newBrand: Brand = {

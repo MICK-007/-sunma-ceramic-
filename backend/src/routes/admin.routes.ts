@@ -13,6 +13,8 @@ import {
   createAdminPromotion,
   updateAdminPromotion,
   createAdminCategory,
+  updateAdminCategory,
+  deleteAdminCategory,
   createAdminBrand,
 } from '../controllers/admin.controller';
 import { authenticateUser, requireAdmin } from '../middleware/auth';
@@ -45,6 +47,9 @@ router.post('/promotions', validateBody(createPromotionSchema), createAdminPromo
 router.patch('/promotions/:id', validateBody(updatePromotionSchema), updateAdminPromotion);
 
 router.post('/categories', createAdminCategory);
+router.put('/categories/:id', updateAdminCategory);
+router.patch('/categories/:id', updateAdminCategory);
+router.delete('/categories/:id', deleteAdminCategory);
 router.post('/brands', createAdminBrand);
 
 export default router;
