@@ -9,7 +9,7 @@ const getApiBaseUrl = () => {
       return `http://${host}:5000/api`;
     }
   }
-  return 'https://sunma-ceramic.onrender.com/api';
+  return '/api';
 };
 
 // Helper: Read CSRF cookie for Double Submit CSRF header attachment

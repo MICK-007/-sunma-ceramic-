@@ -43,6 +43,13 @@ export function resolveMediaUrl(url?: string | null): string {
     return cleanUrl;
   }
 
+  // Relative API routes (/api/...) -> In browser on production, relative path /api/... works directly via Next.js rewrite
+  if (cleanUrl.startsWith('/api/')) {
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && !window.location.hostname.startsWith('192.168.') && !window.location.hostname.startsWith('127.0.')) {
+      return cleanUrl;
+    }
+  }
+
   // Tier 2: Relative Backend URL (/api/... or /uploads/...) -> Prepend API Base
   if (cleanUrl.startsWith('/')) {
     return `${apiBase}${cleanUrl}`;
