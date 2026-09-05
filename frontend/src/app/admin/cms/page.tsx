@@ -8,6 +8,14 @@ import { MediaLibraryModal, CmsMediaItem } from '@/components/cms/MediaLibraryMo
 import { CmsSectionRenderer } from '@/components/cms/CmsSectionRenderer';
 import { ALLOWED_ICONS } from '@/lib/cms-utils';
 import { useLanguage } from '@/context/LanguageContext';
+
+const ALLOWED_MIME_MAP: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'image/avif': 'avif',
+};
 import {
   Eye,
   Save,
@@ -256,25 +264,34 @@ export default function AdminCmsStudioPage() {
       let finalImageUrl: string | null = itemForm.customImageUrl;
       let finalMediaId: string | null = itemForm.mediaId || null;
 
-      // Automatically handle Base64 strings pasted into customImageUrl via Media Library upload API (only if mediaId isn't already assigned)
+      // Automatically convert Data URIs pasted into image input into binary Blob for secure binary upload
       if (!finalMediaId && finalImageUrl && finalImageUrl.startsWith('data:image')) {
         const mimeMatch = finalImageUrl.match(/^data:(image\/\w+);base64,/);
         const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-        const ext = mimeType.split('/')[1] || 'jpg';
+        const ext = ALLOWED_MIME_MAP[mimeType] || 'jpg';
         const fileName = `pasted-image-${Date.now()}.${ext}`;
 
-        const uploadRes = await api.uploadAdminMedia({
-          fileName,
-          mimeType,
-          base64Data: finalImageUrl,
-          altText: itemForm.title || fileName,
-        });
+        // Convert base64 data URI to Binary Blob
+        const base64Str = finalImageUrl.replace(/^data:image\/\w+;base64,/, '');
+        const byteCharacters = atob(base64Str);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: mimeType });
+
+        const formData = new FormData();
+        formData.append('file', blob, fileName);
+        formData.append('altText', itemForm.title || fileName);
+
+        const uploadRes = await api.uploadAdminMediaBinary(formData);
 
         if (uploadRes.success && uploadRes.data) {
           finalMediaId = uploadRes.data.id;
           finalImageUrl = null;
         } else {
-          setErrorMessage(uploadRes.message || 'Failed to auto-process pasted image.');
+          setErrorMessage(uploadRes.message || 'Failed to upload binary image.');
           setSaving(false);
           return;
         }

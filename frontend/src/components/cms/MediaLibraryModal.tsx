@@ -73,41 +73,35 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Client-side validations
+    // Client-side UX validation
     if (file.size > 5 * 1024 * 1024) {
       setErrorMessage('File size exceeds maximum limit of 5MB.');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64Data = reader.result as string;
-      setUploading(true);
-      setErrorMessage('');
-      setSuccessMessage('');
+    setUploading(true);
+    setErrorMessage('');
+    setSuccessMessage('');
 
-      try {
-        const res = await api.uploadAdminMedia({
-          fileName: file.name,
-          mimeType: file.type,
-          base64Data,
-          altText: file.name.split('.')[0],
-        });
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('altText', file.name.split('.')[0]);
 
-        if (res.success && res.data) {
-          setMediaList(prev => [res.data, ...prev]);
-          onSelect(res.data); // Auto-select uploaded media
-          setSuccessMessage(t.media.altSavedSuccess);
-        } else {
-          setErrorMessage(res.message || 'Failed to upload media');
-        }
-      } catch (err: any) {
-        setErrorMessage('Upload error occurred.');
-      } finally {
-        setUploading(false);
+      const res = await api.uploadAdminMediaBinary(formData);
+
+      if (res.success && res.data) {
+        setMediaList(prev => [res.data, ...prev]);
+        onSelect(res.data); // Auto-select uploaded media
+        setSuccessMessage(t.media.altSavedSuccess);
+      } else {
+        setErrorMessage(res.message || 'Failed to upload media file');
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err: any) {
+      setErrorMessage('Upload error occurred.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleDelete = async (mediaId: string) => {

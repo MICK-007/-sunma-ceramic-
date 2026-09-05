@@ -1,11 +1,66 @@
 import { Response } from 'express';
+import crypto from 'crypto';
 import { getDbClient } from '../db';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { logCmsAuditEvent } from './cms.controller';
+import {
+  uploadCmsMedia,
+  deleteCmsMedia,
+  mediaObjectExists,
+  getCmsMediaUrl,
+  ALLOWED_MIME_MAP,
+  MAX_FILE_SIZE_BYTES,
+} from '../utils/storage';
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
-const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif'];
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB limit
+const ALLOWED_MIME_TYPES = Object.keys(ALLOWED_MIME_MAP);
+
+/**
+ * Detect binary magic bytes to verify actual image signature
+ */
+export function detectBinaryMimeType(buffer: Buffer): string | null {
+  if (!buffer || buffer.length < 4) return null;
+
+  // Reject SVG, HTML, JS, XML content immediately
+  const headStr = buffer.slice(0, 512).toString('utf8').toLowerCase();
+  if (
+    headStr.includes('<svg') ||
+    headStr.includes('<!doctype html') ||
+    headStr.includes('<html') ||
+    headStr.includes('<?xml') ||
+    headStr.includes('<script')
+  ) {
+    return null;
+  }
+
+  // 1. JPEG: FF D8 FF
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return 'image/jpeg';
+  }
+  // 2. PNG: 89 50 4E 47
+  if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
+    return 'image/png';
+  }
+  // 3. GIF: 47 49 46 ("GIF87a" or "GIF89a")
+  if (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46) {
+    return 'image/gif';
+  }
+  // 4. WEBP: RIFF....WEBP
+  if (
+    buffer.slice(0, 4).toString('ascii') === 'RIFF' &&
+    buffer.slice(8, 12).toString('ascii') === 'WEBP'
+  ) {
+    return 'image/webp';
+  }
+  // 5. AVIF: ftypavif / ftypavis / ftypisom
+  if (buffer.length >= 12 && buffer.slice(4, 12).toString('ascii').includes('ftyp')) {
+    const ftyp = buffer.slice(8, 12).toString('ascii').toLowerCase();
+    if (ftyp.includes('avif') || ftyp.includes('avis') || ftyp.includes('isom') || ftyp.includes('mp42')) {
+      return 'image/avif';
+    }
+  }
+
+  return null;
+}
 
 /**
  * GET /api/cms/admin/media
@@ -22,7 +77,7 @@ export async function getAdminMedia(req: AuthenticatedRequest, res: Response) {
     let mediaList;
     if (search) {
       mediaList = await sql`
-        SELECT m.id, m.filename, m.original_name, m.mime_type, m.size_bytes, m.url, m.alt_text, m.uploaded_by, m.created_at, m.updated_at,
+        SELECT m.id, m.filename, m.original_name, m.mime_type, m.size_bytes, m.storage_path, m.url, m.alt_text, m.uploaded_by, m.created_at, m.updated_at,
           (SELECT COUNT(*)::int FROM cms_section_items item WHERE item.media_id = m.id) as usage_count
         FROM cms_media m
         WHERE m.original_name ILIKE ${'%' + search + '%'} OR m.alt_text ILIKE ${'%' + search + '%'}
@@ -30,7 +85,7 @@ export async function getAdminMedia(req: AuthenticatedRequest, res: Response) {
       `;
     } else {
       mediaList = await sql`
-        SELECT m.id, m.filename, m.original_name, m.mime_type, m.size_bytes, m.url, m.alt_text, m.uploaded_by, m.created_at, m.updated_at,
+        SELECT m.id, m.filename, m.original_name, m.mime_type, m.size_bytes, m.storage_path, m.url, m.alt_text, m.uploaded_by, m.created_at, m.updated_at,
           (SELECT COUNT(*)::int FROM cms_section_items item WHERE item.media_id = m.id) as usage_count
         FROM cms_media m
         ORDER BY m.created_at DESC
@@ -48,30 +103,49 @@ export async function getAdminMedia(req: AuthenticatedRequest, res: Response) {
 
 /**
  * POST /api/cms/admin/media/upload
- * Validate & store media file (Base64 payload or URL upload reference)
+ * Binary-first Media Upload Pipeline (No Base64 persistence)
  */
 export async function uploadAdminMedia(req: AuthenticatedRequest, res: Response) {
-  const { fileName, mimeType, base64Data, imageUrl, altText } = req.body;
+  // 1. Reject Base64 request payloads
+  if (req.body?.base64Data || (typeof req.body === 'string' && req.body.includes('data:image/'))) {
+    return res.status(400).json({
+      success: false,
+      message: 'Base64 request bodies are strictly forbidden for new uploads. Use multipart/form-data with a binary file.',
+      code: 'INVALID_FILE',
+    });
+  }
 
-  // 1. If imageUrl provided directly (e.g. Unsplash or external CDN asset)
-  if (imageUrl && !base64Data) {
-    if (typeof imageUrl !== 'string' || !imageUrl.startsWith('http')) {
-      return res.status(400).json({ success: false, message: 'Invalid image URL.' });
+  // 2. Handle External Image URL if explicitly provided
+  if (req.body?.imageUrl && !req.file) {
+    const imageUrl = req.body.imageUrl;
+    if (
+      typeof imageUrl !== 'string' ||
+      !/^https?:\/\//i.test(imageUrl) ||
+      imageUrl.length > 2048 ||
+      /^(javascript|data|vbscript|file):/i.test(imageUrl)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid, insecure, or unsupported external image URL.',
+        code: 'INVALID_FILE',
+      });
     }
 
     const sql = getDbClient();
     if (!sql) return res.status(500).json({ success: false, message: 'Database connection failure.' });
 
     try {
+      const mediaId = crypto.randomUUID();
       const created = await sql`
-        INSERT INTO cms_media (filename, original_name, mime_type, size_bytes, url, alt_text, uploaded_by)
+        INSERT INTO cms_media (id, filename, original_name, mime_type, size_bytes, url, alt_text, uploaded_by)
         VALUES (
-          ${fileName || 'external-asset.jpg'},
-          ${fileName || 'external-asset.jpg'},
-          ${mimeType || 'image/jpeg'},
+          ${mediaId},
+          ${req.body.fileName || 'external-asset.jpg'},
+          ${req.body.fileName || 'external-asset.jpg'},
+          ${req.body.mimeType || 'image/jpeg'},
           0,
           ${imageUrl},
-          ${altText || ''},
+          ${req.body.altText || ''},
           ${req.user?.id || null}
         )
         RETURNING *
@@ -80,9 +154,9 @@ export async function uploadAdminMedia(req: AuthenticatedRequest, res: Response)
 
       await logCmsAuditEvent({
         actorId: req.user?.id,
-        action: 'ADMIN_MEDIA_UPLOAD',
+        action: 'ADMIN_MEDIA_UPLOAD_EXTERNAL',
         targetType: 'MEDIA',
-        targetId: created[0].id,
+        targetId: mediaId,
         details: { url: imageUrl, isExternal: true },
         ipAddress: req.ip,
       });
@@ -90,82 +164,134 @@ export async function uploadAdminMedia(req: AuthenticatedRequest, res: Response)
       return res.status(201).json({ success: true, data: created[0] });
     } catch (err: any) {
       if (sql) await sql.end().catch(() => {});
-      return res.status(500).json({ success: false, message: 'Failed to insert media URL.' });
+      return res.status(500).json({ success: false, message: 'Failed to insert external media URL.', code: 'MEDIA_DB_PERSIST_FAILED' });
     }
   }
 
-  // 2. Validate Base64 Upload Payload
-  if (!base64Data || !fileName || !mimeType) {
-    return res.status(400).json({ success: false, message: 'Missing file data, fileName, or mimeType.' });
-  }
-
-  // Validate MIME type
-  if (!ALLOWED_MIME_TYPES.includes(mimeType.toLowerCase())) {
+  // 3. Binary File Upload Handling
+  const file = req.file;
+  if (!file || !file.buffer) {
     return res.status(400).json({
       success: false,
-      message: `Invalid file MIME type '${mimeType}'. Allowed types: ${ALLOWED_MIME_TYPES.join(', ')}`,
+      message: 'Missing binary file payload. Expected multipart/form-data field "file".',
+      code: 'INVALID_FILE',
     });
   }
 
-  // Validate File Extension
-  const ext = fileName.split('.').pop()?.toLowerCase();
-  if (!ext || !ALLOWED_EXTENSIONS.includes(ext)) {
+  // 4. Server-Side Size Validation (Max 5MB)
+  if (file.buffer.length > MAX_FILE_SIZE_BYTES) {
     return res.status(400).json({
       success: false,
-      message: `Invalid file extension '.${ext}'. Allowed extensions: ${ALLOWED_EXTENSIONS.join(', ')}`,
+      message: `File size exceeds max limit of 5MB. Current size: ${(file.buffer.length / 1024 / 1024).toFixed(2)}MB`,
+      code: 'FILE_TOO_LARGE',
     });
   }
 
-  // Prevent Path Traversal in filename
-  if (fileName.includes('/') || fileName.includes('\\') || fileName.includes('..')) {
-    return res.status(400).json({ success: false, message: 'Invalid or dangerous filename.' });
-  }
-
-  // Validate File Size (Base64 length estimation)
-  const buffer = Buffer.from(base64Data.replace(/^data:image\/\w+;base64,/, ''), 'base64');
-  if (buffer.length > MAX_FILE_SIZE_BYTES) {
+  // 5. Declared MIME Validation
+  const declaredMime = (file.mimetype || '').trim().toLowerCase();
+  if (!ALLOWED_MIME_TYPES.includes(declaredMime)) {
     return res.status(400).json({
       success: false,
-      message: `File size exceeds max limit of 5MB. Current size: ${(buffer.length / 1024 / 1024).toFixed(2)}MB`,
+      message: `Forbidden MIME type '${declaredMime}'. Allowed: ${ALLOWED_MIME_TYPES.join(', ')}`,
+      code: 'UNSUPPORTED_MEDIA_TYPE',
     });
   }
 
-  // Generate safe Data URI URL for storage (Production-grade Base64 Asset Storage)
-  const dataUrl = `data:${mimeType};base64,${buffer.toString('base64')}`;
+  // 6. Magic-Byte Binary Signature Validation
+  const detectedMime = detectBinaryMimeType(file.buffer);
+  if (!detectedMime) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid or corrupted image binary, or forbidden file format (SVG, HTML, JS content rejected).',
+      code: 'INVALID_FILE',
+    });
+  }
+
+  if (detectedMime !== declaredMime) {
+    return res.status(400).json({
+      success: false,
+      message: `Declared MIME type '${declaredMime}' does not match binary magic-byte signature '${detectedMime}'.`,
+      code: 'MEDIA_SIGNATURE_MISMATCH',
+    });
+  }
+
+  // 7. Server-Side Identity & Path Generation
+  const mediaId = crypto.randomUUID();
+  const ext = ALLOWED_MIME_MAP[detectedMime];
+  const storagePath = `cms/media/${mediaId}.${ext}`;
+  const safeFilename = `${mediaId}.${ext}`;
+  const originalName = (req.body?.altText || file.originalname || 'uploaded-image').replace(/[/\\]/g, '');
+  const altText = req.body?.altText || originalName.split('.')[0] || '';
+
+  // 8. Overwrite Prevention Check
+  const alreadyExists = await mediaObjectExists(storagePath);
+  if (alreadyExists) {
+    return res.status(400).json({
+      success: false,
+      message: `Storage object '${storagePath}' already exists. Overwrite strictly forbidden.`,
+      code: 'MEDIA_STORAGE_OBJECT_EXISTS',
+    });
+  }
+
+  // 9. Supabase Storage Binary Upload
+  const uploadRes = await uploadCmsMedia(mediaId, detectedMime, file.buffer);
+  if (!uploadRes.success || !uploadRes.url || !uploadRes.storagePath) {
+    return res.status(500).json({
+      success: false,
+      message: uploadRes.error || 'Failed to upload binary asset to storage.',
+      code: uploadRes.code || 'MEDIA_STORAGE_UPLOAD_FAILED',
+    });
+  }
 
   const sql = getDbClient();
-  if (!sql) return res.status(500).json({ success: false, message: 'Database connection failure.' });
+  if (!sql) {
+    // Compensating Transaction: Delete storage object if DB client unavailable
+    await deleteCmsMedia(storagePath);
+    return res.status(500).json({ success: false, message: 'Database connection failure.', code: 'MEDIA_DB_PERSIST_FAILED' });
+  }
 
+  // 10. Persist Record to Postgres cms_media Table
   try {
     const created = await sql`
-      INSERT INTO cms_media (filename, original_name, mime_type, size_bytes, url, alt_text, uploaded_by)
+      INSERT INTO cms_media (id, filename, original_name, mime_type, size_bytes, storage_path, url, alt_text, uploaded_by)
       VALUES (
-        ${fileName},
-        ${fileName},
-        ${mimeType},
-        ${buffer.length},
-        ${dataUrl},
-        ${altText || ''},
+        ${mediaId},
+        ${safeFilename},
+        ${originalName},
+        ${detectedMime},
+        ${file.buffer.length},
+        ${storagePath},
+        ${uploadRes.url},
+        ${altText},
         ${req.user?.id || null}
       )
-      RETURNING *
+      RETURNING id, filename, original_name, mime_type, size_bytes, storage_path, url, alt_text, created_at
     `;
+
     await sql.end();
 
     await logCmsAuditEvent({
       actorId: req.user?.id,
       action: 'ADMIN_MEDIA_UPLOAD',
       targetType: 'MEDIA',
-      targetId: created[0].id,
-      details: { fileName, mimeType, sizeBytes: buffer.length },
+      targetId: mediaId,
+      details: { mediaId, storagePath, mimeType: detectedMime, sizeBytes: file.buffer.length },
       ipAddress: req.ip,
     });
 
     return res.status(201).json({ success: true, data: created[0] });
   } catch (error: any) {
-    console.error('Error saving uploaded media:', error);
+    console.error('❌ Error persisting cms_media row:', error);
     if (sql) await sql.end().catch(() => {});
-    return res.status(500).json({ success: false, message: 'Failed to save uploaded file.' });
+
+    // Compensating Transaction: Cleanup newly created storage object if DB insert failed
+    await deleteCmsMedia(storagePath);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Database insert failed. Storage object successfully cleaned up.',
+      code: 'MEDIA_DB_PERSIST_FAILED',
+    });
   }
 }
 
@@ -213,7 +339,7 @@ export async function updateAdminMedia(req: AuthenticatedRequest, res: Response)
 
 /**
  * DELETE /api/cms/admin/media/:id
- * Delete unused media asset with safety check
+ * Hardened Delete Safety Check (Prevents breaking Drafts or Historical Snapshots)
  */
 export async function deleteAdminMedia(req: AuthenticatedRequest, res: Response) {
   const { id } = req.params;
@@ -221,42 +347,69 @@ export async function deleteAdminMedia(req: AuthenticatedRequest, res: Response)
   if (!sql) return res.status(500).json({ success: false, message: 'Database connection failure.' });
 
   try {
-    // 1. Safety Check: Verify if media is currently referenced by any cms_section_items
-    const usageCheck = await sql`
+    // 1. Check Draft Section Item References
+    const draftUsage = await sql`
       SELECT id, title FROM cms_section_items WHERE media_id = ${id} LIMIT 5
     `;
 
-    if (usageCheck && usageCheck.length > 0) {
+    if (draftUsage && draftUsage.length > 0) {
       await sql.end();
-      const usedTitles = usageCheck.map(u => u.title).join(', ');
+      const usedTitles = draftUsage.map(u => u.title).join(', ');
       return res.status(409).json({
         success: false,
-        message: `Cannot delete media item. It is currently in use by section item(s): "${usedTitles}". Please replace or remove references first.`,
-        referencedItems: usageCheck,
+        message: `Cannot delete media asset '${id}'. It is currently referenced in active draft section items: "${usedTitles}".`,
+        code: 'MEDIA_DELETE_REFERENCED',
+        referencedItems: draftUsage,
       });
     }
 
-    // 2. Fetch filename for audit log
-    const media = await sql`SELECT filename FROM cms_media WHERE id = ${id} LIMIT 1`;
-    if (!media || media.length === 0) {
+    // 2. Check Historical & Published Version Snapshot References
+    const snapshotUsage = await sql`
+      SELECT id, version_number, status 
+      FROM cms_section_versions 
+      WHERE content_payload::text LIKE ${'%"media_id":"' + id + '"%'} OR content_payload::text LIKE ${'%' + id + '%'}
+      LIMIT 5
+    `;
+
+    if (snapshotUsage && snapshotUsage.length > 0) {
       await sql.end();
-      return res.status(404).json({ success: false, message: 'Media item not found.' });
+      const versionsStr = snapshotUsage.map(v => `v${v.version_number} (${v.status})`).join(', ');
+      return res.status(409).json({
+        success: false,
+        message: `Cannot delete media asset '${id}'. It is referenced in historical page snapshot version(s): ${versionsStr}.`,
+        code: 'MEDIA_DELETE_REFERENCED',
+        referencedVersions: snapshotUsage,
+      });
     }
 
-    // 3. Delete from DB
+    // 3. Fetch Media record details before deletion
+    const media = await sql`SELECT filename, storage_path FROM cms_media WHERE id = ${id} LIMIT 1`;
+    if (!media || media.length === 0) {
+      await sql.end();
+      return res.status(404).json({ success: false, message: 'Media item not found.', code: 'MEDIA_STORAGE_NOT_FOUND' });
+    }
+
+    const storagePath = media[0].storage_path;
+
+    // 4. Delete from Postgres DB
     await sql`DELETE FROM cms_media WHERE id = ${id}`;
     await sql.end();
+
+    // 5. Delete Binary Object from Supabase Storage (if storage_path exists)
+    if (storagePath) {
+      await deleteCmsMedia(storagePath);
+    }
 
     await logCmsAuditEvent({
       actorId: req.user?.id,
       action: 'ADMIN_MEDIA_DELETE',
       targetType: 'MEDIA',
       targetId: id,
-      details: { filename: media[0].filename },
+      details: { filename: media[0].filename, storagePath },
       ipAddress: req.ip,
     });
 
-    return res.json({ success: true, message: 'Media deleted successfully.' });
+    return res.json({ success: true, message: 'Unreferenced media asset deleted successfully.' });
   } catch (error: any) {
     console.error('Error deleting media:', error);
     if (sql) await sql.end().catch(() => {});

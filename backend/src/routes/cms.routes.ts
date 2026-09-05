@@ -45,9 +45,16 @@ router.get('/public/pages/:slug', validateParams(cmsSlugParamSchema), getPublicP
 // ==========================================
 router.use('/admin', authenticateUser, requireAdmin);
 
+import multer from 'multer';
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
 // Media Library Endpoints
 router.get('/admin/media', getAdminMedia);
-router.post('/admin/media/upload', uploadAdminMedia);
+router.post('/admin/media/upload', upload.single('file'), uploadAdminMedia);
 router.patch('/admin/media/:id', validateParams(mediaIdParamSchema), validateBody(updateCmsMediaSchema), updateAdminMedia);
 router.delete('/admin/media/:id', validateParams(mediaIdParamSchema), deleteAdminMedia);
 

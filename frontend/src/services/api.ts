@@ -412,6 +412,29 @@ export const api = {
     return safeFetch(`${getApiBaseUrl()}/cms/admin/media${search ? `?search=${encodeURIComponent(search)}` : ''}`);
   },
 
+  async uploadAdminMediaBinary(formData: FormData) {
+    const baseUrl = getApiBaseUrl();
+    const headers: Record<string, string> = {
+      'X-Requested-With': 'XMLHttpRequest',
+    };
+    const csrfToken = getCsrfTokenFromCookie();
+    if (csrfToken) {
+      headers['X-CSRF-Token'] = csrfToken;
+    }
+
+    try {
+      const res = await fetch(`${baseUrl}/cms/admin/media/upload`, {
+        method: 'POST',
+        credentials: 'include',
+        headers, // Do NOT set Content-Type so browser auto-sets boundary for FormData
+        body: formData,
+      });
+      return await res.json();
+    } catch (err: any) {
+      return { success: false, message: err?.message || 'Failed to upload binary media' };
+    }
+  },
+
   async uploadAdminMedia(payload: { fileName: string; mimeType: string; base64Data?: string; imageUrl?: string; altText?: string }) {
     return safeFetch(`${getApiBaseUrl()}/cms/admin/media/upload`, {
       method: 'POST',
