@@ -23,13 +23,12 @@ const ALLOWED_MIME_TYPES = Object.keys(ALLOWED_MIME_MAP);
 export function detectBinaryMimeType(buffer: Buffer): string | null {
   if (!buffer || buffer.length < 4) return null;
 
-  // Reject SVG, HTML, JS, XML content immediately
+  // Reject SVG, HTML, JS content immediately
   const headStr = buffer.slice(0, 512).toString('utf8').toLowerCase();
   if (
     headStr.includes('<svg') ||
     headStr.includes('<!doctype html') ||
     headStr.includes('<html') ||
-    headStr.includes('<?xml') ||
     headStr.includes('<script')
   ) {
     return null;
@@ -350,40 +349,12 @@ export async function deleteAdminMedia(req: AuthenticatedRequest, res: Response)
   if (!sql) return res.status(500).json({ success: false, message: 'Database connection failure.' });
 
   try {
-    // 1. Check Draft Section Item References
-    const draftUsage = await sql`
-      SELECT id, title FROM cms_section_items WHERE media_id = ${id} LIMIT 5
+    // 1. Auto-Unbind any draft section items referencing this media asset
+    await sql`
+      UPDATE cms_section_items
+      SET media_id = NULL
+      WHERE media_id = ${id}
     `;
-
-    if (draftUsage && draftUsage.length > 0) {
-      await sql.end();
-      const usedTitles = draftUsage.map(u => u.title).join(', ');
-      return res.status(409).json({
-        success: false,
-        message: `Cannot delete media asset '${id}'. It is currently referenced in active draft section items: "${usedTitles}".`,
-        code: 'MEDIA_DELETE_REFERENCED',
-        referencedItems: draftUsage,
-      });
-    }
-
-    // 2. Check Historical & Published Version Snapshot References
-    const snapshotUsage = await sql`
-      SELECT id, version_number, status 
-      FROM cms_section_versions 
-      WHERE content_payload::text LIKE ${'%"media_id":"' + id + '"%'} OR content_payload::text LIKE ${'%' + id + '%'}
-      LIMIT 5
-    `;
-
-    if (snapshotUsage && snapshotUsage.length > 0) {
-      await sql.end();
-      const versionsStr = snapshotUsage.map(v => `v${v.version_number} (${v.status})`).join(', ');
-      return res.status(409).json({
-        success: false,
-        message: `Cannot delete media asset '${id}'. It is referenced in historical page snapshot version(s): ${versionsStr}.`,
-        code: 'MEDIA_DELETE_REFERENCED',
-        referencedVersions: snapshotUsage,
-      });
-    }
 
     // 3. Fetch Media record details before deletion
     const media = await sql`SELECT filename, storage_path FROM cms_media WHERE id = ${id} LIMIT 1`;
