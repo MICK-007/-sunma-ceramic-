@@ -298,10 +298,22 @@ export default function AdminCmsStudioPage() {
         });
 
         if (res.success) {
+          const updatedItem = {
+            ...res.data,
+            custom_image_url: finalImageUrl || (itemForm.mediaId ? itemForm.customImageUrl : res.data.custom_image_url),
+          };
+
           setEditingSection((prev: any) => ({
             ...prev,
-            items: prev.items.map((i: any) => (i.id === editingItem.id ? res.data : i)),
+            items: prev.items.map((i: any) => (i.id === editingItem.id ? updatedItem : i)),
           }));
+          setSections(prev =>
+            prev.map(s =>
+              s.id === editingSection.id
+                ? { ...s, items: s.items.map((i: any) => (i.id === editingItem.id ? updatedItem : i)) }
+                : s
+            )
+          );
           setIsItemModalOpen(false);
           setEditingItem(null);
           setSuccessMessage('Item updated in DRAFT.');
@@ -323,10 +335,20 @@ export default function AdminCmsStudioPage() {
         });
 
         if (res.success) {
+          const newItem = {
+            ...res.data,
+            custom_image_url: finalImageUrl || (itemForm.mediaId ? itemForm.customImageUrl : res.data.custom_image_url),
+          };
+
           setEditingSection((prev: any) => ({
             ...prev,
-            items: [...(prev.items || []), res.data],
+            items: [...(prev.items || []), newItem],
           }));
+          setSections(prev =>
+            prev.map(s =>
+              s.id === editingSection.id ? { ...s, items: [...(s.items || []), newItem] } : s
+            )
+          );
           setIsItemModalOpen(false);
           setEditingItem(null);
           setSuccessMessage('Item created in DRAFT.');
