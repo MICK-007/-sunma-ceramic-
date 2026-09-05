@@ -243,8 +243,8 @@ export default function AdminCmsStudioPage() {
     setErrorMessage('');
 
     try {
-      let finalImageUrl = itemForm.customImageUrl;
-      let finalMediaId = itemForm.mediaId || null;
+      let finalImageUrl: string | null = itemForm.customImageUrl;
+      let finalMediaId: string | null = itemForm.mediaId || null;
 
       // Automatically handle Base64 strings pasted into customImageUrl via Media Library upload API
       if (finalImageUrl && finalImageUrl.startsWith('data:image')) {
