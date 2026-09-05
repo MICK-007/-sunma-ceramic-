@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { api } from '@/services/api';
 import { Button } from '@/components/ui/Button';
 import { MediaLibraryModal, CmsMediaItem } from '@/components/cms/MediaLibraryModal';
+import { CmsSectionRenderer } from '@/components/cms/CmsSectionRenderer';
 import { ALLOWED_ICONS } from '@/lib/cms-utils';
 import { useLanguage } from '@/context/LanguageContext';
 import {
@@ -22,8 +23,7 @@ import {
   Layers,
   Sparkles,
   Send,
-  History,
-  RotateCcw,
+  X,
 } from 'lucide-react';
 
 export default function AdminCmsStudioPage() {
@@ -38,11 +38,9 @@ export default function AdminCmsStudioPage() {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
-  // Versioning & Publishing Modals State
+  // Modals State
   const [isPublishConfirmOpen, setIsPublishConfirmOpen] = useState<boolean>(false);
-  const [isVersionsModalOpen, setIsVersionsModalOpen] = useState<boolean>(false);
-  const [versionsList, setVersionsList] = useState<any[]>([]);
-  const [selectedRollbackVer, setSelectedRollbackVer] = useState<any | null>(null);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState<boolean>(false);
 
   // Selected Editor State
   const [editingSection, setEditingSection] = useState<any | null>(null);
@@ -168,7 +166,7 @@ export default function AdminCmsStudioPage() {
       const res = await api.updateAdminCmsSection(editingSection.id, {
         title: editingSection.title,
         subtitle: editingSection.subtitle,
-        settings: editingSection.settings,
+        settings: editingSection.settings || {},
       });
 
       if (res.success) {
@@ -389,45 +387,6 @@ export default function AdminCmsStudioPage() {
     }
   };
 
-  // 8. Fetch Version History Handler
-  const fetchVersions = async (slug: string) => {
-    setErrorMessage('');
-    try {
-      const res = await api.getAdminCmsPageVersions(slug);
-      if (res.success) {
-        setVersionsList(res.data || []);
-        setIsVersionsModalOpen(true);
-      } else {
-        setErrorMessage(res.message || 'Failed to fetch version history.');
-      }
-    } catch (err: any) {
-      setErrorMessage('Error retrieving version history.');
-    }
-  };
-
-  // 9. Rollback Version Handler (Creates NEW Version vNext)
-  const handleRollback = async () => {
-    if (!selectedRollbackVer) return;
-    setPublishing(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const res = await api.rollbackAdminCmsPage(activeSlug, selectedRollbackVer.version_number);
-      if (res.success) {
-        setSuccessMessage(res.message || `Successfully rolled back to v${selectedRollbackVer.version_number}.`);
-        setSelectedRollbackVer(null);
-        setIsVersionsModalOpen(false);
-        fetchDraftPage(activeSlug); // Refresh draft to match restored snapshot
-      } else {
-        setErrorMessage(res.message || 'Rollback failed.');
-      }
-    } catch (err: any) {
-      setErrorMessage('Error executing rollback.');
-    } finally {
-      setPublishing(false);
-    }
-  };
-
   if (loading) {
     return <div className="p-12 text-center text-gold font-bold">{t.common.loading}</div>;
   }
@@ -456,14 +415,8 @@ export default function AdminCmsStudioPage() {
             <option value="footer">{t.cms.footerOption}</option>
           </select>
 
-          <Link href={`/admin/cms/preview/${activeSlug}`} target="_blank">
-            <Button variant="outline" size="sm" className="gap-1 text-xs">
-              <Eye className="w-4 h-4" /> {t.cms.previewButton}
-            </Button>
-          </Link>
-
-          <Button variant="outline" size="sm" onClick={() => fetchVersions(activeSlug)} className="gap-1 text-xs">
-            <History className="w-4 h-4" /> {t.cms.historyButton}
+          <Button variant="outline" size="sm" onClick={() => setIsPreviewModalOpen(true)} className="gap-1 text-xs">
+            <Eye className="w-4 h-4" /> {t.cms.previewButton}
           </Button>
 
           <Button variant="gold" size="sm" onClick={() => setIsPublishConfirmOpen(true)} className="gap-1 text-xs">
@@ -784,16 +737,6 @@ export default function AdminCmsStudioPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-stone font-bold uppercase mb-1">{t.cms.itemLinkUrlLabel}</label>
-                <input
-                  type="text"
-                  value={itemForm.linkUrl}
-                  onChange={e => setItemForm(prev => ({ ...prev, linkUrl: e.target.value }))}
-                  className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
-                  placeholder={t.cms.itemLinkUrlPlaceholder}
-                />
-              </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-4 border-t border-border-subtle">
@@ -842,79 +785,62 @@ export default function AdminCmsStudioPage() {
         </div>
       )}
 
-      {/* Version History Modal */}
-      {isVersionsModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="bg-bg-card border border-border-gold rounded-xl w-full max-w-2xl p-6 space-y-4 shadow-2xl text-xs flex flex-col max-h-[85vh]">
-            <div className="flex items-center justify-between border-b border-border-subtle pb-3">
-              <div className="flex items-center gap-2 text-gold font-bold text-base">
-                <History className="w-5 h-5" /> {t.cms.historyModalTitle} ({activeSlug})
+      {/* Single Selected Section Draft Preview Modal */}
+      {isPreviewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 md:p-8 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-bg-card border border-border-gold rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden relative">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-border-subtle bg-black/60 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 text-gold font-bold text-sm">
+                  <Eye className="w-4 h-4" /> Section Draft Preview
+                </div>
+                {editingSection && (
+                  <span className="px-2 py-0.5 rounded bg-gold/10 border border-gold/30 text-[10px] font-mono text-gold font-bold uppercase">
+                    {editingSection.title || editingSection.section_key} ({editingSection.section_type})
+                  </span>
+                )}
               </div>
-              <button onClick={() => setIsVersionsModalOpen(false)} className="text-stone hover:text-white">✕</button>
+
+              {/* Top Right Close Button */}
+              <button
+                onClick={() => setIsPreviewModalOpen(false)}
+                className="p-1.5 rounded-lg text-stone hover:text-white hover:bg-neutral-800 transition-colors"
+                title="Close preview"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            <div className="overflow-y-auto space-y-3 flex-1 pr-1">
-              {versionsList.length === 0 ? (
-                <div className="py-8 text-center text-stone">{t.cms.noHistory}</div>
+            {/* Preview Body - Only selected section */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-bg-primary">
+              {editingSection ? (
+                <CmsSectionRenderer sections={[editingSection]} />
               ) : (
-                versionsList.map(ver => {
-                  const isCurrentPublished = ver.status === 'PUBLISHED';
-                  return (
-                    <div key={ver.id} className="p-3 bg-black/60 border border-border-subtle rounded flex items-center justify-between">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-heading font-bold text-white text-sm">{t.cms.versionLabel}{ver.version_number}</span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${isCurrentPublished ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/40' : 'bg-neutral-900 text-stone'}`}>
-                            {isCurrentPublished ? t.cms.statusLive : t.cms.statusArchived}
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-stone">
-                          {new Date(ver.created_at).toLocaleString()} - {ver.author_name || ver.author_email || 'Admin'}
-                        </div>
-                      </div>
-
-                      <div>
-                        {!isCurrentPublished && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedRollbackVer(ver)}
-                            className="h-7 text-[11px] gap-1"
-                          >
-                            <RotateCcw className="w-3 h-3 text-gold" /> {t.cms.rollbackButton} v{ver.version_number}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
+                <div className="p-8 text-center text-xs text-stone">No section selected for preview.</div>
               )}
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* Rollback Confirmation Modal */}
-      {selectedRollbackVer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
-          <div className="bg-bg-card border border-amber-500 rounded-xl w-full max-w-md p-6 space-y-4 shadow-2xl text-xs">
-            <div className="flex items-center gap-2 text-amber-400 font-bold text-base border-b border-border-subtle pb-3">
-              <RotateCcw className="w-5 h-5 animate-spin" /> {t.cms.rollbackModalTitle}
-            </div>
-            <p className="text-stone-light leading-relaxed">
-              {t.cms.rollbackConfirmText} <strong>v{selectedRollbackVer.version_number}</strong>?
-            </p>
-            <div className="bg-amber-950/40 border border-amber-500/40 p-3 rounded text-[11px] space-y-1 text-amber-200">
-              <div>{t.cms.rollbackNotice1}</div>
-              <div>{t.cms.rollbackNotice2}</div>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" size="sm" onClick={() => setSelectedRollbackVer(null)}>
-                {t.cms.cancelButton}
-              </Button>
-              <Button variant="gold" size="sm" onClick={handleRollback} disabled={publishing}>
-                {publishing ? t.cms.rollingBackText : t.cms.confirmRollbackButton}
-              </Button>
+            {/* Modal Footer Controls */}
+            <div className="p-4 border-t border-border-subtle bg-black/60 flex items-center justify-between gap-3 shrink-0">
+              <span className="text-[11px] text-stone">
+                Viewing draft preview for current section.
+              </span>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setIsPreviewModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="gold"
+                  size="sm"
+                  onClick={() => {
+                    setIsPreviewModalOpen(false);
+                    setIsPublishConfirmOpen(true);
+                  }}
+                >
+                  <Send className="w-3.5 h-3.5 mr-1" /> Publish Live
+                </Button>
+              </div>
             </div>
           </div>
         </div>
