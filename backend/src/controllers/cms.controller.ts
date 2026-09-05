@@ -134,10 +134,25 @@ export async function getAdminPageDraftBySlug(req: AuthenticatedRequest, res: Re
 
     if (sectionIds.length > 0) {
       const itemRows = await sql`
-        SELECT id, section_id, title, subtitle, description, icon_name, link_url, link_label, media_id, custom_image_url, badge_tag, sort_order, is_enabled, metadata
-        FROM cms_section_items
-        WHERE section_id IN ${sql(sectionIds)}
-        ORDER BY sort_order ASC
+        SELECT 
+          item.id, 
+          item.section_id, 
+          item.title, 
+          item.subtitle, 
+          item.description, 
+          item.icon_name, 
+          item.link_url, 
+          item.link_label, 
+          item.media_id, 
+          COALESCE(item.custom_image_url, m.url) as custom_image_url, 
+          item.badge_tag, 
+          item.sort_order, 
+          item.is_enabled, 
+          item.metadata
+        FROM cms_section_items item
+        LEFT JOIN cms_media m ON item.media_id = m.id
+        WHERE item.section_id IN ${sql(sectionIds)}
+        ORDER BY item.sort_order ASC
       `;
 
       itemRows.forEach(item => {
@@ -451,10 +466,25 @@ export async function publishAdminCmsPage(req: AuthenticatedRequest, res: Respon
     let items: any[] = [];
     if (sectionIds.length > 0) {
       items = await sql`
-        SELECT id, section_id, title, subtitle, description, icon_name, link_url, link_label, media_id, custom_image_url, badge_tag, sort_order, is_enabled, metadata
-        FROM cms_section_items
-        WHERE section_id IN ${sql(sectionIds)}
-        ORDER BY sort_order ASC
+        SELECT 
+          item.id, 
+          item.section_id, 
+          item.title, 
+          item.subtitle, 
+          item.description, 
+          item.icon_name, 
+          item.link_url, 
+          item.link_label, 
+          item.media_id, 
+          COALESCE(item.custom_image_url, m.url) as custom_image_url, 
+          item.badge_tag, 
+          item.sort_order, 
+          item.is_enabled, 
+          item.metadata
+        FROM cms_section_items item
+        LEFT JOIN cms_media m ON item.media_id = m.id
+        WHERE item.section_id IN ${sql(sectionIds)}
+        ORDER BY item.sort_order ASC
       `;
     }
 
