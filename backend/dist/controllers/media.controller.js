@@ -225,7 +225,7 @@ async function uploadAdminMedia(req, res) {
     // 10. Persist Record to Postgres cms_media Table
     try {
         const created = await sql `
-      INSERT INTO cms_media (id, filename, original_name, mime_type, size_bytes, storage_path, url, alt_text, uploaded_by)
+      INSERT INTO cms_media (id, filename, original_name, mime_type, size_bytes, storage_path, url, alt_text, uploaded_by, file_data)
       VALUES (
         ${mediaId},
         ${safeFilename},
@@ -235,7 +235,8 @@ async function uploadAdminMedia(req, res) {
         ${storagePath},
         ${uploadRes.url},
         ${altText},
-        ${req.user?.id || null}
+        ${req.user?.id || null},
+        ${file.buffer}
       )
       RETURNING id, filename, original_name, mime_type, size_bytes, storage_path, url, alt_text, created_at
     `;
@@ -366,7 +367,31 @@ async function servePublicMediaFile(req, res) {
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         return fs_1.default.createReadStream(filePath).pipe(res);
     }
-    // Fallback to direct Supabase Storage CDN Redirect
+    // 2. Fetch binary file_data directly from PostgreSQL (Fail-safe persistence)
+    const sql = (0, db_1.getDbClient)();
+    if (sql) {
+        try {
+            const rows = await sql `
+        SELECT mime_type, file_data FROM cms_media WHERE filename = ${filename} LIMIT 1
+      `;
+            await sql.end();
+            if (rows && rows.length > 0 && rows[0].file_data) {
+                const mime = rows[0].mime_type || 'image/jpeg';
+                res.setHeader('Content-Type', mime);
+                res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+                try {
+                    fs_1.default.writeFileSync(filePath, rows[0].file_data);
+                }
+                catch (e) { }
+                return res.send(rows[0].file_data);
+            }
+        }
+        catch (err) {
+            if (sql)
+                await sql.end().catch(() => { });
+        }
+    }
+    // 3. Fallback to direct Supabase Storage CDN Redirect
     const supabaseUrl = process.env.SUPABASE_URL || 'https://xacaeysrrfqhwpkdjkvm.supabase.co';
     const cdnUrl = `${supabaseUrl.replace(/\/+$/, '')}/storage/v1/object/public/cms/media/${filename}`;
     return res.redirect(302, cdnUrl);
