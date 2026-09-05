@@ -37,52 +37,56 @@ export default function HomePage() {
     });
   }, []);
 
+  const hasCmsHero = cmsSections && cmsSections.some(s => s && s.section_type === 'HERO' && s.is_enabled !== false);
+
   return (
     <div className="space-y-24 pb-20">
-      {/* 1. HERO SECTION */}
-      <section className="relative min-h-[85vh] flex items-center justify-center -mt-24 pt-24 overflow-hidden bg-black">
-        {/* Background Image Overlay */}
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=90"
-            alt="SUNMA Ceramic Showroom"
-            fill
-            priority
-            unoptimized
-            className="object-cover opacity-40 scale-105 transition-transform duration-10000"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/50 to-transparent" />
-        </div>
-
-        <div className="relative z-10 max-w-5xl mx-auto px-4 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gold/40 bg-gold/10 backdrop-blur-md text-gold text-xs font-bold tracking-[0.3em] uppercase animate-fadeIn">
-            <Gem className="w-3.5 h-3.5" />
-            {t.hero.tagline}
+      {/* 1. HERO SECTION (Dynamic from CMS if published, otherwise Static Fallback) */}
+      {!hasCmsHero && (
+        <section className="relative min-h-[85vh] flex items-center justify-center -mt-24 pt-24 overflow-hidden bg-black">
+          {/* Background Image Overlay */}
+          <div className="absolute inset-0 z-0">
+            <Image
+              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=90"
+              alt="SUNMA Ceramic Showroom"
+              fill
+              priority
+              unoptimized
+              className="object-cover opacity-40 scale-105 transition-transform duration-10000"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/50 to-transparent" />
           </div>
 
-          <h1 className="font-heading text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight">
-            {t.hero.headline}
-          </h1>
+          <div className="relative z-10 max-w-5xl mx-auto px-4 text-center space-y-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gold/40 bg-gold/10 backdrop-blur-md text-gold text-xs font-bold tracking-[0.3em] uppercase animate-fadeIn">
+              <Gem className="w-3.5 h-3.5" />
+              {t.hero.tagline}
+            </div>
 
-          <p className="text-sm sm:text-base text-stone-light max-w-2xl mx-auto leading-relaxed">
-            {t.hero.subtitle}
-          </p>
+            <h1 className="font-heading text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight">
+              {t.hero.headline}
+            </h1>
 
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/shop">
-              <Button variant="gold" size="lg" className="w-full sm:w-auto">
-                {t.hero.explore} <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-            <Link href="/room-studio">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto bg-black/40 backdrop-blur-md">
-                <Sparkles className="w-4 h-4 mr-2 text-gold" />
-                {t.hero.tryRoomStudio}
-              </Button>
-            </Link>
+            <p className="text-sm sm:text-base text-stone-light max-w-2xl mx-auto leading-relaxed">
+              {t.hero.subtitle}
+            </p>
+
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/shop">
+                <Button variant="gold" size="lg" className="w-full sm:w-auto">
+                  {t.hero.explore} <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+              <Link href="/room-studio">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto bg-black/40 backdrop-blur-md">
+                  <Sparkles className="w-4 h-4 mr-2 text-gold" />
+                  {t.hero.tryRoomStudio}
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 2. CMS DYNAMIC SECTIONS / FEATURED COLLECTIONS */}
       {cmsSections && cmsSections.length > 0 ? (
