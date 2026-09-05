@@ -30,6 +30,7 @@ import {
   uploadAdminMedia,
   updateAdminMedia,
   deleteAdminMedia,
+  servePublicMediaFile,
 } from '../controllers/media.controller';
 
 const router = Router();
@@ -38,6 +39,7 @@ const router = Router();
 // 1. PUBLIC READ API (No Auth Required)
 // ==========================================
 router.get('/public/pages/:slug', validateParams(cmsSlugParamSchema), getPublicPageBySlug);
+router.get('/public/media/file/:filename', servePublicMediaFile);
 
 // ==========================================
 // 2. PROTECTED ADMIN CMS API

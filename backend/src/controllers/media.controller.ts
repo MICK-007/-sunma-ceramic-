@@ -1,5 +1,7 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 import { getDbClient } from '../db';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { logCmsAuditEvent } from './cms.controller';
@@ -10,6 +12,7 @@ import {
   getCmsMediaUrl,
   ALLOWED_MIME_MAP,
   MAX_FILE_SIZE_BYTES,
+  LOCAL_MEDIA_DIR,
 } from '../utils/storage';
 
 const ALLOWED_MIME_TYPES = Object.keys(ALLOWED_MIME_MAP);
@@ -416,3 +419,35 @@ export async function deleteAdminMedia(req: AuthenticatedRequest, res: Response)
     return res.status(500).json({ success: false, message: 'Failed to delete media item.' });
   }
 }
+
+/**
+ * GET /api/cms/public/media/file/:filename
+ * Serves binary media file directly from storage with proper Content-Type
+ */
+export async function servePublicMediaFile(req: Request, res: Response) {
+  const filename = (req.params.filename || '').replace(/[^a-zA-Z0-9.\-_]/g, '');
+  if (!filename || filename.includes('..')) {
+    return res.status(400).send('Invalid filename');
+  }
+
+  const filePath = path.join(LOCAL_MEDIA_DIR, filename);
+  if (fs.existsSync(filePath)) {
+    const ext = path.extname(filename).toLowerCase().replace('.', '');
+    const mime = Object.keys(ALLOWED_MIME_MAP).find(k => ALLOWED_MIME_MAP[k] === ext) || 'image/jpeg';
+    res.setHeader('Content-Type', mime);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    return fs.createReadStream(filePath).pipe(res);
+  }
+
+  // Styled SVG fallback tile for missing/dummy assets
+  const displayName = filename.split('.')[0];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+    <rect width="400" height="400" fill="#1e293b"/>
+    <circle cx="200" cy="160" r="50" fill="#334155"/>
+    <path d="M120 280 L170 200 L210 240 L240 190 L280 280 Z" fill="#475569"/>
+    <text x="50%" y="330" dominant-baseline="middle" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="14" font-weight="600">${displayName}</text>
+  </svg>`;
+  res.setHeader('Content-Type', 'image/svg+xml');
+  return res.send(svg);
+}
+
