@@ -15,8 +15,8 @@ export const config = {
   refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET || 'sunma_refresh_token_secret_key_2026_secure',
   csrfSecret: process.env.CSRF_SECRET || 'sunma_csrf_token_secret_key_2026_secure',
   bcryptRounds: process.env.BCRYPT_ROUNDS ? parseInt(process.env.BCRYPT_ROUNDS, 10) : 12,
-  supabaseUrl: process.env.SUPABASE_URL || '',
-  supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
-  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+  supabaseUrl: process.env.SUPABASE_URL || 'https://xacaeysrrfqhwpkdjkvm.supabase.co',
+  supabaseAnonKey: process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhY2FleXNycmZxaHdwa2Rqa3ZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MjAxNTA0MDAwMH0.fake_anon_key',
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhY2FleXNycmZxaHdwa2Rqa3ZtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcwMDAwMDAwMCwiZXhwIjoyMDE1MDQwMDAwfQ.fake_service_role_key',
   databaseUrl: process.env.DATABASE_URL || SUPABASE_DB_URL,
 };

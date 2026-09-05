@@ -305,6 +305,7 @@ export const cmsMedia = pgTable('cms_media', {
   originalName: varchar('original_name', { length: 255 }).notNull(),
   mimeType: varchar('mime_type', { length: 100 }).notNull(),
   sizeBytes: integer('size_bytes').notNull(),
+  storagePath: text('storage_path'),
   url: text('url').notNull(),
   altText: text('alt_text').default(''),
   uploadedBy: uuid('uploaded_by').references(() => profiles.id, { onDelete: 'set null' }),
