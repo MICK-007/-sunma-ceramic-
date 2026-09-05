@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Heart, Eye, Sparkles } from 'lucide-react';
 import { useWishlist } from '@/context/WishlistContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { resolveMediaUrl } from '@/lib/media';
 import { Badge } from '../ui/Badge';
 
 export interface ProductProps {
@@ -46,7 +47,7 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
       {/* Top Image Container */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-bg-secondary">
         <Image
-          src={product.thumbnail}
+          src={resolveMediaUrl(product.thumbnail) || '/images/tiles/calacatta-marble.jpeg'}
           alt={product.name}
           fill
           unoptimized

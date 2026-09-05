@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { api } from '@/services/api';
+import { resolveMediaUrl } from '@/lib/media';
 import { useLanguage } from '@/context/LanguageContext';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { ArrowRight } from 'lucide-react';
@@ -38,9 +39,10 @@ export default function CategoriesPage() {
             className="luxury-card group rounded-xl overflow-hidden relative aspect-[4/3] flex flex-col justify-end p-6"
           >
             <Image
-              src={cat.image}
+              src={resolveMediaUrl(cat.image) || '/images/tiles/calacatta-marble.jpeg'}
               alt={cat.name}
               fill
+              unoptimized
               className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-50"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />

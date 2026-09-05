@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/services/api';
+import { resolveMediaUrl } from '@/lib/media';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Button } from '@/components/ui/Button';
 import { CmsSectionRenderer } from '@/components/cms/CmsSectionRenderer';
@@ -192,9 +193,10 @@ export default function HomePage() {
               className="luxury-card group rounded-lg overflow-hidden p-4 flex flex-col justify-between h-48 relative"
             >
               <Image
-                src={cat.image}
+                src={resolveMediaUrl(cat.image) || '/images/tiles/calacatta-marble.jpeg'}
                 alt={cat.name}
                 fill
+                unoptimized
                 sizes="(max-width: 768px) 100vw, 20vw"
                 className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-40"
               />
