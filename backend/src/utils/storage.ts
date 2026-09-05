@@ -83,18 +83,7 @@ export function getCmsMediaUrl(storagePath: string): string {
   const cleanPath = storagePath.replace(/^\/+/, '');
   const fileName = cleanPath.split('/').pop() || '';
 
-  const isLiveSupabaseKey =
-    config.supabaseServiceRoleKey &&
-    !config.supabaseServiceRoleKey.includes('fake_service_role_key') &&
-    config.supabaseUrl &&
-    Boolean(config.supabaseUrl.trim());
-
-  if (isLiveSupabaseKey) {
-    const baseUrl = config.supabaseUrl.replace(/\/+$/, '');
-    return `${baseUrl}/storage/v1/object/public/${cleanPath}`;
-  }
-
-  // Canonical Relative Media Serving API Route
+  // Canonical Relative Media Serving API Route (backed by Postgres BYTEA storage)
   return `/api/cms/public/media/file/${fileName}`;
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { api } from '@/services/api';
 import { Button } from '@/components/ui/Button';
@@ -33,6 +33,8 @@ import {
   Sparkles,
   Send,
   X,
+  Upload,
+  Loader2,
 } from 'lucide-react';
 
 export default function AdminCmsStudioPage() {
@@ -83,6 +85,48 @@ export default function AdminCmsStudioPage() {
   // Media Library Modal
   const [isMediaOpen, setIsMediaOpen] = useState<boolean>(false);
   const [mediaTargetField, setMediaTargetField] = useState<'section_hero' | 'item'>('item');
+
+  // Direct Item Image Upload from Device
+  const itemFileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingItemImage, setUploadingItemImage] = useState<boolean>(false);
+
+  const handleItemImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('File size exceeds maximum limit of 5MB.');
+      return;
+    }
+
+    setUploadingItemImage(true);
+    setErrorMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('altText', itemForm.title || file.name.split('.')[0]);
+
+      const res = await api.uploadAdminMediaBinary(formData);
+      if (res.success && res.data) {
+        setItemForm(prev => ({
+          ...prev,
+          mediaId: res.data.id,
+          customImageUrl: resolveMediaUrl(res.data.url),
+        }));
+        setSuccessMessage('รูปภาพอัปโหลดและถูกเลือกเรียบร้อยแล้ว');
+      } else {
+        setErrorMessage(res.message || 'Failed to upload image.');
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Error uploading image.');
+    } finally {
+      setUploadingItemImage(false);
+      if (itemFileInputRef.current) {
+        itemFileInputRef.current.value = '';
+      }
+    }
+  };
 
   useEffect(() => {
     fetchDraftPage(activeSlug);
@@ -768,25 +812,91 @@ export default function AdminCmsStudioPage() {
 
               <div>
                 <label className="block text-stone font-bold uppercase mb-1">{t.cms.itemImageLabel}</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={itemForm.customImageUrl}
-                    onChange={e => setItemForm(prev => ({ ...prev, customImageUrl: e.target.value }))}
-                    className="flex-1 bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold truncate"
-                    placeholder={t.cms.itemImagePlaceholder}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setMediaTargetField('item');
-                      setIsMediaOpen(true);
-                    }}
-                  >
-                    <ImageIcon className="w-4 h-4 mr-1" /> {t.cms.chooseMediaButton}
-                  </Button>
+                
+                <div className="bg-neutral-900/80 border border-border-subtle rounded-lg p-3 space-y-3">
+                  <div className="flex items-start gap-3">
+                    {/* Image Preview Thumbnail */}
+                    <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-border-subtle bg-black shrink-0 flex items-center justify-center">
+                      {itemForm.customImageUrl ? (
+                        <img
+                          src={resolveMediaUrl(itemForm.customImageUrl)}
+                          alt="Item Preview"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = '/images/tiles/calacatta-marble.jpeg';
+                          }}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <ImageIcon className="w-8 h-8 text-stone/40" />
+                      )}
+                      {uploadingItemImage && (
+                        <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-gold text-[10px] gap-1">
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span>อัปโหลด...</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action buttons & URL input */}
+                    <div className="flex-1 space-y-2">
+                      <div className="flex flex-wrap gap-2">
+                        <input
+                          type="file"
+                          ref={itemFileInputRef}
+                          onChange={handleItemImageUpload}
+                          accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                          className="hidden"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={uploadingItemImage}
+                          onClick={() => itemFileInputRef.current?.click()}
+                          className="text-xs"
+                        >
+                          <Upload className="w-3.5 h-3.5 mr-1" />
+                          {uploadingItemImage ? 'กำลังอัปโหลด...' : 'อัปโหลดจากเครื่อง'}
+                        </Button>
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setMediaTargetField('item');
+                            setIsMediaOpen(true);
+                          }}
+                          className="text-xs"
+                        >
+                          <ImageIcon className="w-3.5 h-3.5 mr-1" />
+                          {t.cms.chooseMediaButton || 'เลือกจากคลังสื่อ'}
+                        </Button>
+
+                        {itemForm.customImageUrl && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setItemForm(prev => ({ ...prev, customImageUrl: '', mediaId: '' }))}
+                            className="text-xs text-stone hover:text-red-400"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 mr-1" />
+                            ล้างรูปภาพ
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* URL input */}
+                      <input
+                        type="text"
+                        value={itemForm.customImageUrl}
+                        onChange={e => setItemForm(prev => ({ ...prev, customImageUrl: e.target.value, mediaId: '' }))}
+                        className="w-full bg-black border border-border-subtle rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-gold truncate"
+                        placeholder={t.cms.itemImagePlaceholder || 'หรือใส่ URL รูปภาพ...'}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 

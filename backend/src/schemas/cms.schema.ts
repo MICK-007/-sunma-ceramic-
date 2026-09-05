@@ -51,13 +51,15 @@ export const reorderCmsSectionsSchema = z.object({
   ).min(1, 'At least one section order must be provided'),
 }).strict();
 
-// Helper validation for external image URLs (only http and https allowed, max 2048 chars)
+// Helper validation for image URLs (http, https, or relative paths like /api/cms/...)
 const externalImageUrlSchema = z
   .string()
   .trim()
-  .max(2048, 'External image URL must contain at most 2048 characters')
-  .url('Invalid URL format')
-  .refine(url => /^https?:\/\//i.test(url), 'Only http:// and https:// image URLs are allowed')
+  .max(2048, 'Image URL must contain at most 2048 characters')
+  .refine(
+    url => /^https?:\/\//i.test(url) || url.startsWith('/'),
+    'Only http://, https://, or relative paths (/...) are allowed'
+  )
   .optional()
   .nullable();
 

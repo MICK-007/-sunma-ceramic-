@@ -22,7 +22,7 @@ export interface CMSCollectionGridProps {
   };
 }
 
-const DRAGON_ICE_IMAGE = '/images/tiles/dragon-ice.png';
+const DEFAULT_FALLBACK_IMAGE = '/images/tiles/calacatta-marble.jpeg';
 
 const CollectionImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) => {
   const [currentSrc, setCurrentSrc] = useState(src);
@@ -32,8 +32,8 @@ const CollectionImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) =
       src={currentSrc}
       alt={alt}
       onError={() => {
-        if (currentSrc !== DRAGON_ICE_IMAGE) {
-          setCurrentSrc(DRAGON_ICE_IMAGE);
+        if (currentSrc !== DEFAULT_FALLBACK_IMAGE) {
+          setCurrentSrc(DEFAULT_FALLBACK_IMAGE);
         }
       }}
       className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60 pointer-events-none"
@@ -64,17 +64,7 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {items.map(col => {
           const href = sanitizeUrl(col.link_url, '/shop');
-          let rawImg = col.custom_image_url;
-
-          // Dedicated handler for Nordic Oak Timber -> Use the Admin's uploaded Dragon Ice image
-          if (
-            col.title?.toLowerCase().includes('nordic') ||
-            col.id === '6c0f2698-106a-45b2-92fd-58618913321d'
-          ) {
-            rawImg = DRAGON_ICE_IMAGE;
-          }
-
-          const imageSrc = resolveMediaUrl(rawImg) || DRAGON_ICE_IMAGE;
+          const imageSrc = resolveMediaUrl(col.custom_image_url) || DEFAULT_FALLBACK_IMAGE;
 
           return (
             <Link

@@ -425,9 +425,7 @@ export async function servePublicMediaFile(req: Request, res: Response) {
     return res.redirect(302, 'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?auto=format&fit=crop&w=800&q=80');
   }
 
-  // 4. Fallback to direct Supabase Storage CDN Redirect
-  const supabaseUrl = process.env.SUPABASE_URL || 'https://xacaeysrrfqhwpkdjkvm.supabase.co';
-  const cdnUrl = `${supabaseUrl.replace(/\/+$/, '')}/storage/v1/object/public/cms/media/${filename}`;
-  return res.redirect(302, cdnUrl);
+  // 4. Fallback for unresolvable legacy files
+  return res.redirect(302, 'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?auto=format&fit=crop&w=800&q=80');
 }
 

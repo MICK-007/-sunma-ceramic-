@@ -83,15 +83,7 @@ function getCmsMediaUrl(storagePath) {
         return '';
     const cleanPath = storagePath.replace(/^\/+/, '');
     const fileName = cleanPath.split('/').pop() || '';
-    const isLiveSupabaseKey = config_1.config.supabaseServiceRoleKey &&
-        !config_1.config.supabaseServiceRoleKey.includes('fake_service_role_key') &&
-        config_1.config.supabaseUrl &&
-        Boolean(config_1.config.supabaseUrl.trim());
-    if (isLiveSupabaseKey) {
-        const baseUrl = config_1.config.supabaseUrl.replace(/\/+$/, '');
-        return `${baseUrl}/storage/v1/object/public/${cleanPath}`;
-    }
-    // Canonical Relative Media Serving API Route
+    // Canonical Relative Media Serving API Route (backed by Postgres BYTEA storage)
     return `/api/cms/public/media/file/${fileName}`;
 }
 /**
