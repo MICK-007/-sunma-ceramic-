@@ -22,10 +22,15 @@ export function resolveMediaUrl(url?: string | null): string {
     }
   }
 
-  // Tier 1: Dummy Supabase URL -> Reroute through Backend API File Endpoint
-  if (cleanUrl.includes('xacaeysrrfqhwpkdjkvm.supabase.co') || cleanUrl.includes('fake_service_role_key')) {
-    const fileName = cleanUrl.split('/').pop() || '';
-    return `${apiBase}/api/cms/public/media/file/${fileName}`;
+  // Tier 1: Canonical HTTPS / Supabase Storage URL / External HTTPS -> Pass through directly
+  if (cleanUrl.startsWith('https://') || cleanUrl.startsWith('http://')) {
+    // Legacy Localhost URL -> Rewrite to Production API Base when running on Vercel
+    if (cleanUrl.includes('localhost:5000') || cleanUrl.includes('127.0.0.1:5000')) {
+      if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+        return cleanUrl.replace(/^http:\/\/(localhost|127\.0\.0\.1):5000/, apiBase);
+      }
+    }
+    return cleanUrl;
   }
 
   // Tier 2: Relative URL (/api/...) -> Prepend API Base
@@ -33,14 +38,5 @@ export function resolveMediaUrl(url?: string | null): string {
     return `${apiBase}${cleanUrl}`;
   }
 
-  // Tier 3: Legacy Localhost URL -> Rewrite to Production API Base when running on Vercel
-  if (cleanUrl.includes('localhost:5000') || cleanUrl.includes('127.0.0.1:5000')) {
-    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-      return cleanUrl.replace(/^http:\/\/(localhost|127\.0\.0\.1):5000/, apiBase);
-    }
-    return cleanUrl;
-  }
-
-  // Tier 4: Canonical HTTPS / External URL -> Use directly
   return cleanUrl;
 }

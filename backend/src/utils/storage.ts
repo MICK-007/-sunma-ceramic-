@@ -83,7 +83,7 @@ export function getCmsMediaUrl(storagePath: string): string {
     config.supabaseServiceRoleKey &&
     !config.supabaseServiceRoleKey.includes('fake_service_role_key') &&
     config.supabaseUrl &&
-    !config.supabaseUrl.includes('xacaeysrrfqhwpkdjkvm.supabase.co');
+    Boolean(config.supabaseUrl.trim());
 
   if (isLiveSupabaseKey) {
     const baseUrl = config.supabaseUrl.replace(/\/+$/, '');
