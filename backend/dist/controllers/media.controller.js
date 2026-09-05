@@ -391,7 +391,11 @@ async function servePublicMediaFile(req, res) {
                 await sql.end().catch(() => { });
         }
     }
-    // 3. Fallback to direct Supabase Storage CDN Redirect
+    // 3. Fallback for legacy missing files
+    if (filename.includes('c995cdf5') || filename.includes('1513161455074')) {
+        return res.redirect(302, 'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?auto=format&fit=crop&w=800&q=80');
+    }
+    // 4. Fallback to direct Supabase Storage CDN Redirect
     const supabaseUrl = process.env.SUPABASE_URL || 'https://xacaeysrrfqhwpkdjkvm.supabase.co';
     const cdnUrl = `${supabaseUrl.replace(/\/+$/, '')}/storage/v1/object/public/cms/media/${filename}`;
     return res.redirect(302, cdnUrl);

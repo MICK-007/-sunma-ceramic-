@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { sanitizeUrl } from '@/lib/cms-utils';
 import { resolveMediaUrl } from '@/lib/media';
@@ -24,6 +23,23 @@ export interface CMSCollectionGridProps {
 }
 
 const DEFAULT_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?auto=format&fit=crop&w=800&q=80';
+
+const CollectionImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) => {
+  const [currentSrc, setCurrentSrc] = useState(src);
+
+  return (
+    <img
+      src={currentSrc}
+      alt={alt}
+      onError={() => {
+        if (currentSrc !== DEFAULT_FALLBACK_IMAGE) {
+          setCurrentSrc(DEFAULT_FALLBACK_IMAGE);
+        }
+      }}
+      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60 pointer-events-none"
+    />
+  );
+};
 
 export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content }) => {
   const subtitle = content.subtitle || 'ARCHITECTURAL SERIES';
@@ -49,8 +65,12 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
         {items.map(col => {
           const href = sanitizeUrl(col.link_url, '/shop');
           let rawImg = col.custom_image_url;
-          // Safeguard against legacy 404 Unsplash link
-          if (rawImg && rawImg.includes('1513161455074-7554c9146233')) {
+          // Safeguard against legacy 404 Unsplash or missing files
+          if (
+            rawImg &&
+            (rawImg.includes('1513161455074-7554c9146233') ||
+             rawImg.includes('c995cdf5-e0da-486e-aefc-c72b1d7b1460'))
+          ) {
             rawImg = DEFAULT_FALLBACK_IMAGE;
           }
           const imageSrc = resolveMediaUrl(rawImg) || DEFAULT_FALLBACK_IMAGE;
@@ -61,14 +81,7 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
               href={href}
               className="luxury-card group rounded-lg overflow-hidden relative aspect-[3/4] flex flex-col justify-end p-6"
             >
-              <Image
-                src={imageSrc}
-                alt={col.title}
-                fill
-                unoptimized
-                sizes="(max-width: 768px) 100vw, 25vw"
-                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-60"
-              />
+              <CollectionImage src={imageSrc} alt={col.title} />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
               <div className="relative z-10 space-y-1">
                 <h3 className="font-heading text-lg font-bold text-white group-hover:text-gold transition-colors">
