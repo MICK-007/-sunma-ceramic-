@@ -22,7 +22,7 @@ export interface CMSCollectionGridProps {
   };
 }
 
-const DEFAULT_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?auto=format&fit=crop&w=800&q=80';
+const DRAGON_ICE_IMAGE = '/images/tiles/dragon-ice.png';
 
 const CollectionImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) => {
   const [currentSrc, setCurrentSrc] = useState(src);
@@ -32,8 +32,8 @@ const CollectionImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) =
       src={currentSrc}
       alt={alt}
       onError={() => {
-        if (currentSrc !== DEFAULT_FALLBACK_IMAGE) {
-          setCurrentSrc(DEFAULT_FALLBACK_IMAGE);
+        if (currentSrc !== DRAGON_ICE_IMAGE) {
+          setCurrentSrc(DRAGON_ICE_IMAGE);
         }
       }}
       className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60 pointer-events-none"
@@ -65,15 +65,16 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
         {items.map(col => {
           const href = sanitizeUrl(col.link_url, '/shop');
           let rawImg = col.custom_image_url;
-          // Safeguard against legacy 404 Unsplash or missing files
+
+          // Dedicated handler for Nordic Oak Timber -> Use the Admin's uploaded Dragon Ice image
           if (
-            rawImg &&
-            (rawImg.includes('1513161455074-7554c9146233') ||
-             rawImg.includes('c995cdf5-e0da-486e-aefc-c72b1d7b1460'))
+            col.title?.toLowerCase().includes('nordic') ||
+            col.id === '6c0f2698-106a-45b2-92fd-58618913321d'
           ) {
-            rawImg = DEFAULT_FALLBACK_IMAGE;
+            rawImg = DRAGON_ICE_IMAGE;
           }
-          const imageSrc = resolveMediaUrl(rawImg) || DEFAULT_FALLBACK_IMAGE;
+
+          const imageSrc = resolveMediaUrl(rawImg) || DRAGON_ICE_IMAGE;
 
           return (
             <Link
