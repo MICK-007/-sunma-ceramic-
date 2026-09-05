@@ -83,9 +83,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. FEATURED COLLECTIONS */}
-      {cmsSections && cmsSections.some(s => s.section_type === 'COLLECTION_GRID') ? (
-        <CmsSectionRenderer sections={cmsSections.filter(s => s.section_type === 'COLLECTION_GRID')} />
+      {/* 2. CMS DYNAMIC SECTIONS / FEATURED COLLECTIONS */}
+      {cmsSections && cmsSections.length > 0 ? (
+        <CmsSectionRenderer sections={cmsSections} />
       ) : (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
