@@ -78,7 +78,7 @@ app.get('/api/health', (req, res) => {
     res.json({
         status: 'online',
         service: 'SUNMA CERAMIC REST API',
-        buildVersion: '2026-09-05-v4',
+        buildVersion: '2026-09-05-v6-category-live',
         timestamp: new Date().toISOString(),
     });
 });
