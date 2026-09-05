@@ -17,12 +17,23 @@ export default function HomePage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
-  const [cmsSections, setCmsSections] = useState<any[] | null>(null);
+  const [cmsSections, setCmsSections] = useState<any[] | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('sunma_cms_home_sections');
+        if (cached) return JSON.parse(cached);
+      } catch (e) {}
+    }
+    return null;
+  });
 
   useEffect(() => {
     api.getPublicCmsPage('home').then(res => {
       if (res && res.success && res.data && res.data.sections) {
         setCmsSections(res.data.sections);
+        try {
+          localStorage.setItem('sunma_cms_home_sections', JSON.stringify(res.data.sections));
+        } catch (e) {}
       }
     }).catch(() => {});
 
