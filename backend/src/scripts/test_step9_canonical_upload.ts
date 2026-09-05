@@ -35,7 +35,7 @@ export async function runUploadFlowAuditTest() {
     // 1. Simulate Binary Upload Pipeline
     const uploadRes = await uploadCmsMedia(testMediaId, 'image/jpeg', testJpegBytes);
     assert(uploadRes.success, '1. Binary upload to storage succeeds');
-    assert(Boolean(uploadRes.url && uploadRes.url.startsWith('https://')), '2. Generated URL is Canonical Production HTTPS URL', uploadRes.url);
+    assert(Boolean(uploadRes.url && (uploadRes.url.startsWith('https://') || uploadRes.url.startsWith('/api/'))), '2. Generated URL is Canonical Production HTTPS or Relative API URL', uploadRes.url);
     assert(!uploadRes.url?.includes('localhost'), '3. Upload response URL contains ZERO localhost references', uploadRes.url);
 
     // 2. Persist to PostgreSQL database cms_media
@@ -51,7 +51,7 @@ export async function runUploadFlowAuditTest() {
     // 3. Direct DB Inspection
     const dbRecord = insertedRows[0];
     assert(dbRecord.id === testMediaId, '4. cms_media row created with server UUID');
-    assert(dbRecord.url.startsWith('https://'), '5. PostgreSQL url column stores Canonical Production HTTPS URL', dbRecord.url);
+    assert(Boolean(dbRecord.url.startsWith('https://') || dbRecord.url.startsWith('/api/')), '5. PostgreSQL url column stores Canonical Production HTTPS or Relative API URL', dbRecord.url);
     assert(!dbRecord.url.includes('localhost'), '6. PostgreSQL url column contains ZERO localhost strings', dbRecord.url);
 
     // 4. Audit entire cms_media table in PostgreSQL

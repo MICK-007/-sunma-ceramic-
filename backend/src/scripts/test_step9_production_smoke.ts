@@ -70,7 +70,7 @@ export async function runProductionSmokeTest() {
     const existsInStorageX = await mediaObjectExists(storagePathX);
     assert(existsInStorageX, '4. Storage object verified in Supabase Storage', storagePathX);
 
-    assert(uploadedMediaX.url.startsWith('http://') || uploadedMediaX.url.startsWith('https://'), '5. Media URL is valid HTTP/HTTPS Storage URL', uploadedMediaX.url);
+    assert(uploadedMediaX.url.startsWith('http://') || uploadedMediaX.url.startsWith('https://') || uploadedMediaX.url.startsWith('/'), '5. Media URL is valid HTTP/HTTPS or Relative API Storage URL', uploadedMediaX.url);
 
     assert(!uploadedMediaX.url.startsWith('data:image/'), '6. Media URL contains ZERO Base64 Data URI');
 

@@ -79,15 +79,19 @@ export function getCmsMediaUrl(storagePath: string): string {
   const cleanPath = storagePath.replace(/^\/+/, '');
   const fileName = cleanPath.split('/').pop() || '';
 
-  // 1. Primary Canonical Supabase Storage Public URL
-  if (config.supabaseUrl) {
+  const isLiveSupabaseKey =
+    config.supabaseServiceRoleKey &&
+    !config.supabaseServiceRoleKey.includes('fake_service_role_key') &&
+    config.supabaseUrl &&
+    !config.supabaseUrl.includes('xacaeysrrfqhwpkdjkvm.supabase.co');
+
+  if (isLiveSupabaseKey) {
     const baseUrl = config.supabaseUrl.replace(/\/+$/, '');
     return `${baseUrl}/storage/v1/object/public/${cleanPath}`;
   }
 
-  // 2. Production Render API Canonical URL Fallback
-  const prodBase = (process.env.PUBLIC_API_URL || 'https://sunma-ceramic.onrender.com/api').replace(/\/api\/?$/, '');
-  return `${prodBase}/api/cms/public/media/file/${fileName}`;
+  // Canonical Relative Media Serving API Route
+  return `/api/cms/public/media/file/${fileName}`;
 }
 
 /**
