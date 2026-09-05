@@ -71,26 +71,23 @@ export function getStoragePath(mediaId: string, mimeType: string): { success: bo
 }
 
 /**
- * Construct public HTTPS storage URL from storagePath
+ * Construct Canonical Production HTTPS Storage URL from storagePath.
+ * NEVER persists localhost URLs to PostgreSQL database rows.
  */
 export function getCmsMediaUrl(storagePath: string): string {
   if (!storagePath) return '';
-  const fileName = storagePath.split('/').pop() || '';
+  const cleanPath = storagePath.replace(/^\/+/, '');
+  const fileName = cleanPath.split('/').pop() || '';
 
-  const isRealSupabaseKey =
-    config.supabaseServiceRoleKey &&
-    !config.supabaseServiceRoleKey.includes('fake_service_role_key') &&
-    config.supabaseUrl &&
-    !config.supabaseUrl.includes('xacaeysrrfqhwpkdjkvm.supabase.co');
-
-  if (isRealSupabaseKey) {
+  // 1. Primary Canonical Supabase Storage Public URL
+  if (config.supabaseUrl) {
     const baseUrl = config.supabaseUrl.replace(/\/+$/, '');
-    const cleanPath = storagePath.replace(/^\/+/, '');
     return `${baseUrl}/storage/v1/object/public/${cleanPath}`;
   }
 
-  // Local / Proxy URL for instant browser rendering
-  return `http://localhost:5000/api/cms/public/media/file/${fileName}`;
+  // 2. Production Render API Canonical URL Fallback
+  const prodBase = (process.env.PUBLIC_API_URL || 'https://sunma-ceramic.onrender.com/api').replace(/\/api\/?$/, '');
+  return `${prodBase}/api/cms/public/media/file/${fileName}`;
 }
 
 /**
