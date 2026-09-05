@@ -65,7 +65,14 @@ export async function getPublicPageBySlug(req: AuthenticatedRequest, res: Respon
       return res.status(404).json({ success: false, message: `Published content for page '${slug}' not found.` });
     }
 
-    const payload = versionRows[0].content_payload;
+    let payload = versionRows[0].content_payload;
+    if (typeof payload === 'string') {
+      try {
+        payload = JSON.parse(payload);
+      } catch (e) {
+        console.error('Failed to parse content_payload:', e);
+      }
+    }
     await sql.end();
 
     // Filter enabled sections and enabled items from the published snapshot

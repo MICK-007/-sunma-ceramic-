@@ -23,7 +23,7 @@ export interface CMSCollectionGridProps {
   };
 }
 
-const DEFAULT_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=800&q=80';
+const DEFAULT_FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?auto=format&fit=crop&w=800&q=80';
 
 export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content }) => {
   const subtitle = content.subtitle || 'ARCHITECTURAL SERIES';
@@ -48,7 +48,12 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {items.map(col => {
           const href = sanitizeUrl(col.link_url, '/shop');
-          const imageSrc = resolveMediaUrl(col.custom_image_url) || DEFAULT_FALLBACK_IMAGE;
+          let rawImg = col.custom_image_url;
+          // Safeguard against legacy 404 Unsplash link
+          if (rawImg && rawImg.includes('1513161455074-7554c9146233')) {
+            rawImg = DEFAULT_FALLBACK_IMAGE;
+          }
+          const imageSrc = resolveMediaUrl(rawImg) || DEFAULT_FALLBACK_IMAGE;
 
           return (
             <Link

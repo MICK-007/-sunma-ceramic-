@@ -119,7 +119,7 @@ export default function HomePage() {
               {
                 title: 'Nordic Oak Timber',
                 desc: 'Embossed wood grain ceramic planks.',
-                img: 'https://images.unsplash.com/photo-1513161455074-7554c9146233?auto=format&fit=crop&w=800&q=80',
+                img: 'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?auto=format&fit=crop&w=800&q=80',
                 link: '/shop?collection=nordic-oak',
               },
               {
