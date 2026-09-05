@@ -324,7 +324,29 @@ export async function createAdminCmsItem(req: AuthenticatedRequest, res: Respons
         ${itemData.isEnabled ?? true},
         ${JSON.stringify(itemData.metadata || {})}::jsonb
       )
-      RETURNING *
+      RETURNING id
+    `;
+    const newId = created[0].id;
+    const fullCreatedItem = await sql`
+      SELECT 
+        item.id, 
+        item.section_id, 
+        item.title, 
+        item.subtitle, 
+        item.description, 
+        item.icon_name, 
+        item.link_url, 
+        item.link_label, 
+        item.media_id, 
+        COALESCE(item.custom_image_url, m.url) as custom_image_url, 
+        item.badge_tag, 
+        item.sort_order, 
+        item.is_enabled, 
+        item.metadata
+      FROM cms_section_items item
+      LEFT JOIN cms_media m ON item.media_id = m.id
+      WHERE item.id = ${newId}
+      LIMIT 1
     `;
 
     await sql.end();
@@ -333,12 +355,12 @@ export async function createAdminCmsItem(req: AuthenticatedRequest, res: Respons
       actorId: req.user?.id,
       action: 'ADMIN_ITEM_CREATE',
       targetType: 'SECTION_ITEM',
-      targetId: created[0].id,
+      targetId: newId,
       details: { sectionId, title: itemData.title },
       ipAddress: req.ip,
     });
 
-    return res.status(201).json({ success: true, data: created[0] });
+    return res.status(201).json({ success: true, data: fullCreatedItem[0] });
   } catch (error: any) {
     console.error('Error creating section item:', error);
     if (sql) await sql.end().catch(() => {});
@@ -365,7 +387,7 @@ export async function updateAdminCmsItem(req: AuthenticatedRequest, res: Respons
       return res.status(404).json({ success: false, message: 'Item not found.' });
     }
 
-    const updated = await sql`
+    await sql`
       UPDATE cms_section_items
       SET
         title = COALESCE(${updates.title !== undefined ? updates.title : null}, title),
@@ -381,7 +403,28 @@ export async function updateAdminCmsItem(req: AuthenticatedRequest, res: Respons
         is_enabled = COALESCE(${updates.isEnabled !== undefined ? updates.isEnabled : null}, is_enabled),
         updated_at = NOW()
       WHERE id = ${id}
-      RETURNING *
+    `;
+
+    const fullUpdatedItem = await sql`
+      SELECT 
+        item.id, 
+        item.section_id, 
+        item.title, 
+        item.subtitle, 
+        item.description, 
+        item.icon_name, 
+        item.link_url, 
+        item.link_label, 
+        item.media_id, 
+        COALESCE(item.custom_image_url, m.url) as custom_image_url, 
+        item.badge_tag, 
+        item.sort_order, 
+        item.is_enabled, 
+        item.metadata
+      FROM cms_section_items item
+      LEFT JOIN cms_media m ON item.media_id = m.id
+      WHERE item.id = ${id}
+      LIMIT 1
     `;
 
     await sql.end();
@@ -395,7 +438,7 @@ export async function updateAdminCmsItem(req: AuthenticatedRequest, res: Respons
       ipAddress: req.ip,
     });
 
-    return res.json({ success: true, data: updated[0] });
+    return res.json({ success: true, data: fullUpdatedItem[0] });
   } catch (error: any) {
     console.error('Error updating item:', error);
     if (sql) await sql.end().catch(() => {});
