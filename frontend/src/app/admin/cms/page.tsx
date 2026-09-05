@@ -246,8 +246,8 @@ export default function AdminCmsStudioPage() {
       let finalImageUrl: string | null = itemForm.customImageUrl;
       let finalMediaId: string | null = itemForm.mediaId || null;
 
-      // Automatically handle Base64 strings pasted into customImageUrl via Media Library upload API
-      if (finalImageUrl && finalImageUrl.startsWith('data:image')) {
+      // Automatically handle Base64 strings pasted into customImageUrl via Media Library upload API (only if mediaId isn't already assigned)
+      if (!finalMediaId && finalImageUrl && finalImageUrl.startsWith('data:image')) {
         const mimeMatch = finalImageUrl.match(/^data:(image\/\w+);base64,/);
         const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
         const ext = mimeType.split('/')[1] || 'jpg';
@@ -269,7 +269,7 @@ export default function AdminCmsStudioPage() {
           return;
         }
       } else if (finalMediaId) {
-        // When mediaId is linked from Media Library, set customImageUrl to null for clean DB storage & Zod validation
+        // When mediaId is linked from Media Library, clear customImageUrl for clean DB storage & Zod validation
         finalImageUrl = null;
       }
 

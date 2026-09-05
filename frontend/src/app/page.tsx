@@ -7,6 +7,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/services/api';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Button } from '@/components/ui/Button';
+import { CmsSectionRenderer } from '@/components/cms/CmsSectionRenderer';
 import { Sparkles, ArrowRight, ShieldCheck, Gem, Layers, Globe2, Building2 } from 'lucide-react';
 
 export default function HomePage() {
@@ -16,8 +17,15 @@ export default function HomePage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
+  const [cmsSections, setCmsSections] = useState<any[] | null>(null);
 
   useEffect(() => {
+    api.getPublicCmsPage('home').then(res => {
+      if (res && res.success && res.data && res.data.sections) {
+        setCmsSections(res.data.sections);
+      }
+    }).catch(() => {});
+
     api.getCategories().then(res => {
       if (res.success) setCategories(res.data || []);
     });
@@ -76,69 +84,73 @@ export default function HomePage() {
       </section>
 
       {/* 2. FEATURED COLLECTIONS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
-          <span className="text-xs uppercase font-bold tracking-[0.25em] text-gold block">
-            ARCHITECTURAL SERIES
-          </span>
-          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-txt-main">
-            Curated Tile Collections
-          </h2>
-        </div>
+      {cmsSections && cmsSections.some(s => s.section_type === 'COLLECTION_GRID') ? (
+        <CmsSectionRenderer sections={cmsSections.filter(s => s.section_type === 'COLLECTION_GRID')} />
+      ) : (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
+            <span className="text-xs uppercase font-bold tracking-[0.25em] text-gold block">
+              ARCHITECTURAL SERIES
+            </span>
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-txt-main">
+              Curated Tile Collections
+            </h2>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {[
-            {
-              title: 'Calacatta Imperiale',
-              desc: 'Gold veined alabaster marble porcelain.',
-              img: 'https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=800&q=80',
-              link: '/shop?collection=calacatta-imperiale',
-            },
-            {
-              title: 'Basaltic Minimal',
-              desc: 'Volcanic slate & micro-textured basalt slabs.',
-              img: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
-              link: '/shop?collection=basaltic-minimal',
-            },
-            {
-              title: 'Nordic Oak Timber',
-              desc: 'Embossed wood grain ceramic planks.',
-              img: 'https://images.unsplash.com/photo-1513161455074-7554c9146233?auto=format&fit=crop&w=800&q=80',
-              link: '/shop?collection=nordic-oak',
-            },
-            {
-              title: 'Terrazzo Artisanal',
-              desc: 'Quartz aggregate composite surfaces.',
-              img: 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&w=800&q=80',
-              link: '/shop?category=floor-tiles',
-            },
-          ].map((col, idx) => (
-            <Link
-              key={idx}
-              href={col.link}
-              className="luxury-card group rounded-lg overflow-hidden relative aspect-[3/4] flex flex-col justify-end p-6"
-            >
-              <Image
-                src={col.img}
-                alt={col.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 25vw"
-                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-60"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-              <div className="relative z-10 space-y-1">
-                <h3 className="font-heading text-lg font-bold text-white group-hover:text-gold transition-colors">
-                  {col.title}
-                </h3>
-                <p className="text-xs text-stone-light line-clamp-2">{col.desc}</p>
-                <span className="text-[11px] font-bold text-gold uppercase tracking-wider inline-flex items-center gap-1 pt-2">
-                  Explore Series <ArrowRight className="w-3 h-3" />
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[
+              {
+                title: 'Calacatta Imperiale',
+                desc: 'Gold veined alabaster marble porcelain.',
+                img: 'https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=800&q=80',
+                link: '/shop?collection=calacatta-imperiale',
+              },
+              {
+                title: 'Basaltic Minimal',
+                desc: 'Volcanic slate & micro-textured basalt slabs.',
+                img: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
+                link: '/shop?collection=basaltic-minimal',
+              },
+              {
+                title: 'Nordic Oak Timber',
+                desc: 'Embossed wood grain ceramic planks.',
+                img: 'https://images.unsplash.com/photo-1513161455074-7554c9146233?auto=format&fit=crop&w=800&q=80',
+                link: '/shop?collection=nordic-oak',
+              },
+              {
+                title: 'Terrazzo Artisanal',
+                desc: 'Quartz aggregate composite surfaces.',
+                img: 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&w=800&q=80',
+                link: '/shop?category=floor-tiles',
+              },
+            ].map((col, idx) => (
+              <Link
+                key={idx}
+                href={col.link}
+                className="luxury-card group rounded-lg overflow-hidden relative aspect-[3/4] flex flex-col justify-end p-6"
+              >
+                <Image
+                  src={col.img}
+                  alt={col.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 25vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-60"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+                <div className="relative z-10 space-y-1">
+                  <h3 className="font-heading text-lg font-bold text-white group-hover:text-gold transition-colors">
+                    {col.title}
+                  </h3>
+                  <p className="text-xs text-stone-light line-clamp-2">{col.desc}</p>
+                  <span className="text-[11px] font-bold text-gold uppercase tracking-wider inline-flex items-center gap-1 pt-2">
+                    Explore Series <ArrowRight className="w-3 h-3" />
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 3. SHOP BY CATEGORY */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
