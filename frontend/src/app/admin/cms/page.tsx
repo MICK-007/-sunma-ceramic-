@@ -163,10 +163,22 @@ export default function AdminCmsStudioPage() {
     setSuccessMessage('');
 
     try {
+      let sectionSettings = editingSection.settings;
+      if (typeof sectionSettings === 'string') {
+        try {
+          sectionSettings = JSON.parse(sectionSettings);
+        } catch (e) {
+          sectionSettings = {};
+        }
+      }
+      if (!sectionSettings || typeof sectionSettings !== 'object') {
+        sectionSettings = {};
+      }
+
       const res = await api.updateAdminCmsSection(editingSection.id, {
         title: editingSection.title,
         subtitle: editingSection.subtitle,
-        settings: editingSection.settings || {},
+        settings: sectionSettings,
       });
 
       if (res.success) {

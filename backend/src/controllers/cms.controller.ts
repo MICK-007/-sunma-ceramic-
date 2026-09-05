@@ -244,9 +244,14 @@ export async function updateAdminCmsSection(req: AuthenticatedRequest, res: Resp
       return res.status(404).json({ success: false, message: 'Section not found.' });
     }
 
-    const mergedSettings = updates.settings
-      ? { ...existing[0].settings, ...updates.settings }
-      : existing[0].settings;
+    const existingSettings = typeof existing[0].settings === 'object' && existing[0].settings !== null
+      ? existing[0].settings
+      : {};
+    const inputSettings = typeof updates.settings === 'object' && updates.settings !== null
+      ? updates.settings
+      : {};
+
+    const mergedSettings = { ...existingSettings, ...inputSettings };
 
     const updated = await sql`
       UPDATE cms_sections
