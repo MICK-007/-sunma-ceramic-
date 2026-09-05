@@ -41,6 +41,7 @@ export const CMSHero: React.FC<CMSHeroProps> = ({ content }) => {
           alt={headline}
           fill
           priority
+          unoptimized
           sizes="100vw"
           className="object-cover opacity-40 scale-105 transition-transform duration-10000"
         />

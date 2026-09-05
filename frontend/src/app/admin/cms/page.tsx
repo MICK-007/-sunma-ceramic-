@@ -411,6 +411,7 @@ export default function AdminCmsStudioPage() {
       if (res.success) {
         setSuccessMessage(res.message || `Page '${activeSlug}' published live!`);
         setIsPublishConfirmOpen(false);
+        fetchDraftPage(activeSlug);
       } else {
         setErrorMessage(res.message || 'Failed to publish page changes.');
       }

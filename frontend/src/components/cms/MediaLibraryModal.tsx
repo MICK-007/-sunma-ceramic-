@@ -229,6 +229,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                     src={item.url}
                     alt={item.alt_text || item.filename}
                     fill
+                    unoptimized
                     sizes="(max-width: 768px) 50vw, 25vw"
                     className="object-cover group-hover:scale-105 transition-transform"
                   />

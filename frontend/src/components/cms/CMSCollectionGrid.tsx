@@ -59,6 +59,7 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
                 src={imageSrc}
                 alt={col.title}
                 fill
+                unoptimized
                 sizes="(max-width: 768px) 100vw, 25vw"
                 className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-60"
               />

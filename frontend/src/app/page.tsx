@@ -48,6 +48,7 @@ export default function HomePage() {
             alt="SUNMA Ceramic Showroom"
             fill
             priority
+            unoptimized
             className="object-cover opacity-40 scale-105 transition-transform duration-10000"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/50 to-transparent" />
