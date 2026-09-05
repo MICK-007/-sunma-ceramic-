@@ -4,6 +4,7 @@ import { api } from '@/services/api';
 import { X, Upload, Search, Image as ImageIcon, Check, Trash2, Edit2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useLanguage } from '@/context/LanguageContext';
+import { resolveMediaUrl } from '@/lib/media';
 
 export interface CmsMediaItem {
   id: string;
@@ -220,7 +221,7 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                   }`}
                 >
                   <Image
-                    src={item.url}
+                    src={resolveMediaUrl(item.url)}
                     alt={item.alt_text || item.filename}
                     fill
                     unoptimized

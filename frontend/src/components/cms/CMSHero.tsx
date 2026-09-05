@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { Gem, ArrowRight, Sparkles } from 'lucide-react';
 import { sanitizeUrl } from '@/lib/cms-utils';
+import { resolveMediaUrl } from '@/lib/media';
 
 export interface CMSHeroProps {
   content: {
@@ -26,7 +27,7 @@ export const CMSHero: React.FC<CMSHeroProps> = ({ content }) => {
   const eyebrow = settings.eyebrow || 'LUXURY CERAMIC TILES';
   const headline = content.title || 'ARCHITECTURAL SURFACE ATELIER';
   const description = content.subtitle || 'Discover Thailand\'s finest curated porcelain slabs, relief wall tiles, and engineered architectural surface solutions.';
-  const bgImage = settings.bgImage || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=90';
+  const bgImage = resolveMediaUrl(settings.bgImage) || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=90';
   const btn1Label = settings.btn1Label || 'Explore Catalog';
   const btn1Url = sanitizeUrl(settings.btn1Url, '/shop');
   const btn2Label = settings.btn2Label || 'Try Room Studio';

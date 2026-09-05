@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { sanitizeUrl } from '@/lib/cms-utils';
+import { resolveMediaUrl } from '@/lib/media';
 
 export interface CMSCollectionItem {
   id: string;
@@ -47,7 +48,7 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {items.map(col => {
           const href = sanitizeUrl(col.link_url, '/shop');
-          const imageSrc = col.custom_image_url || DEFAULT_FALLBACK_IMAGE;
+          const imageSrc = resolveMediaUrl(col.custom_image_url) || DEFAULT_FALLBACK_IMAGE;
 
           return (
             <Link

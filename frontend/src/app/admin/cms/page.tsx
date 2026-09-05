@@ -8,6 +8,7 @@ import { MediaLibraryModal, CmsMediaItem } from '@/components/cms/MediaLibraryMo
 import { CmsSectionRenderer } from '@/components/cms/CmsSectionRenderer';
 import { ALLOWED_ICONS } from '@/lib/cms-utils';
 import { useLanguage } from '@/context/LanguageContext';
+import { resolveMediaUrl } from '@/lib/media';
 
 const ALLOWED_MIME_MAP: Record<string, string> = {
   'image/jpeg': 'jpg',
@@ -406,14 +407,14 @@ export default function AdminCmsStudioPage() {
         ...prev,
         settings: {
           ...prev.settings,
-          bgImage: media.url,
+          bgImage: resolveMediaUrl(media.url),
         },
       }));
     } else {
       setItemForm(prev => ({
         ...prev,
         mediaId: media.id,
-        customImageUrl: media.url, // Display media.url in input so admin sees the selected asset path
+        customImageUrl: resolveMediaUrl(media.url), // Display resolved media URL in input
       }));
     }
   };
