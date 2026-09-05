@@ -8,6 +8,7 @@ out/
 
 # TypeScript build outputs
 dist/
+!backend/dist/
 *.tsbuildinfo
 
 # Logs & Environment secrets

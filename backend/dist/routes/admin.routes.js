@@ -1,0 +1,28 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const admin_controller_1 = require("../controllers/admin.controller");
+const auth_1 = require("../middleware/auth");
+const validate_1 = require("../middleware/validate");
+const product_schema_1 = require("../schemas/product.schema");
+const order_schema_1 = require("../schemas/order.schema");
+const promotion_schema_1 = require("../schemas/promotion.schema");
+const router = (0, express_1.Router)();
+// Apply auth and admin middleware to all admin endpoints
+router.use(auth_1.authenticateUser, auth_1.requireAdmin);
+router.get('/dashboard', admin_controller_1.getDashboardStats);
+router.get('/products', admin_controller_1.getAdminProducts);
+router.post('/products', (0, validate_1.validateBody)(product_schema_1.createProductSchema), admin_controller_1.createAdminProduct);
+router.patch('/products/:id', (0, validate_1.validateBody)(product_schema_1.updateProductSchema), admin_controller_1.updateAdminProduct);
+router.put('/products/:id', (0, validate_1.validateBody)(product_schema_1.updateProductSchema), admin_controller_1.updateAdminProduct);
+router.delete('/products/:id', admin_controller_1.deleteAdminProduct);
+router.get('/orders', admin_controller_1.getAdminOrders);
+router.patch('/orders/:id/status', (0, validate_1.validateBody)(order_schema_1.updateOrderStatusSchema), admin_controller_1.updateOrderStatus);
+router.get('/customers', admin_controller_1.getAdminCustomers);
+router.get('/inventory', admin_controller_1.getAdminInventory);
+router.get('/promotions', admin_controller_1.getAdminPromotions);
+router.post('/promotions', (0, validate_1.validateBody)(promotion_schema_1.createPromotionSchema), admin_controller_1.createAdminPromotion);
+router.patch('/promotions/:id', (0, validate_1.validateBody)(promotion_schema_1.updatePromotionSchema), admin_controller_1.updateAdminPromotion);
+router.post('/categories', admin_controller_1.createAdminCategory);
+router.post('/brands', admin_controller_1.createAdminBrand);
+exports.default = router;
