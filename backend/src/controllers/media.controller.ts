@@ -23,17 +23,6 @@ const ALLOWED_MIME_TYPES = Object.keys(ALLOWED_MIME_MAP);
 export function detectBinaryMimeType(buffer: Buffer): string | null {
   if (!buffer || buffer.length < 4) return null;
 
-  // Reject SVG, HTML, JS content immediately
-  const headStr = buffer.slice(0, 512).toString('utf8').toLowerCase();
-  if (
-    headStr.includes('<svg') ||
-    headStr.includes('<!doctype html') ||
-    headStr.includes('<html') ||
-    headStr.includes('<script')
-  ) {
-    return null;
-  }
-
   // 1. JPEG: FF D8 FF
   if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
     return 'image/jpeg';
@@ -410,15 +399,9 @@ export async function servePublicMediaFile(req: Request, res: Response) {
     return fs.createReadStream(filePath).pipe(res);
   }
 
-  // Styled SVG fallback tile for missing/dummy assets
-  const displayName = filename.split('.')[0];
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
-    <rect width="400" height="400" fill="#1e293b"/>
-    <circle cx="200" cy="160" r="50" fill="#334155"/>
-    <path d="M120 280 L170 200 L210 240 L240 190 L280 280 Z" fill="#475569"/>
-    <text x="50%" y="330" dominant-baseline="middle" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="14" font-weight="600">${displayName}</text>
-  </svg>`;
-  res.setHeader('Content-Type', 'image/svg+xml');
-  return res.send(svg);
+  // Fallback to direct Supabase Storage CDN Redirect
+  const supabaseUrl = process.env.SUPABASE_URL || 'https://xacaeysrrfqhwpkdjkvm.supabase.co';
+  const cdnUrl = `${supabaseUrl.replace(/\/+$/, '')}/storage/v1/object/public/cms/media/${filename}`;
+  return res.redirect(302, cdnUrl);
 }
 

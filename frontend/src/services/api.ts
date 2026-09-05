@@ -457,7 +457,7 @@ export const api = {
 
   // Public CMS Content Fetch
   async getPublicCmsPage(slug: string) {
-    return safeFetch(`${getApiBaseUrl()}/cms/public/pages/${slug}`);
+    return safeFetch(`${getApiBaseUrl()}/cms/public/pages/${slug}?_t=${Date.now()}`);
   },
 
   // Protected Admin Draft CMS Page Fetch

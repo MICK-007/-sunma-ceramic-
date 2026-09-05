@@ -13,10 +13,14 @@ if (!fs.existsSync(LOCAL_MEDIA_DIR)) {
 
 export const ALLOWED_MIME_MAP: Record<string, string> = {
   'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
   'image/png': 'png',
+  'image/x-png': 'png',
+  'image/apng': 'png',
   'image/webp': 'webp',
   'image/gif': 'gif',
   'image/avif': 'avif',
+  'application/octet-stream': 'png',
 };
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

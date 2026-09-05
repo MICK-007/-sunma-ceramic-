@@ -79,6 +79,8 @@ export async function getPublicPageBySlug(req: AuthenticatedRequest, res: Respon
         };
       });
 
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
     return res.json({
       success: true,
       data: {
