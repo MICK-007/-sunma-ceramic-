@@ -43,15 +43,15 @@ export const ProductFilter: React.FC<FilterProps> = ({
   const materials = ['Porcelain', 'Ceramic'];
 
   return (
-    <div className="bg-bg-card border border-border-subtle rounded-lg p-5 space-y-6">
-      <div className="flex items-center justify-between border-b border-border-subtle pb-3">
-        <h3 className="font-heading text-xs font-bold tracking-[0.2em] text-gold uppercase flex items-center gap-2">
-          <Filter className="w-3.5 h-3.5" />
+    <div className="bg-bg-card border border-border-subtle rounded-[2px] p-6 space-y-7 shadow-xs">
+      <div className="flex items-center justify-between border-b border-border-subtle pb-3.5">
+        <h3 className="font-heading text-xs font-semibold tracking-[0.2em] text-txt-main uppercase flex items-center gap-2">
+          <Filter className="w-3.5 h-3.5 text-gold" />
           {t.shop.filterBy}
         </h3>
         <button
           onClick={onReset}
-          className="text-[11px] text-stone hover:text-gold transition-colors flex items-center gap-1 font-semibold"
+          className="text-[11px] text-txt-muted hover:text-gold transition-colors flex items-center gap-1 font-medium tracking-wider uppercase"
         >
           <RotateCcw className="w-3 h-3" />
           {t.shop.resetFilters}
@@ -60,14 +60,14 @@ export const ProductFilter: React.FC<FilterProps> = ({
 
       {/* Categories Filter */}
       <div>
-        <label className="text-[11px] font-bold uppercase tracking-wider text-txt-main block mb-2">
-          Category
+        <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
+          Collection Division
         </label>
         <div className="space-y-1">
           <button
             onClick={() => setSelectedCategory('')}
-            className={`w-full text-left text-xs px-2.5 py-1.5 rounded transition-colors ${
-              selectedCategory === '' ? 'bg-gold/15 text-gold font-bold' : 'text-txt-muted hover:text-txt-main'
+            className={`w-full text-left text-xs px-3 py-1.5 rounded-[2px] transition-colors ${
+              selectedCategory === '' ? 'bg-txt-main text-white font-medium' : 'text-txt-muted hover:text-txt-main hover:bg-bg-secondary'
             }`}
           >
             {t.shop.allCategories}
@@ -76,8 +76,8 @@ export const ProductFilter: React.FC<FilterProps> = ({
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.slug)}
-              className={`w-full text-left text-xs px-2.5 py-1.5 rounded transition-colors ${
-                selectedCategory === cat.slug ? 'bg-gold/15 text-gold font-bold' : 'text-txt-muted hover:text-txt-main'
+              className={`w-full text-left text-xs px-3 py-1.5 rounded-[2px] transition-colors ${
+                selectedCategory === cat.slug ? 'bg-txt-main text-white font-medium' : 'text-txt-muted hover:text-txt-main hover:bg-bg-secondary'
               }`}
             >
               {isThai && cat.nameTh ? cat.nameTh : cat.name}
@@ -88,13 +88,13 @@ export const ProductFilter: React.FC<FilterProps> = ({
 
       {/* Brands Filter */}
       <div>
-        <label className="text-[11px] font-bold uppercase tracking-wider text-txt-main block mb-2">
+        <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
           Brand & Atelier
         </label>
         <select
           value={selectedBrand}
           onChange={e => setSelectedBrand(e.target.value)}
-          className="w-full bg-bg-secondary border border-border-subtle text-xs text-txt-main rounded p-2 focus:outline-none focus:border-gold"
+          className="w-full bg-bg-secondary border border-border-subtle text-xs text-txt-main rounded-[2px] p-2.5 focus:outline-none focus:border-gold"
         >
           <option value="">{t.shop.allBrands}</option>
           {brands.map(b => (
@@ -107,18 +107,18 @@ export const ProductFilter: React.FC<FilterProps> = ({
 
       {/* Size Filter */}
       <div>
-        <label className="text-[11px] font-bold uppercase tracking-wider text-txt-main block mb-2">
-          Tile Size (cm)
+        <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
+          Format Dimensions (cm)
         </label>
         <div className="grid grid-cols-2 gap-1.5">
           {sizes.map(sz => (
             <button
               key={sz}
               onClick={() => setSelectedSize(selectedSize === sz ? '' : sz)}
-              className={`text-xs p-1.5 rounded border text-center font-mono transition-colors ${
+              className={`text-xs p-2 rounded-[2px] border text-center font-mono transition-colors ${
                 selectedSize === sz
-                  ? 'border-gold bg-gold/20 text-gold font-bold'
-                  : 'border-border-subtle text-txt-muted hover:border-stone'
+                  ? 'border-gold bg-gold/15 text-gold font-semibold'
+                  : 'border-border-subtle text-txt-muted hover:border-txt-main/40'
               }`}
             >
               {sz}
@@ -129,7 +129,7 @@ export const ProductFilter: React.FC<FilterProps> = ({
 
       {/* Surface Filter */}
       <div>
-        <label className="text-[11px] font-bold uppercase tracking-wider text-txt-main block mb-2">
+        <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
           Surface Finish
         </label>
         <div className="flex flex-wrap gap-1.5">
@@ -137,10 +137,10 @@ export const ProductFilter: React.FC<FilterProps> = ({
             <button
               key={surf}
               onClick={() => setSelectedSurface(selectedSurface === surf ? '' : surf)}
-              className={`text-[11px] px-2.5 py-1 rounded border transition-colors ${
+              className={`text-[11px] px-3 py-1 rounded-[2px] border transition-colors ${
                 selectedSurface === surf
-                  ? 'border-gold bg-gold/20 text-gold font-bold'
-                  : 'border-border-subtle text-txt-muted hover:border-stone'
+                  ? 'border-gold bg-gold/15 text-gold font-semibold'
+                  : 'border-border-subtle text-txt-muted hover:border-txt-main/40'
               }`}
             >
               {surf}
@@ -151,13 +151,13 @@ export const ProductFilter: React.FC<FilterProps> = ({
 
       {/* Material Filter */}
       <div>
-        <label className="text-[11px] font-bold uppercase tracking-wider text-txt-main block mb-2">
-          Material
+        <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
+          Engineered Material
         </label>
         <select
           value={selectedMaterial}
           onChange={e => setSelectedMaterial(e.target.value)}
-          className="w-full bg-bg-secondary border border-border-subtle text-xs text-txt-main rounded p-2 focus:outline-none focus:border-gold"
+          className="w-full bg-bg-secondary border border-border-subtle text-xs text-txt-main rounded-[2px] p-2.5 focus:outline-none focus:border-gold"
         >
           <option value="">{t.shop.allMaterials}</option>
           {materials.map(m => (

@@ -3,26 +3,34 @@
 @tailwind utilities;
 
 :root {
-  /* Centralized Typography Tokens (easy to replace fonts later) */
-  --font-heading: 'Cinzel', 'Playfair Display', 'Didot', Georgia, serif;
+  /* Centralized Typography Tokens */
+  --font-heading: 'Playfair Display', 'Cinzel', 'Didot', Georgia, serif;
   --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 
-  /* Centralized Dark Luxury Color System */
-  --color-bg-primary: #0C0D0E;
-  --color-bg-secondary: #141618;
-  --color-bg-card: #1C1E22;
-  --color-bg-elevated: #24272D;
-  --color-gold: #D4AF37;
-  --color-gold-hover: #E5C158;
-  --color-gold-muted: rgba(212, 175, 55, 0.15);
-  --color-stone: #8C8275;
-  --color-stone-dark: #4A453E;
-  --color-stone-light: #B8B0A6;
-  --color-text-main: #F3F3F3;
-  --color-text-muted: #9EA3A9;
-  --color-text-inverse: #0C0D0E;
-  --color-border-subtle: rgba(255, 255, 255, 0.08);
-  --color-border-gold: rgba(212, 175, 55, 0.4);
+  /* Modern Architectural Minimal Luxury Color System */
+  --color-bg-primary: #FAF9F6;          /* Clean alabaster off-white */
+  --color-bg-secondary: #F3F1ED;        /* Honed limestone tint */
+  --color-bg-card: #FFFFFF;             /* Pure gallery white */
+  --color-bg-elevated: #EFECE6;         /* Soft travertine neutral */
+  --color-gold: #8E7E63;                /* Muted warm champagne bronze */
+  --color-gold-hover: #73654E;          /* Deeper architectural bronze */
+  --color-gold-muted: rgba(142, 126, 99, 0.12);
+  --color-stone: #7A756D;               /* Muted architectural stone */
+  --color-stone-dark: #36383D;          /* Slate stone dark */
+  --color-stone-light: #9E9A92;         /* Pale stone */
+  --color-text-main: #151618;           /* Near-black graphite (high legibility) */
+  --color-text-muted: #64676E;          /* Balanced slate text */
+  --color-text-inverse: #FAF9F6;        /* Alabaster text for dark moments */
+  --color-border-subtle: rgba(21, 22, 24, 0.08); /* 1px crisp architectural hairline */
+  --color-border-gold: rgba(142, 126, 99, 0.35); /* Champagne architectural hairline */
+
+  /* Dark Contrast Moments (Hero, Monoliths, Night Mode) */
+  --color-contrast-bg: #111214;
+  --color-contrast-surface: #181A1D;
+  --color-contrast-border: rgba(255, 255, 255, 0.1);
+  --color-contrast-text: #F5F5F7;
+  --color-contrast-muted: #8E9199;
 }
 
 body {
@@ -31,42 +39,68 @@ body {
   font-family: var(--font-body);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, .font-heading {
   font-family: var(--font-heading);
+  letter-spacing: -0.015em;
 }
 
-/* Custom Scrollbar */
+/* Custom Architectural Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0C0D0E;
+  background: var(--color-bg-primary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2A2D32;
-  border-radius: 4px;
+  background: #D8D4CC;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #D4AF37;
+  background: var(--color-gold);
 }
 
-/* Luxury Card Hover Micro-animations */
+/* Architectural Luxury Card */
 .luxury-card {
   background-color: var(--color-bg-card);
   border: 1px solid var(--color-border-subtle);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .luxury-card:hover {
   border-color: var(--color-border-gold);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6), 0 0 15px -5px rgba(212, 175, 55, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px -8px rgba(21, 22, 24, 0.08), 0 0 1px 1px rgba(142, 126, 99, 0.15);
+}
+
+/* Editorial & Architectural Helpers */
+.hairline-b {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.hairline-t {
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.architectural-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--color-gold);
+}
+
+.glass-panel {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border-subtle);
 }
 
 /* Custom Tile Pattern Simulator Grid */
@@ -75,3 +109,21 @@ h1, h2, h3, h4, .font-heading {
   background-size: contain;
   transition: background-image 0.3s ease-in-out;
 }
+
+/* Base Form Input Legibility Rules */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+select,
+textarea {
+  color: var(--color-text-main);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.75;
+}
+

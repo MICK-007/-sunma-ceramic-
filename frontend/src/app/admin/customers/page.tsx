@@ -19,18 +19,18 @@ export default function AdminCustomersPage() {
   return (
     <div className="space-y-6">
       <div className="border-b border-border-subtle pb-4">
-        <h2 className="font-heading text-xl font-bold text-white">
+        <h2 className="font-heading text-xl font-bold text-txt-main">
           {t.admin.navCustomers} ({customers.length})
         </h2>
-        <p className="text-xs text-stone">Architect directory and customer lifetime spend.</p>
+        <p className="text-xs text-txt-muted">Architect directory and customer lifetime spend.</p>
       </div>
 
       {isLoading ? (
         <div className="p-12 text-center text-gold">{t.common.loading}</div>
       ) : (
-        <div className="bg-bg-card border border-border-subtle rounded-lg overflow-x-auto">
+        <div className="bg-bg-card border border-border-subtle rounded-[2px] overflow-x-auto shadow-sm">
           <table className="w-full text-left text-xs">
-            <thead className="bg-bg-secondary border-b border-border-subtle text-stone uppercase font-mono">
+            <thead className="bg-bg-secondary/60 border-b border-border-subtle text-txt-muted uppercase font-mono">
               <tr>
                 <th className="p-3">Customer Name</th>
                 <th className="p-3">Email</th>
@@ -42,12 +42,12 @@ export default function AdminCustomersPage() {
             </thead>
             <tbody className="divide-y divide-border-subtle">
               {customers.map(cust => (
-                <tr key={cust.id} className="hover:bg-bg-secondary/50">
-                  <td className="p-3 font-bold text-white">{cust.fullName}</td>
-                  <td className="p-3 font-mono text-stone-light">{cust.email}</td>
-                  <td className="p-3">{cust.phone || 'N/A'}</td>
+                <tr key={cust.id} className="hover:bg-bg-secondary/40 transition-colors">
+                  <td className="p-3 font-bold text-txt-main">{cust.fullName}</td>
+                  <td className="p-3 font-mono text-txt-muted">{cust.email}</td>
+                  <td className="p-3 text-txt-muted">{cust.phone || 'N/A'}</td>
                   <td className="p-3 font-bold text-gold">{cust.ordersCount || 0}</td>
-                  <td className="p-3 font-bold text-emerald-400">฿{(cust.totalSpent || 0).toLocaleString()}</td>
+                  <td className="p-3 font-bold text-emerald-600">฿{(cust.totalSpent || 0).toLocaleString()}</td>
                   <td className="p-3">
                     <Badge variant={cust.role === 'ADMIN' ? 'gold' : 'stone'}>{cust.role}</Badge>
                   </td>

@@ -491,13 +491,13 @@ export default function AdminCmsStudioPage() {
   return (
     <div className="space-y-6">
       {/* CMS Studio Header Bar */}
-      <div className="bg-bg-card border border-border-gold p-6 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+      <div className="bg-bg-card border border-border-gold/40 p-6 rounded-[2px] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-gold font-bold text-lg">
             <Sparkles className="w-5 h-5" />
             {t.cms.studioTitle}
           </div>
-          <p className="text-xs text-stone-light">
+          <p className="text-xs text-txt-muted">
             {t.cms.studioSubtitle}
           </p>
         </div>
@@ -506,17 +506,17 @@ export default function AdminCmsStudioPage() {
           <select
             value={activeSlug}
             onChange={e => setActiveSlug(e.target.value)}
-            className="bg-black border border-border-subtle text-white text-xs font-bold px-3 py-2 rounded focus:outline-none focus:border-gold"
+            className="bg-white border border-border-subtle text-txt-main text-xs font-bold px-3 py-2 rounded-[2px] focus:outline-none focus:border-gold"
           >
             <option value="home">{t.cms.homePageOption}</option>
             <option value="footer">{t.cms.footerOption}</option>
           </select>
 
-          <Button variant="outline" size="sm" onClick={() => setIsPreviewModalOpen(true)} className="gap-1 text-xs">
+          <Button variant="outline" size="sm" onClick={() => setIsPreviewModalOpen(true)} className="gap-1 text-xs rounded-[2px]">
             <Eye className="w-4 h-4" /> {t.cms.previewButton}
           </Button>
 
-          <Button variant="gold" size="sm" onClick={() => setIsPublishConfirmOpen(true)} className="gap-1 text-xs">
+          <Button variant="gold" size="sm" onClick={() => setIsPublishConfirmOpen(true)} className="gap-1 text-xs rounded-[2px]">
             <Send className="w-4 h-4" /> {t.cms.publishButton}
           </Button>
         </div>
@@ -524,15 +524,15 @@ export default function AdminCmsStudioPage() {
 
       {/* Notifications */}
       {errorMessage && (
-        <div className="p-3 bg-red-950/80 border border-red-500/50 rounded-lg text-xs text-red-300 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+        <div className="p-3 bg-red-950/20 border border-red-500/40 rounded-[2px] text-xs text-red-600 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       {successMessage && (
-        <div className="p-3 bg-emerald-950/80 border border-emerald-500/50 rounded-lg text-xs text-emerald-300 flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+        <div className="p-3 bg-emerald-950/20 border border-emerald-500/40 rounded-[2px] text-xs text-emerald-700 flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
           <span>{successMessage}</span>
         </div>
       )}
@@ -541,12 +541,12 @@ export default function AdminCmsStudioPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Section Manager List */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="bg-bg-card border border-border-subtle rounded-lg p-4 space-y-3">
+          <div className="bg-bg-card border border-border-subtle rounded-[2px] p-4 space-y-3 shadow-sm">
             <div className="flex items-center justify-between border-b border-border-subtle pb-3">
               <h3 className="font-heading text-xs font-bold text-gold uppercase tracking-wider flex items-center gap-2">
                 <Layers className="w-4 h-4" /> {t.cms.sectionManagerTitle}
               </h3>
-              <span className="text-[10px] text-stone font-mono">{sections.length} {t.cms.sectionCount}</span>
+              <span className="text-[10px] text-txt-muted font-mono">{sections.length} {t.cms.sectionCount}</span>
             </div>
 
             <div className="space-y-2">
@@ -555,19 +555,19 @@ export default function AdminCmsStudioPage() {
                 return (
                   <div
                     key={sec.id}
-                    className={`p-3 rounded-lg border flex items-center justify-between gap-2 transition-all ${
+                    className={`p-3 rounded-[2px] border flex items-center justify-between gap-2 transition-all ${
                       isSelected
-                        ? 'bg-bg-secondary border-gold shadow'
-                        : 'bg-black/40 border-border-subtle hover:border-gold/50'
+                        ? 'bg-gold/10 border-gold shadow-sm'
+                        : 'bg-bg-secondary/40 border-border-subtle hover:border-gold/50'
                     }`}
                   >
                     <div className="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer" onClick={() => setEditingSection(sec)}>
-                      <span className="text-[10px] font-mono text-stone w-4">{idx + 1}</span>
+                      <span className="text-[10px] font-mono text-txt-muted w-4">{idx + 1}</span>
                       <div className="truncate">
-                        <span className="text-xs font-bold text-white block truncate">
+                        <span className="text-xs font-bold text-txt-main block truncate">
                           {sec.title || sec.section_key}
                         </span>
-                        <span className="text-[9px] text-stone uppercase tracking-wider">
+                        <span className="text-[9px] text-txt-muted uppercase tracking-wider">
                           {t.cms.sectionType} {sec.section_type}
                         </span>
                       </div>
@@ -576,7 +576,7 @@ export default function AdminCmsStudioPage() {
                     <div className="flex items-center gap-1 shrink-0">
                       <button
                         onClick={() => handleToggleSectionEnabled(sec)}
-                        className={`p-1 rounded ${sec.is_enabled ? 'text-emerald-400 hover:bg-emerald-950/50' : 'text-stone hover:bg-neutral-800'}`}
+                        className={`p-1 rounded-[2px] ${sec.is_enabled ? 'text-emerald-600 hover:bg-emerald-950/10' : 'text-txt-muted hover:bg-neutral-200'}`}
                       >
                         {sec.is_enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                       </button>
@@ -584,7 +584,7 @@ export default function AdminCmsStudioPage() {
                       <button
                         onClick={() => handleMoveSection(idx, 'up')}
                         disabled={idx === 0 || reordering}
-                        className="p-1 text-stone hover:text-white disabled:opacity-30"
+                        className="p-1 text-txt-muted hover:text-txt-main disabled:opacity-30"
                       >
                         <ArrowUp className="w-3.5 h-3.5" />
                       </button>
@@ -592,7 +592,7 @@ export default function AdminCmsStudioPage() {
                       <button
                         onClick={() => handleMoveSection(idx, 'down')}
                         disabled={idx === sections.length - 1 || reordering}
-                        className="p-1 text-stone hover:text-white disabled:opacity-30"
+                        className="p-1 text-txt-muted hover:text-txt-main disabled:opacity-30"
                       >
                         <ArrowDown className="w-3.5 h-3.5" />
                       </button>
@@ -601,7 +601,7 @@ export default function AdminCmsStudioPage() {
                         size="sm"
                         variant={isSelected ? 'gold' : 'outline'}
                         onClick={() => setEditingSection(sec)}
-                        className="h-6 px-2 text-[10px]"
+                        className="h-6 px-2 text-[10px] rounded-[2px]"
                       >
                         {t.cms.editButton}
                       </Button>
@@ -616,18 +616,18 @@ export default function AdminCmsStudioPage() {
         {/* Right Column: Section Editor Pane */}
         <div className="lg:col-span-7 space-y-4">
           {editingSection ? (
-            <div className="bg-bg-card border border-border-subtle rounded-lg p-6 space-y-6">
+            <div className="bg-bg-card border border-border-subtle rounded-[2px] p-6 space-y-6 shadow-sm">
               <div className="flex items-center justify-between border-b border-border-subtle pb-4">
                 <div>
                   <span className="text-[10px] font-bold text-gold uppercase tracking-wider">
                     {editingSection.section_type}
                   </span>
-                  <h2 className="font-heading text-lg font-bold text-white">
+                  <h2 className="font-heading text-lg font-bold text-txt-main">
                     {editingSection.title || editingSection.section_key}
                   </h2>
                 </div>
 
-                <Button variant="gold" size="sm" onClick={handleSaveSectionConfig} disabled={saving}>
+                <Button variant="gold" size="sm" onClick={handleSaveSectionConfig} disabled={saving} className="rounded-[2px]">
                   <Save className="w-4 h-4 mr-1.5" /> {saving ? t.cms.savingButton : t.cms.saveDraftButton}
                 </Button>
               </div>
@@ -635,22 +635,22 @@ export default function AdminCmsStudioPage() {
               {/* Title & Subtitle Form */}
               <div className="grid grid-cols-1 gap-4 text-xs">
                 <div>
-                  <label className="block text-stone font-bold uppercase tracking-wider mb-1">{t.cms.sectionTitleLabel}</label>
+                  <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">{t.cms.sectionTitleLabel}</label>
                   <input
                     type="text"
                     value={editingSection.title || ''}
                     onChange={e => setEditingSection((prev: any) => ({ ...prev, title: e.target.value }))}
-                    className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
+                    className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-stone font-bold uppercase tracking-wider mb-1">{t.cms.sectionSubtitleLabel}</label>
+                  <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">{t.cms.sectionSubtitleLabel}</label>
                   <input
                     type="text"
                     value={editingSection.subtitle || ''}
                     onChange={e => setEditingSection((prev: any) => ({ ...prev, subtitle: e.target.value }))}
-                    className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
+                    className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
                   />
                 </div>
               </div>
@@ -661,7 +661,7 @@ export default function AdminCmsStudioPage() {
                   <h4 className="font-bold text-gold uppercase tracking-wider">{t.cms.heroConfigTitle}</h4>
 
                   <div>
-                    <label className="block text-stone font-bold uppercase tracking-wider mb-1">{t.cms.bgImageLabel}</label>
+                    <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">{t.cms.bgImageLabel}</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
@@ -672,13 +672,14 @@ export default function AdminCmsStudioPage() {
                             settings: { ...prev.settings, bgImage: e.target.value },
                           }))
                         }
-                        className="flex-1 bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
+                        className="flex-1 bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
                         placeholder={t.cms.bgImagePlaceholder}
                       />
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
+                        className="rounded-[2px]"
                         onClick={() => {
                           setMediaTargetField('section_hero');
                           setIsMediaOpen(true);
@@ -691,7 +692,7 @@ export default function AdminCmsStudioPage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-stone font-bold uppercase tracking-wider mb-1">{t.cms.btn1Label}</label>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">{t.cms.btn1Label}</label>
                       <input
                         type="text"
                         value={editingSection.settings?.btn1Label || ''}
@@ -701,11 +702,11 @@ export default function AdminCmsStudioPage() {
                             settings: { ...prev.settings, btn1Label: e.target.value },
                           }))
                         }
-                        className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
                       />
                     </div>
                     <div>
-                      <label className="block text-stone font-bold uppercase tracking-wider mb-1">{t.cms.btn1Url}</label>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">{t.cms.btn1Url}</label>
                       <input
                         type="text"
                         value={editingSection.settings?.btn1Url || ''}
@@ -715,7 +716,7 @@ export default function AdminCmsStudioPage() {
                             settings: { ...prev.settings, btn1Url: e.target.value },
                           }))
                         }
-                        className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
                       />
                     </div>
                   </div>
@@ -727,23 +728,23 @@ export default function AdminCmsStudioPage() {
                 <div className="space-y-4 pt-4 border-t border-border-subtle">
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold text-gold uppercase tracking-wider text-xs">{t.cms.sectionItemsTitle}</h4>
-                    <Button size="sm" variant="gold" onClick={() => handleOpenItemForm()}>
+                    <Button size="sm" variant="gold" onClick={() => handleOpenItemForm()} className="rounded-[2px]">
                       <Plus className="w-3.5 h-3.5 mr-1" /> {t.cms.addItemButton}
                     </Button>
                   </div>
 
                   <div className="space-y-2">
                     {editingSection.items?.map((item: any) => (
-                      <div key={item.id} className="p-3 bg-black/60 border border-border-subtle rounded flex items-center justify-between text-xs">
+                      <div key={item.id} className="p-3 bg-bg-secondary/40 border border-border-subtle rounded-[2px] flex items-center justify-between text-xs">
                         <div>
-                          <span className="font-bold text-white block">{item.title}</span>
-                          <span className="text-[10px] text-stone">{item.description || item.link_url}</span>
+                          <span className="font-bold text-txt-main block">{item.title}</span>
+                          <span className="text-[10px] text-txt-muted">{item.description || item.link_url}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <button onClick={() => handleOpenItemForm(item)} className="p-1 text-stone hover:text-gold">
+                          <button onClick={() => handleOpenItemForm(item)} className="p-1 text-txt-muted hover:text-gold transition-colors">
                             <Edit className="w-3.5 h-3.5" />
                           </button>
-                          <button onClick={() => handleDeleteItem(item.id)} className="p-1 text-stone hover:text-red-400">
+                          <button onClick={() => handleDeleteItem(item.id)} className="p-1 text-txt-muted hover:text-red-500 transition-colors">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
@@ -754,7 +755,7 @@ export default function AdminCmsStudioPage() {
               )}
             </div>
           ) : (
-            <div className="p-12 text-center text-xs text-stone bg-bg-card border border-border-subtle rounded-lg">
+            <div className="p-12 text-center text-xs text-txt-muted bg-bg-card border border-border-subtle rounded-[2px] shadow-sm">
               {t.cms.selectSectionPrompt}
             </div>
           )}
@@ -763,43 +764,43 @@ export default function AdminCmsStudioPage() {
 
       {/* Item Create / Edit Dialog Modal */}
       {isItemModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <form onSubmit={handleSaveItem} className="bg-bg-card border border-border-gold rounded-xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
-            <h3 className="font-heading text-base font-bold text-white border-b border-border-subtle pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <form onSubmit={handleSaveItem} className="bg-bg-card border border-border-gold/40 rounded-[2px] w-full max-w-lg p-6 space-y-4 shadow-2xl">
+            <h3 className="font-heading text-base font-bold text-txt-main border-b border-border-subtle pb-3">
               {editingItem ? t.cms.editItemTitle : t.cms.newItemTitle}
             </h3>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block text-stone font-bold uppercase mb-1">{t.cms.itemTitleLabel}</label>
+                <label className="block text-txt-muted font-medium uppercase mb-1">{t.cms.itemTitleLabel}</label>
                 <input
                   type="text"
                   required
                   value={itemForm.title}
                   onChange={e => setItemForm(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
+                  className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
                   placeholder={t.cms.itemTitlePlaceholder}
                 />
               </div>
 
               <div>
-                <label className="block text-stone font-bold uppercase mb-1">{t.cms.itemDescLabel}</label>
+                <label className="block text-txt-muted font-medium uppercase mb-1">{t.cms.itemDescLabel}</label>
                 <textarea
                   rows={2}
                   value={itemForm.description}
                   onChange={e => setItemForm(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
+                  className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
                   placeholder={t.cms.itemDescPlaceholder}
                 />
               </div>
 
               {editingSection?.section_type === 'WHY_CHOOSE' && (
                 <div>
-                  <label className="block text-stone font-bold uppercase mb-1">{t.cms.itemIconLabel}</label>
+                  <label className="block text-txt-muted font-medium uppercase mb-1">{t.cms.itemIconLabel}</label>
                   <select
                     value={itemForm.iconName}
                     onChange={e => setItemForm(prev => ({ ...prev, iconName: e.target.value }))}
-                    className="w-full bg-black border border-border-subtle rounded px-3 py-2 text-white focus:outline-none focus:border-gold"
+                    className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
                   >
                     {ALLOWED_ICONS.map(ic => (
                       <option key={ic} value={ic}>
@@ -811,12 +812,12 @@ export default function AdminCmsStudioPage() {
               )}
 
               <div>
-                <label className="block text-stone font-bold uppercase mb-1">{t.cms.itemImageLabel}</label>
+                <label className="block text-txt-muted font-medium uppercase mb-1">{t.cms.itemImageLabel}</label>
                 
-                <div className="bg-neutral-900/80 border border-border-subtle rounded-lg p-3 space-y-3">
+                <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-3 space-y-3">
                   <div className="flex items-start gap-3">
                     {/* Image Preview Thumbnail */}
-                    <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-border-subtle bg-black shrink-0 flex items-center justify-center">
+                    <div className="relative w-20 h-20 rounded-[2px] overflow-hidden border border-border-subtle bg-bg-secondary shrink-0 flex items-center justify-center">
                       {itemForm.customImageUrl ? (
                         <img
                           src={resolveMediaUrl(itemForm.customImageUrl)}
@@ -853,7 +854,7 @@ export default function AdminCmsStudioPage() {
                           size="sm"
                           disabled={uploadingItemImage}
                           onClick={() => itemFileInputRef.current?.click()}
-                          className="text-xs"
+                          className="text-xs rounded-[2px]"
                         >
                           <Upload className="w-3.5 h-3.5 mr-1" />
                           {uploadingItemImage ? 'กำลังอัปโหลด...' : 'อัปโหลดจากเครื่อง'}
@@ -867,7 +868,7 @@ export default function AdminCmsStudioPage() {
                             setMediaTargetField('item');
                             setIsMediaOpen(true);
                           }}
-                          className="text-xs"
+                          className="text-xs rounded-[2px]"
                         >
                           <ImageIcon className="w-3.5 h-3.5 mr-1" />
                           {t.cms.chooseMediaButton || 'เลือกจากคลังสื่อ'}
@@ -879,7 +880,7 @@ export default function AdminCmsStudioPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => setItemForm(prev => ({ ...prev, customImageUrl: '', mediaId: '' }))}
-                            className="text-xs text-stone hover:text-red-400"
+                            className="text-xs rounded-[2px] text-red-500 hover:text-red-600 hover:bg-red-950/10"
                           >
                             <Trash2 className="w-3.5 h-3.5 mr-1" />
                             ล้างรูปภาพ
@@ -892,7 +893,7 @@ export default function AdminCmsStudioPage() {
                         type="text"
                         value={itemForm.customImageUrl}
                         onChange={e => setItemForm(prev => ({ ...prev, customImageUrl: e.target.value, mediaId: '' }))}
-                        className="w-full bg-black border border-border-subtle rounded px-3 py-1.5 text-xs text-white focus:outline-none focus:border-gold truncate"
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-xs text-txt-main focus:outline-none focus:border-gold truncate"
                         placeholder={t.cms.itemImagePlaceholder || 'หรือใส่ URL รูปภาพ...'}
                       />
                     </div>
@@ -903,10 +904,10 @@ export default function AdminCmsStudioPage() {
             </div>
 
             <div className="flex justify-end gap-2 pt-4 border-t border-border-subtle">
-              <Button type="button" variant="ghost" size="sm" onClick={handleCloseItemForm}>
+              <Button type="button" variant="ghost" size="sm" onClick={handleCloseItemForm} className="rounded-[2px]">
                 {t.cms.cancelButton}
               </Button>
-              <Button type="submit" variant="gold" size="sm" disabled={saving}>
+              <Button type="submit" variant="gold" size="sm" disabled={saving} className="rounded-[2px]">
                 {saving ? t.cms.savingButton : t.cms.saveItemDraftButton}
               </Button>
             </div>
@@ -923,24 +924,24 @@ export default function AdminCmsStudioPage() {
 
       {/* Publish Confirmation Modal */}
       {isPublishConfirmOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="bg-bg-card border border-gold rounded-xl w-full max-w-md p-6 space-y-4 shadow-2xl text-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-bg-card border border-border-gold/40 rounded-[2px] w-full max-w-md p-6 space-y-4 shadow-2xl text-xs">
             <div className="flex items-center gap-2 text-gold font-bold text-base border-b border-border-subtle pb-3">
               <Send className="w-5 h-5" /> {t.cms.publishModalTitle}
             </div>
-            <p className="text-stone-light leading-relaxed">
+            <p className="text-txt-muted leading-relaxed">
               {t.cms.publishModalText}
             </p>
-            <div className="bg-black/60 border border-border-subtle p-3 rounded text-[11px] space-y-1">
-              <div>{t.cms.pageLabel} <strong className="text-white">{activeSlug}</strong></div>
-              <div>{t.cms.sectionsLabel} <strong className="text-white">{sections.length} {t.cms.sectionCount}</strong></div>
-              <div>{t.cms.securityStatusLabel} <strong className="text-emerald-400">Atomic Immutability Guaranteed</strong></div>
+            <div className="bg-bg-secondary/50 border border-border-subtle p-3 rounded-[2px] text-[11px] space-y-1">
+              <div>{t.cms.pageLabel} <strong className="text-txt-main">{activeSlug}</strong></div>
+              <div>{t.cms.sectionsLabel} <strong className="text-txt-main">{sections.length} {t.cms.sectionCount}</strong></div>
+              <div>{t.cms.securityStatusLabel} <strong className="text-emerald-600">Atomic Immutability Guaranteed</strong></div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" size="sm" onClick={() => setIsPublishConfirmOpen(false)}>
+              <Button variant="ghost" size="sm" onClick={() => setIsPublishConfirmOpen(false)} className="rounded-[2px]">
                 {t.cms.cancelButton}
               </Button>
-              <Button variant="gold" size="sm" onClick={handlePublish} disabled={publishing}>
+              <Button variant="gold" size="sm" onClick={handlePublish} disabled={publishing} className="rounded-[2px]">
                 {publishing ? t.cms.publishingButton : t.cms.confirmPublishButton}
               </Button>
             </div>
@@ -950,16 +951,16 @@ export default function AdminCmsStudioPage() {
 
       {/* Single Selected Section Draft Preview Modal */}
       {isPreviewModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 md:p-8 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-bg-card border border-border-gold rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 md:p-8 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-bg-card border border-border-gold/40 rounded-[2px] w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden relative">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border-subtle bg-black/60 shrink-0">
+            <div className="flex items-center justify-between p-4 border-b border-border-subtle bg-bg-secondary/40 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1.5 text-gold font-bold text-sm">
                   <Eye className="w-4 h-4" /> Section Draft Preview
                 </div>
                 {editingSection && (
-                  <span className="px-2 py-0.5 rounded bg-gold/10 border border-gold/30 text-[10px] font-mono text-gold font-bold uppercase">
+                  <span className="px-2 py-0.5 rounded-[2px] bg-gold/10 border border-gold/30 text-[10px] font-mono text-gold font-bold uppercase">
                     {editingSection.title || editingSection.section_key} ({editingSection.section_type})
                   </span>
                 )}
@@ -968,7 +969,7 @@ export default function AdminCmsStudioPage() {
               {/* Top Right Close Button */}
               <button
                 onClick={() => setIsPreviewModalOpen(false)}
-                className="p-1.5 rounded-lg text-stone hover:text-white hover:bg-neutral-800 transition-colors"
+                className="p-1.5 rounded-[2px] text-txt-muted hover:text-txt-main hover:bg-neutral-200 transition-colors"
                 title="Close preview"
               >
                 <X className="w-5 h-5" />
@@ -980,22 +981,23 @@ export default function AdminCmsStudioPage() {
               {editingSection ? (
                 <CmsSectionRenderer sections={[editingSection]} />
               ) : (
-                <div className="p-8 text-center text-xs text-stone">No section selected for preview.</div>
+                <div className="p-8 text-center text-xs text-txt-muted">No section selected for preview.</div>
               )}
             </div>
 
             {/* Modal Footer Controls */}
-            <div className="p-4 border-t border-border-subtle bg-black/60 flex items-center justify-between gap-3 shrink-0">
-              <span className="text-[11px] text-stone">
+            <div className="p-4 border-t border-border-subtle bg-bg-secondary/40 flex items-center justify-between gap-3 shrink-0">
+              <span className="text-[11px] text-txt-muted">
                 Viewing draft preview for current section.
               </span>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => setIsPreviewModalOpen(false)}>
+                <Button variant="ghost" size="sm" onClick={() => setIsPreviewModalOpen(false)} className="rounded-[2px]">
                   Cancel
                 </Button>
                 <Button
                   variant="gold"
                   size="sm"
+                  className="rounded-[2px]"
                   onClick={() => {
                     setIsPreviewModalOpen(false);
                     setIsPublishConfirmOpen(true);

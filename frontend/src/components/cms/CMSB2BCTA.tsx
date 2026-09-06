@@ -24,23 +24,23 @@ export const CMSB2BCTA: React.FC<CMSB2BCTAProps> = ({ content }) => {
   const buttonUrl = sanitizeUrl(content.settings?.buttonUrl, '/contact');
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="bg-bg-card border border-border-subtle rounded-xl p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-        <div className="space-y-3 max-w-xl">
-          <div className="inline-flex items-center gap-2 text-gold text-xs font-bold uppercase tracking-widest">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="bg-contrast-surface border border-white/15 rounded-[2px] p-10 sm:p-16 flex flex-col md:flex-row items-center justify-between gap-10 shadow-xl">
+        <div className="space-y-4 max-w-xl text-left">
+          <div className="inline-flex items-center gap-2 text-gold text-[10.5px] font-semibold uppercase tracking-[0.25em]">
             <Building2 className="w-4 h-4 text-gold" />
             {subtitle}
           </div>
-          <h2 className="font-heading text-2xl font-bold text-white">
+          <h2 className="font-heading text-3xl sm:text-4xl font-normal text-white leading-tight">
             {title}
           </h2>
-          <p className="text-xs text-stone-light leading-relaxed">
+          <p className="text-xs sm:text-sm text-white/75 font-light leading-relaxed">
             {description}
           </p>
         </div>
 
         <Link href={buttonUrl}>
-          <Button variant="gold" size="lg">
+          <Button variant="gold" size="lg" className="shadow-lg whitespace-nowrap">
             {buttonLabel} <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </Link>

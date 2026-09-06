@@ -3,7 +3,7 @@
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'gold' | 'outline' | 'ghost' | 'danger';
+  variant?: 'gold' | 'primary' | 'outline' | 'secondary' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   children: React.ReactNode;
 }
@@ -16,19 +16,21 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center font-semibold uppercase tracking-wider transition-all duration-200 rounded disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none';
+    'inline-flex items-center justify-center font-medium tracking-wider uppercase transition-all duration-300 rounded-[2px] disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none select-none';
 
   const variants = {
-    gold: 'bg-gold text-bg-primary hover:bg-gold-hover shadow-md font-bold',
-    outline: 'border border-border-gold text-gold hover:bg-gold/10',
-    ghost: 'text-txt-muted hover:text-txt-main hover:bg-bg-secondary',
-    danger: 'bg-red-900/40 border border-red-500/40 text-red-300 hover:bg-red-900/60',
+    gold: 'bg-gold text-white hover:bg-gold-hover shadow-sm font-semibold',
+    primary: 'bg-txt-main text-white hover:bg-stone-dark shadow-sm font-semibold',
+    outline: 'border border-border-subtle hover:border-txt-main text-txt-main hover:bg-txt-main/5 font-medium',
+    secondary: 'bg-bg-secondary text-txt-main border border-border-subtle hover:bg-bg-elevated font-medium',
+    ghost: 'text-txt-muted hover:text-txt-main hover:bg-bg-secondary font-medium',
+    danger: 'bg-rose-50 border border-rose-200 text-rose-700 hover:bg-rose-100 font-semibold',
   };
 
   const sizes = {
-    sm: 'text-xs px-3 py-1.5',
-    md: 'text-xs px-4 py-2.5',
-    lg: 'text-sm px-6 py-3.5',
+    sm: 'text-[11px] px-3 py-1.5 tracking-widest',
+    md: 'text-xs px-5 py-2.5 tracking-wider',
+    lg: 'text-xs px-7 py-3.5 tracking-widest',
   };
 
   return (

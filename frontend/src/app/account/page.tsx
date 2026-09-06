@@ -56,18 +56,19 @@ function AccountContent() {
 
       <div className="border-b border-border-subtle pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="text-xs uppercase font-bold tracking-[0.2em] text-gold block">
+          <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gold block">
             MY ARCHITECTURAL ACCOUNT
           </span>
-          <h1 className="font-heading text-3xl font-bold text-white">
+          <h1 className="font-heading text-3xl font-bold text-txt-main">
             {user.fullName || user.email}
           </h1>
-          <span className="text-xs text-stone font-mono">{user.email}</span>
+          <span className="text-xs text-txt-muted font-mono">{user.email}</span>
         </div>
 
         <Button
           variant="outline"
           size="sm"
+          className="rounded-[2px]"
           onClick={() => {
             logout();
             router.push('/');
@@ -94,7 +95,7 @@ function AccountContent() {
               className={`py-3 flex items-center gap-2 border-b-2 transition-colors ${
                 isActive
                   ? 'border-gold text-gold font-bold'
-                  : 'border-transparent text-txt-muted hover:text-white'
+                  : 'border-transparent text-txt-muted hover:text-txt-main'
               }`}
             >
               <IconComp className="w-4 h-4" />
@@ -108,19 +109,19 @@ function AccountContent() {
       {activeTab === 'orders' && (
         <div className="space-y-6">
           {orders.length === 0 ? (
-            <div className="bg-bg-card border border-border-subtle p-12 text-center rounded-lg text-stone font-semibold text-xs">
+            <div className="bg-bg-card border border-border-subtle p-12 text-center rounded-[2px] text-txt-muted font-medium text-xs shadow-sm">
               {t.account.noOrders}
             </div>
           ) : (
             orders.map(order => (
               <div
                 key={order.id}
-                className="bg-bg-card border border-border-subtle rounded-lg p-6 space-y-4"
+                className="bg-bg-card border border-border-subtle rounded-[2px] p-6 space-y-4 shadow-sm"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border-subtle pb-4 gap-2 text-xs">
                   <div>
-                    <span className="text-stone font-mono block">REF: {order.orderNumber}</span>
-                    <span className="text-stone-light flex items-center gap-1 mt-0.5">
+                    <span className="text-txt-muted font-mono block">REF: {order.orderNumber}</span>
+                    <span className="text-txt-muted flex items-center gap-1 mt-0.5">
                       <Clock className="w-3 h-3 text-gold" />
                       {new Date(order.createdAt).toLocaleDateString('th-TH', {
                         year: 'numeric',
@@ -146,7 +147,7 @@ function AccountContent() {
                 <div className="space-y-2">
                   {order.items?.map((item: any) => (
                     <div key={item.id} className="flex justify-between text-xs py-1">
-                      <span className="text-white font-semibold">
+                      <span className="text-txt-main font-semibold">
                         {item.productName} ({item.quantity} pcs)
                       </span>
                       <span className="text-gold font-mono">฿{item.totalPrice?.toLocaleString()}</span>
@@ -156,7 +157,7 @@ function AccountContent() {
 
                 {/* Tax Invoice Info */}
                 {order.taxInvoiceRequested && (
-                  <div className="bg-bg-secondary p-3 rounded border border-border-subtle text-[11px] text-stone-light flex items-center gap-2">
+                  <div className="bg-bg-secondary/40 p-3 rounded-[2px] border border-border-subtle text-[11px] text-txt-muted flex items-center gap-2">
                     <FileText className="w-4 h-4 text-gold shrink-0" />
                     <span>
                       Tax Invoice Requested for: <strong>{order.taxInvoiceDetails?.companyName}</strong> (Tax ID: {order.taxInvoiceDetails?.taxId})
@@ -173,7 +174,7 @@ function AccountContent() {
       {activeTab === 'wishlist' && (
         <div>
           {wishlistProducts.length === 0 ? (
-            <div className="bg-bg-card border border-border-subtle p-12 text-center rounded-lg text-stone font-semibold text-xs">
+            <div className="bg-bg-card border border-border-subtle p-12 text-center rounded-[2px] text-txt-muted font-medium text-xs shadow-sm">
               No saved wishlist products.
             </div>
           ) : (
@@ -188,26 +189,26 @@ function AccountContent() {
 
       {/* Profile Tab */}
       {activeTab === 'profile' && (
-        <div className="bg-bg-card border border-border-subtle rounded-lg p-6 max-w-xl space-y-4 text-xs">
+        <div className="bg-bg-card border border-border-subtle rounded-[2px] p-6 max-w-xl space-y-4 text-xs shadow-sm">
           <h3 className="font-heading text-sm font-bold text-gold uppercase tracking-wider border-b border-border-subtle pb-3">
             Architect Profile Details
           </h3>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <span className="text-stone font-semibold block">Full Name:</span>
-              <span className="text-white font-bold">{user.fullName}</span>
+              <span className="text-txt-muted font-medium block">Full Name:</span>
+              <span className="text-txt-main font-bold">{user.fullName}</span>
             </div>
             <div>
-              <span className="text-stone font-semibold block">Email:</span>
-              <span className="text-white font-bold">{user.email}</span>
+              <span className="text-txt-muted font-medium block">Email:</span>
+              <span className="text-txt-main font-bold">{user.email}</span>
             </div>
             <div>
-              <span className="text-stone font-semibold block">Phone:</span>
-              <span className="text-white font-bold">{user.phone || 'N/A'}</span>
+              <span className="text-txt-muted font-medium block">Phone:</span>
+              <span className="text-txt-main font-bold">{user.phone || 'N/A'}</span>
             </div>
             <div>
-              <span className="text-stone font-semibold block">Account Role:</span>
+              <span className="text-txt-muted font-medium block">Account Role:</span>
               <Badge variant={user.role === 'ADMIN' ? 'gold' : 'stone'}>{user.role}</Badge>
             </div>
           </div>

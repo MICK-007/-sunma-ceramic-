@@ -57,13 +57,13 @@ export const CMSWhyChoose: React.FC<CMSWhyChooseProps> = ({ content }) => {
   if (items.length === 0) return null;
 
   return (
-    <section className="bg-bg-secondary border-y border-border-subtle py-16">
+    <section className="bg-bg-secondary border-y border-border-subtle py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
-          <span className="text-xs uppercase font-bold tracking-[0.25em] text-gold block">
+        <div className="text-center max-w-xl mx-auto mb-14 space-y-2.5">
+          <span className="text-[11px] uppercase font-semibold tracking-[0.3em] text-gold block">
             {subtitle}
           </span>
-          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-txt-main">
+          <h2 className="font-heading text-3xl sm:text-4xl font-normal text-txt-main">
             {title}
           </h2>
         </div>
@@ -73,13 +73,13 @@ export const CMSWhyChoose: React.FC<CMSWhyChooseProps> = ({ content }) => {
             const IconComponent = (item.icon_name && ICON_MAP[item.icon_name]) ? ICON_MAP[item.icon_name] : ShieldCheck;
 
             return (
-              <div key={item.id} className="bg-bg-card border border-border-subtle rounded-lg p-6 space-y-3">
-                <div className="w-12 h-12 rounded bg-gold/10 border border-gold/30 flex items-center justify-center text-gold">
+              <div key={item.id} className="bg-bg-card border border-border-subtle rounded-[2px] p-8 space-y-4 hover:border-gold transition-colors">
+                <div className="w-12 h-12 rounded-[2px] bg-gold/10 border border-gold/30 flex items-center justify-center text-gold">
                   <IconComponent className="w-6 h-6" />
                 </div>
-                <h3 className="font-heading text-lg font-bold text-white">{item.title}</h3>
+                <h3 className="font-heading text-lg font-normal text-txt-main">{item.title}</h3>
                 {item.description && (
-                  <p className="text-xs text-stone-light leading-relaxed">{item.description}</p>
+                  <p className="text-xs text-txt-muted font-light leading-relaxed">{item.description}</p>
                 )}
               </div>
             );

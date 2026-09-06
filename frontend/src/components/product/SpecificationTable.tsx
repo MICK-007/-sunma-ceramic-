@@ -42,15 +42,15 @@ export const SpecificationTable: React.FC<SpecsProps> = ({ product }) => {
   ];
 
   return (
-    <div className="bg-bg-card border border-border-subtle rounded-lg overflow-hidden">
-      <div className="px-5 py-3 bg-bg-secondary border-b border-border-subtle font-heading text-xs font-bold tracking-wider uppercase text-gold">
+    <div className="bg-bg-card border border-border-subtle rounded-[2px] overflow-hidden shadow-xs">
+      <div className="px-5 py-3.5 bg-bg-secondary border-b border-border-subtle font-heading text-xs font-semibold tracking-widest uppercase text-txt-main">
         {t.product.specsTitle}
       </div>
       <div className="divide-y divide-border-subtle">
         {rows.map((row, idx) => (
-          <div key={idx} className="grid grid-cols-2 px-5 py-2.5 text-xs">
-            <span className="text-stone font-medium uppercase tracking-wider">{row.label}</span>
-            <span className="text-txt-main font-semibold text-right">{row.value}</span>
+          <div key={idx} className="grid grid-cols-2 px-5 py-3 text-xs">
+            <span className="text-txt-muted font-normal uppercase tracking-wider text-[11px]">{row.label}</span>
+            <span className="text-txt-main font-medium text-right">{row.value}</span>
           </div>
         ))}
       </div>

@@ -54,10 +54,10 @@ function LoginContent() {
   return (
     <div className="max-w-md mx-auto px-4 py-16 space-y-6">
       <div className="text-center space-y-2">
-        <div className="font-heading text-2xl font-bold tracking-[0.25em] text-white">
+        <div className="font-heading text-2xl font-bold tracking-[0.25em] text-txt-main">
           SUNMA
         </div>
-        <div className="text-[10px] tracking-[0.4em] font-semibold text-stone uppercase -mt-1">
+        <div className="text-[10px] tracking-[0.4em] font-semibold text-txt-muted uppercase -mt-1">
           CERAMIC
         </div>
         <h1 className="font-heading text-xl font-bold text-gold pt-3">
@@ -66,28 +66,28 @@ function LoginContent() {
       </div>
 
       {registeredParam === 'success' && (
-        <div className="p-3.5 bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 rounded text-xs font-semibold flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="p-3.5 bg-emerald-950/20 border border-emerald-500/40 text-emerald-700 rounded-[2px] text-xs font-semibold flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           {(t as any).auth?.regSuccessNotice || 'Registration successful! Please log in with your credentials.'}
         </div>
       )}
 
       {notice === 'cart' && (
-        <div className="p-3 bg-gold/15 border border-gold/40 text-gold rounded text-xs font-semibold flex items-center gap-2">
+        <div className="p-3 bg-gold/10 border border-gold/40 text-gold rounded-[2px] text-xs font-semibold flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           {t.product.authNoticeCart}
         </div>
       )}
 
       {errorMsg && (
-        <div className="p-3 bg-red-950/60 border border-red-500/40 text-red-300 rounded text-xs font-semibold">
+        <div className="p-3 bg-red-950/20 border border-red-500/40 text-red-600 rounded-[2px] text-xs font-semibold">
           {errorMsg}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-bg-card border border-border-subtle p-6 rounded-lg space-y-4">
+      <form onSubmit={handleSubmit} className="bg-bg-card border border-border-subtle p-6 rounded-[2px] space-y-4 shadow-sm">
         <div className="space-y-1 text-xs">
-          <label className="block text-stone font-semibold">
+          <label className="block text-txt-muted font-medium">
             {(t as any).auth?.loginLabel || 'Username or Email Address'}
           </label>
           <input
@@ -96,28 +96,28 @@ function LoginContent() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder="Somchai or architect@studio-lux.com"
-            className="w-full bg-bg-secondary border border-border-subtle rounded p-2.5 text-white focus:outline-none focus:border-gold"
+            className="w-full bg-white border border-border-subtle rounded-[2px] p-2.5 text-txt-main focus:outline-none focus:border-gold"
           />
         </div>
 
         <div className="space-y-1 text-xs">
-          <label className="block text-stone font-semibold">Password</label>
+          <label className="block text-txt-muted font-medium">Password</label>
           <input
             type="password"
             required
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full bg-bg-secondary border border-border-subtle rounded p-2.5 text-white focus:outline-none focus:border-gold"
+            className="w-full bg-white border border-border-subtle rounded-[2px] p-2.5 text-txt-main focus:outline-none focus:border-gold"
           />
         </div>
 
-        <Button type="submit" variant="gold" size="lg" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" variant="gold" size="lg" className="w-full rounded-[2px]" disabled={isSubmitting}>
           <LogIn className="w-4 h-4 mr-2" />
           {isSubmitting ? 'Authenticating...' : t.nav.login}
         </Button>
 
-        <div className="pt-2 border-t border-border-subtle flex items-center justify-between text-xs text-stone">
+        <div className="pt-2 border-t border-border-subtle flex items-center justify-between text-xs text-txt-muted">
           <span>Don't have an account?</span>
           <Link href="/register" className="text-gold font-bold hover:underline">
             {t.nav.register}

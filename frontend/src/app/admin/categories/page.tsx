@@ -152,14 +152,14 @@ export default function AdminCategoriesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between border-b border-border-subtle pb-4">
         <div>
-          <h2 className="font-heading text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="font-heading text-xl font-bold text-txt-main flex items-center gap-2">
             <FolderTree className="w-5 h-5 text-gold" />
             Category Management ({categories.length})
           </h2>
-          <p className="text-xs text-stone">Create, update, and manage tile architectural category classifications.</p>
+          <p className="text-xs text-txt-muted">Create, update, and manage tile architectural category classifications.</p>
         </div>
 
-        <Button variant="gold" size="sm" onClick={handleOpenCreate}>
+        <Button variant="gold" size="sm" onClick={handleOpenCreate} className="rounded-[2px]">
           <Plus className="w-4 h-4 mr-1.5" />
           Add Category
         </Button>
@@ -168,9 +168,9 @@ export default function AdminCategoriesPage() {
       {isLoading ? (
         <div className="p-12 text-center text-gold">{t.common.loading}</div>
       ) : (
-        <div className="bg-bg-card border border-border-subtle rounded-lg overflow-x-auto">
+        <div className="bg-bg-card border border-border-subtle rounded-[2px] overflow-x-auto shadow-sm">
           <table className="w-full text-left text-xs">
-            <thead className="bg-bg-secondary border-b border-border-subtle text-stone uppercase font-mono">
+            <thead className="bg-bg-secondary/60 border-b border-border-subtle text-txt-muted uppercase font-mono">
               <tr>
                 <th className="p-3">Category</th>
                 <th className="p-3">Slug</th>
@@ -180,9 +180,9 @@ export default function AdminCategoriesPage() {
             </thead>
             <tbody className="divide-y divide-border-subtle">
               {categories.map(cat => (
-                <tr key={cat.id} className="hover:bg-bg-secondary/50 transition-colors">
+                <tr key={cat.id} className="hover:bg-bg-secondary/40 transition-colors">
                   <td className="p-3 flex items-center space-x-3">
-                    <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-bg-secondary shrink-0 border border-border-subtle">
+                    <div className="relative w-12 h-12 rounded-[2px] overflow-hidden bg-bg-secondary shrink-0 border border-border-subtle">
                       <img
                         src={resolveMediaUrl(cat.image) || '/images/tiles/calacatta-marble.jpeg'}
                         alt={cat.name}
@@ -193,23 +193,23 @@ export default function AdminCategoriesPage() {
                       />
                     </div>
                     <div>
-                      <span className="font-bold text-white block">{cat.name}</span>
+                      <span className="font-bold text-txt-main block">{cat.name}</span>
                       <span className="text-[10px] text-gold">{cat.nameTh}</span>
                     </div>
                   </td>
-                  <td className="p-3 font-mono text-stone">{cat.slug}</td>
-                  <td className="p-3 text-stone-light max-w-xs truncate">{cat.description}</td>
+                  <td className="p-3 font-mono text-txt-muted">{cat.slug}</td>
+                  <td className="p-3 text-txt-muted max-w-xs truncate">{cat.description}</td>
                   <td className="p-3 text-right space-x-2">
                     <button
                       onClick={() => handleOpenEdit(cat)}
-                      className="p-1.5 text-stone hover:text-gold transition-colors"
+                      className="p-1.5 text-txt-muted hover:text-gold transition-colors"
                       title="Edit"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(cat.id)}
-                      className="p-1.5 text-stone hover:text-red-400 transition-colors"
+                      className="p-1.5 text-txt-muted hover:text-red-500 transition-colors"
                       title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -230,14 +230,14 @@ export default function AdminCategoriesPage() {
       >
         <form onSubmit={handleSave} className="space-y-4 text-xs">
           {errorMessage && (
-            <div className="p-3 bg-red-900/30 border border-red-500/50 rounded-lg flex items-center gap-2 text-red-300 text-xs">
+            <div className="p-3 bg-red-950/20 border border-red-500/40 rounded-[2px] flex items-center gap-2 text-red-600 text-xs">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           <div>
-            <label className="block text-stone font-semibold mb-1">Category Name (EN) *</label>
+            <label className="block text-txt-muted font-medium mb-1">Category Name (EN) *</label>
             <input
               type="text"
               required
@@ -249,51 +249,51 @@ export default function AdminCategoriesPage() {
                 }
               }}
               placeholder="Floor Tiles"
-              className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white"
+              className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main focus:outline-none focus:border-gold"
             />
           </div>
 
           <div>
-            <label className="block text-stone font-semibold mb-1">Category Name (TH)</label>
+            <label className="block text-txt-muted font-medium mb-1">Category Name (TH)</label>
             <input
               type="text"
               value={nameTh}
               onChange={e => setNameTh(e.target.value)}
               placeholder="กระเบื้องปูพื้น"
-              className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white"
+              className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main focus:outline-none focus:border-gold"
             />
           </div>
 
           <div>
-            <label className="block text-stone font-semibold mb-1">Slug *</label>
+            <label className="block text-txt-muted font-medium mb-1">Slug *</label>
             <input
               type="text"
               required
               value={slug}
               onChange={e => setSlug(e.target.value)}
               placeholder="floor-tiles"
-              className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white font-mono text-[11px]"
+              className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main font-mono text-[11px] focus:outline-none focus:border-gold"
             />
           </div>
 
           <div>
-            <label className="block text-stone font-semibold mb-1">Description (EN)</label>
+            <label className="block text-txt-muted font-medium mb-1">Description (EN)</label>
             <textarea
               rows={2}
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="High-density porcelain and granite floor slabs..."
-              className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white resize-none"
+              className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main resize-none focus:outline-none focus:border-gold"
             />
           </div>
 
           <div>
-            <label className="block text-stone font-semibold mb-1">Category Image (รูปภาพหมวดหมู่)</label>
+            <label className="block text-txt-muted font-medium mb-1">Category Image (รูปภาพหมวดหมู่)</label>
             
-            <div className="bg-bg-secondary/60 border border-border-subtle rounded-lg p-3 space-y-3">
+            <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-3 space-y-3">
               <div className="flex items-start gap-3">
                 {/* Image Preview Thumbnail */}
-                <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-border-subtle bg-bg-secondary shrink-0 flex items-center justify-center">
+                <div className="relative w-20 h-20 rounded-[2px] overflow-hidden border border-border-subtle bg-bg-secondary shrink-0 flex items-center justify-center">
                   {image ? (
                     <img
                       src={resolveMediaUrl(image)}
@@ -332,7 +332,7 @@ export default function AdminCategoriesPage() {
                       size="sm"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploading}
-                      className="text-xs bg-gold/15 text-gold hover:bg-gold/25 border-gold/30"
+                      className="text-xs rounded-[2px] bg-gold/10 text-gold hover:bg-gold/20 border-gold/30"
                     >
                       <Upload className="w-3.5 h-3.5 mr-1.5" />
                       {uploading ? 'กำลังอัปโหลด...' : 'อัปโหลดรูปจากเครื่อง'}
@@ -343,9 +343,9 @@ export default function AdminCategoriesPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => setMediaModalOpen(true)}
-                      className="text-xs"
+                      className="text-xs rounded-[2px]"
                     >
-                      <ImageIcon className="w-3.5 h-3.5 mr-1.5 text-stone" />
+                      <ImageIcon className="w-3.5 h-3.5 mr-1.5 text-txt-muted" />
                       เลือกจากคลังสื่อ
                     </Button>
 
@@ -355,7 +355,7 @@ export default function AdminCategoriesPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setImage('')}
-                        className="text-xs text-red-400 hover:text-red-300 hover:bg-red-950/30"
+                        className="text-xs rounded-[2px] text-red-500 hover:text-red-600 hover:bg-red-950/10"
                       >
                         <X className="w-3.5 h-3.5 mr-1" />
                         ลบรูป
@@ -363,7 +363,7 @@ export default function AdminCategoriesPage() {
                     )}
                   </div>
 
-                  <p className="text-[11px] text-stone">
+                  <p className="text-[11px] text-txt-muted">
                     รองรับไฟล์ JPG, PNG, WEBP จากเครื่องคอมพิวเตอร์ของคุณ หรือเลือกจากคลังสื่อของระบบ
                   </p>
                 </div>
@@ -371,23 +371,23 @@ export default function AdminCategoriesPage() {
 
               {/* URL Input Fallback */}
               <div>
-                <label className="block text-[11px] text-stone mb-1 font-medium">หรือระบุ URL รูปภาพโดยตรง:</label>
+                <label className="block text-[11px] text-txt-muted mb-1 font-medium">หรือระบุ URL รูปภาพโดยตรง:</label>
                 <input
                   type="text"
                   value={image}
                   onChange={e => setImage(e.target.value)}
                   placeholder="/images/tiles/calacatta-marble.jpeg หรือ https://..."
-                  className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white font-mono text-[11px]"
+                  className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main font-mono text-[11px] focus:outline-none focus:border-gold"
                 />
               </div>
             </div>
           </div>
 
           <div className="pt-4 flex justify-end space-x-3">
-            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>
+            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} className="rounded-[2px]">
               {t.common.cancel}
             </Button>
-            <Button type="submit" variant="gold" disabled={uploading || saveLoading}>
+            <Button type="submit" variant="gold" disabled={uploading || saveLoading} className="rounded-[2px]">
               {saveLoading ? 'กำลังบันทึก...' : t.common.save}
             </Button>
           </div>

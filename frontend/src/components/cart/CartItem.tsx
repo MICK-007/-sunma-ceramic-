@@ -16,10 +16,10 @@ export const CartItem: React.FC<{ item: CartItemType }> = ({ item }) => {
   const calculatedBoxes = (item.quantity / piecesPerBox).toFixed(1);
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-bg-card border border-border-subtle rounded-lg gap-4">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-bg-card border border-border-subtle rounded-[2px] gap-4 shadow-sm">
       {/* Product Image & Details */}
       <div className="flex items-center space-x-4 flex-1">
-        <div className="relative w-20 h-20 bg-bg-secondary rounded overflow-hidden shrink-0 border border-border-subtle">
+        <div className="relative w-20 h-20 bg-bg-secondary rounded-[2px] overflow-hidden shrink-0 border border-border-subtle">
           <Image
             src={product.thumbnail || 'https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=1000&q=80'}
             alt={product.name || 'Tile'}
@@ -28,7 +28,7 @@ export const CartItem: React.FC<{ item: CartItemType }> = ({ item }) => {
           />
         </div>
         <div>
-          <span className="text-[10px] font-mono text-stone tracking-wider block">
+          <span className="text-[10px] font-mono text-txt-muted tracking-wider block">
             {product.productCode || 'SNM-CODE'}
           </span>
           <Link
@@ -40,7 +40,7 @@ export const CartItem: React.FC<{ item: CartItemType }> = ({ item }) => {
           <div className="text-[11px] text-txt-muted mt-0.5">
             Size: {product.size} • {product.surface} Surface
           </div>
-          <div className="text-[10px] text-stone mt-1">
+          <div className="text-[10px] text-txt-muted mt-1">
             ฿{item.unitPrice.toLocaleString()} / piece • approx. {calculatedBoxes} boxes ({piecesPerBox} pcs/box)
           </div>
         </div>
@@ -48,10 +48,10 @@ export const CartItem: React.FC<{ item: CartItemType }> = ({ item }) => {
 
       {/* Quantity Step Selector */}
       <div className="flex items-center justify-between w-full sm:w-auto sm:space-x-6 border-t sm:border-t-0 border-border-subtle pt-3 sm:pt-0">
-        <div className="flex items-center space-x-2 border border-border-subtle bg-bg-secondary rounded p-1">
+        <div className="flex items-center space-x-2 border border-border-subtle bg-bg-secondary/60 rounded-[2px] p-1">
           <button
             onClick={() => updateQuantity(item.id, item.quantity - 1)}
-            className="p-1 text-stone hover:text-white transition-colors"
+            className="p-1 text-txt-muted hover:text-txt-main transition-colors"
           >
             <Minus className="w-3.5 h-3.5" />
           </button>
@@ -60,7 +60,7 @@ export const CartItem: React.FC<{ item: CartItemType }> = ({ item }) => {
           </span>
           <button
             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-            className="p-1 text-stone hover:text-white transition-colors"
+            className="p-1 text-txt-muted hover:text-txt-main transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
           </button>
@@ -75,7 +75,7 @@ export const CartItem: React.FC<{ item: CartItemType }> = ({ item }) => {
           </div>
           <button
             onClick={() => removeItem(item.id)}
-            className="text-stone hover:text-red-400 p-1.5 transition-colors"
+            className="text-txt-muted hover:text-red-500 p-1.5 transition-colors"
             title="Remove item"
           >
             <Trash2 className="w-4 h-4" />

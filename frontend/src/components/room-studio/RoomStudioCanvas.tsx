@@ -117,10 +117,10 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
   return (
     <div className="space-y-8">
       {/* Studio Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between bg-bg-card border border-border-subtle p-6 rounded-lg gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between bg-bg-card border border-border-subtle p-6 rounded-[2px] gap-4 shadow-sm">
         <div>
-          <div className="inline-flex items-center gap-2 text-gold text-xs font-bold uppercase tracking-[0.2em] mb-1">
-            <Sparkles className="w-4 h-4" />
+          <div className="inline-flex items-center gap-2 text-gold text-[10px] font-bold uppercase tracking-[0.25em] mb-1">
+            <Sparkles className="w-3.5 h-3.5" />
             {t.roomStudio.title}
           </div>
           <h1 className="font-heading text-xl md:text-2xl font-bold text-txt-main">
@@ -132,7 +132,7 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={handleReset}>
+          <Button variant="outline" size="sm" onClick={handleReset} className="rounded-[2px] text-xs">
             <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
             {t.roomStudio.reset}
           </Button>
@@ -144,49 +144,49 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
         {/* Left Control Column: Room & Area Selectors */}
         <div className="lg:col-span-3 space-y-6">
           {/* Room Selector */}
-          <div className="bg-bg-card border border-border-subtle rounded-lg p-4 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gold flex items-center gap-2">
-              <Layers className="w-4 h-4" />
+          <div className="bg-bg-card border border-border-subtle rounded-[2px] p-4 space-y-3 shadow-sm">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold flex items-center gap-2">
+              <Layers className="w-3.5 h-3.5" />
               {t.roomStudio.selectRoom}
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {rooms.map(room => (
                 <button
                   key={room.id}
                   onClick={() => handleSelectRoom(room)}
-                  className={`w-full text-left p-3 rounded-lg border text-xs transition-all flex items-center justify-between ${
+                  className={`w-full text-left p-3 rounded-[2px] border text-xs transition-all flex items-center justify-between ${
                     activeRoom.id === room.id
-                      ? 'border-gold bg-gold/15 text-gold font-bold shadow-md'
-                      : 'border-border-subtle text-txt-muted hover:border-stone hover:text-txt-main bg-bg-secondary'
+                      ? 'border-gold bg-gold/10 text-gold font-bold shadow-sm'
+                      : 'border-border-subtle text-txt-muted hover:border-gold/40 hover:text-txt-main bg-bg-secondary/40'
                   }`}
                 >
                   <span className="line-clamp-1">{isThai && room.nameTh ? room.nameTh : room.name}</span>
-                  {activeRoom.id === room.id && <Check className="w-4 h-4 text-gold shrink-0 ml-2" />}
+                  {activeRoom.id === room.id && <Check className="w-3.5 h-3.5 text-gold shrink-0 ml-2" />}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Area Selector */}
-          <div className="bg-bg-card border border-border-subtle rounded-lg p-4 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gold flex items-center gap-2">
-              <Layers className="w-4 h-4" />
+          <div className="bg-bg-card border border-border-subtle rounded-[2px] p-4 space-y-3 shadow-sm">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold flex items-center gap-2">
+              <Layers className="w-3.5 h-3.5" />
               {t.roomStudio.selectArea}
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {activeRoom.areas.map(area => (
                 <button
                   key={area.id}
                   onClick={() => setActiveArea(area)}
-                  className={`w-full text-left p-2.5 rounded border text-xs transition-all flex items-center justify-between ${
+                  className={`w-full text-left p-2.5 rounded-[2px] border text-xs transition-all flex items-center justify-between ${
                     activeArea?.id === area.id
-                      ? 'border-gold bg-gold/15 text-gold font-bold'
-                      : 'border-border-subtle text-txt-muted hover:text-txt-main bg-bg-secondary'
+                      ? 'border-gold bg-gold/10 text-gold font-bold'
+                      : 'border-border-subtle text-txt-muted hover:text-txt-main bg-bg-secondary/40'
                   }`}
                 >
                   <div>
                     <span className="block font-semibold">{area.name}</span>
-                    <span className="text-[10px] text-stone uppercase">{area.areaType} Zone</span>
+                    <span className="text-[9px] text-txt-muted uppercase tracking-wider">{area.areaType} Zone</span>
                   </div>
                   {activeArea?.id === area.id && <Badge variant="gold">Active</Badge>}
                 </button>
@@ -197,7 +197,7 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
 
         {/* Center Simulation Preview Canvas */}
         <div className="lg:col-span-6 flex flex-col space-y-4">
-          <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden border border-border-gold shadow-2xl bg-black">
+          <div className="relative aspect-[16/9] w-full rounded-[2px] overflow-hidden border border-border-gold shadow-lg bg-black">
             {/* Background Room Base Image */}
             <Image
               src={activeRoom.imageUrl}
@@ -265,33 +265,33 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
             </svg>
 
             {/* Active Area Indicator Tag */}
-            <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full border border-gold/40 text-xs font-bold text-gold uppercase tracking-wider flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-gold animate-ping" />
+            <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-[2px] border border-gold/40 text-[10px] font-bold text-gold uppercase tracking-wider flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-gold animate-ping" />
               Viewing: {activeArea?.name} {selectedTile ? `(${selectedTile.name})` : '(Original Base Floor)'}
             </div>
           </div>
 
           {/* Active Applied Surface Spec Bar */}
-          <div className="bg-bg-card border border-border-subtle p-4 rounded-lg flex items-center justify-between text-xs min-h-[64px]">
+          <div className="bg-bg-card border border-border-subtle p-4 rounded-[2px] flex items-center justify-between text-xs min-h-[64px] shadow-sm">
             {selectedTile ? (
               <>
                 <div>
-                  <span className="text-stone uppercase text-[10px] block font-semibold">Active Tile Surface</span>
+                  <span className="text-txt-muted uppercase text-[10px] block font-medium tracking-wider">Active Tile Surface</span>
                   <span className="font-heading font-bold text-txt-main">{selectedTile.name}</span>
-                  <span className="text-stone ml-2 font-mono">({selectedTile.size} cm)</span>
+                  <span className="text-txt-muted ml-2 font-mono text-[11px]">({selectedTile.size} cm)</span>
                 </div>
                 <div className="text-right">
                   <span className="text-gold font-bold block">฿{selectedTile.pricePerPiece.toLocaleString()} / pc</span>
                   <a
                     href={`/products/${selectedTile.slug}`}
-                    className="text-[10px] text-stone hover:text-white underline inline-flex items-center gap-1"
+                    className="text-[10px] text-txt-muted hover:text-gold transition-colors inline-flex items-center gap-1"
                   >
                     Product Details <ArrowRight className="w-3 h-3" />
                   </a>
                 </div>
               </>
             ) : (
-              <div className="text-stone-light text-xs italic flex items-center gap-2">
+              <div className="text-txt-muted text-xs italic flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-gold" />
                 เลือกลายกระเบื้องจากเมนูด้านขวามือ เพื่อแสดงผลจำลองบนพื้นห้อง
               </div>
@@ -301,23 +301,23 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
 
         {/* Right Product Tile Selector Grid */}
         <div className="lg:col-span-3 space-y-4">
-          <div className="bg-bg-card border border-border-subtle rounded-lg p-4 space-y-3 max-h-[600px] overflow-y-auto">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gold flex items-center gap-2 sticky top-0 bg-bg-card py-1 z-10">
-              <Sparkles className="w-4 h-4" />
+          <div className="bg-bg-card border border-border-subtle rounded-[2px] p-4 space-y-3 max-h-[600px] overflow-y-auto shadow-sm">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold flex items-center gap-2 sticky top-0 bg-bg-card py-1 z-10 border-b border-border-subtle pb-2">
+              <Sparkles className="w-3.5 h-3.5" />
               {t.roomStudio.selectTile}
             </h3>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5">
               {products.map(tile => {
                 const isSelected = selectedTile?.id === tile.id;
                 return (
                   <button
                     key={tile.id}
                     onClick={() => handleApplyTile(tile)}
-                    className={`group relative rounded border overflow-hidden text-left transition-all ${
+                    className={`group relative rounded-[2px] border overflow-hidden text-left transition-all ${
                       isSelected
-                        ? 'border-gold ring-2 ring-gold bg-gold/10'
-                        : 'border-border-subtle hover:border-stone bg-bg-secondary'
+                        ? 'border-gold ring-1 ring-gold bg-gold/10 shadow-sm'
+                        : 'border-border-subtle hover:border-gold/50 bg-bg-secondary/40'
                     }`}
                   >
                     <div className="relative aspect-square w-full">
@@ -325,11 +325,11 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
                         src={tile.thumbnail}
                         alt={tile.name}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
                     <div className="p-2">
-                      <span className="text-[9px] font-mono text-stone block uppercase">
+                      <span className="text-[9px] font-mono text-txt-muted block uppercase">
                         {tile.size}
                       </span>
                       <span className="text-xs font-bold text-txt-main line-clamp-1 group-hover:text-gold transition-colors">

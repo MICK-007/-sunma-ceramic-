@@ -25,7 +25,7 @@ export default function CartPage() {
       <Breadcrumb items={[{ label: t.nav.cart }]} />
 
       <div className="border-b border-border-subtle pb-4">
-        <h1 className="font-heading text-3xl font-bold text-white flex items-center gap-3">
+        <h1 className="font-heading text-3xl font-bold text-txt-main flex items-center gap-3">
           <ShoppingBag className="w-7 h-7 text-gold" />
           {t.cart.title} ({totalItemsCount} pieces)
         </h1>
@@ -49,28 +49,28 @@ export default function CartPage() {
 
           {/* Right Summary Box */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-bg-card border border-border-subtle rounded-lg p-6 space-y-4">
+            <div className="bg-bg-card border border-border-subtle rounded-[2px] p-6 space-y-4 shadow-sm">
               <h3 className="font-heading text-sm font-bold text-gold uppercase tracking-wider border-b border-border-subtle pb-3">
                 Order Summary
               </h3>
 
               <div className="space-y-2.5 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-stone">{t.cart.subtotal}</span>
-                  <span className="font-bold text-white">฿{subtotal.toLocaleString()}</span>
+                  <span className="text-txt-muted">{t.cart.subtotal}</span>
+                  <span className="font-bold text-txt-main">฿{subtotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-stone">{t.cart.shipping}</span>
-                  <span className="font-bold text-emerald-400">
+                  <span className="text-txt-muted">{t.cart.shipping}</span>
+                  <span className="font-bold text-emerald-600">
                     {shippingFee === 0 ? t.cart.freeShipping : `฿${shippingFee}`}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-stone">Est. VAT (7%)</span>
-                  <span className="font-bold text-stone-light">฿{taxAmount.toLocaleString()}</span>
+                  <span className="text-txt-muted">Est. VAT (7%)</span>
+                  <span className="font-bold text-txt-main">฿{taxAmount.toLocaleString()}</span>
                 </div>
                 <div className="border-t border-border-subtle pt-3 flex justify-between text-sm">
-                  <span className="font-bold text-white">{t.cart.total}</span>
+                  <span className="font-bold text-txt-main">{t.cart.total}</span>
                   <span className="font-bold text-gold font-heading text-lg">
                     ฿{totalAmount.toLocaleString()}
                   </span>
@@ -79,19 +79,19 @@ export default function CartPage() {
 
               {user ? (
                 <Link href="/checkout" className="block pt-2">
-                  <Button variant="gold" size="lg" className="w-full">
+                  <Button variant="gold" size="lg" className="w-full rounded-[2px]">
                     {t.cart.checkout} <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
               ) : (
                 <Link href="/login?redirect=/checkout" className="block pt-2">
-                  <Button variant="gold" size="lg" className="w-full">
+                  <Button variant="gold" size="lg" className="w-full rounded-[2px]">
                     {t.cart.loginToCheckout} <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
               )}
 
-              <div className="pt-2 text-[10px] text-stone flex items-center justify-center gap-1.5">
+              <div className="pt-2 text-[10px] text-txt-muted flex items-center justify-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-gold" />
                 Guaranteed SUNMA Factory Inspection & Direct Logistics
               </div>

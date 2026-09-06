@@ -19,15 +19,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!user || !isAdmin) {
     return (
-      <div className="max-w-xl mx-auto my-20 p-8 bg-bg-card border border-red-500/40 rounded-lg text-center space-y-4">
-        <ShieldAlert className="w-12 h-12 text-red-400 mx-auto" />
-        <h2 className="font-heading text-xl font-bold text-white">Access Denied</h2>
-        <p className="text-xs text-stone-light">
+      <div className="max-w-xl mx-auto my-20 p-8 bg-bg-card border border-red-500/40 rounded-[2px] text-center space-y-4 shadow-sm">
+        <ShieldAlert className="w-12 h-12 text-red-500 mx-auto" />
+        <h2 className="font-heading text-xl font-bold text-txt-main">Access Denied</h2>
+        <p className="text-xs text-txt-muted">
           Administrator privileges are required to view the executive portal. Normal user accounts cannot access admin tools.
         </p>
         <button
           onClick={() => router.push('/login')}
-          className="px-4 py-2 bg-gold text-bg-primary text-xs font-bold uppercase rounded"
+          className="px-4 py-2 bg-gold text-white text-xs font-bold uppercase tracking-wider rounded-[2px] hover:bg-gold-hover transition-colors"
         >
           Log in with Admin Account
         </button>
@@ -49,22 +49,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Admin Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-bg-card border border-border-gold p-4 rounded-lg gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-bg-card border border-border-gold/40 p-4 rounded-[2px] gap-4 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded bg-gold/20 text-gold font-bold">
+          <div className="w-8 h-8 rounded-[2px] bg-gold/15 text-gold flex items-center justify-center font-bold text-sm">
             👑
           </div>
           <div>
-            <h1 className="font-heading text-lg font-bold text-white tracking-wider uppercase">
+            <h1 className="font-heading text-lg font-bold text-txt-main tracking-wider uppercase">
               {t.admin.title}
             </h1>
-            <span className="text-[10px] text-stone">Logged in as {user.email} (ADMIN)</span>
+            <span className="text-[10px] text-txt-muted">Logged in as {user.email} (ADMIN)</span>
           </div>
         </div>
 
         <Link
           href="/"
-          className="text-xs font-semibold text-stone hover:text-gold flex items-center gap-1.5"
+          className="text-xs font-medium text-txt-muted hover:text-gold flex items-center gap-1.5 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Exit Admin to Showroom
@@ -72,7 +72,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       {/* Admin Navigation Pills */}
-      <div className="flex overflow-x-auto gap-2 bg-bg-secondary p-2 rounded-lg border border-border-subtle">
+      <div className="flex overflow-x-auto gap-1.5 bg-bg-secondary/50 p-1.5 rounded-[2px] border border-border-subtle shadow-sm">
         {adminNav.map(item => {
           const IconComp = item.icon;
           const isActive = pathname === item.href;
@@ -80,13 +80,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all shrink-0 ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-[2px] text-xs font-bold uppercase tracking-wider transition-all shrink-0 ${
                 isActive
-                  ? 'bg-gold text-bg-primary shadow'
-                  : 'text-stone-light hover:text-white hover:bg-bg-card'
+                  ? 'bg-gold text-white shadow-sm'
+                  : 'text-txt-muted hover:text-txt-main hover:bg-bg-card'
               }`}
             >
-              <IconComp className="w-4 h-4" />
+              <IconComp className="w-3.5 h-3.5" />
               {item.label}
             </Link>
           );

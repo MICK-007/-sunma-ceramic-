@@ -6,16 +6,14 @@ import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
-import { useWishlist } from '@/context/WishlistContext';
-import { LanguageSwitcher } from '../common/LanguageSwitcher';
-import { ShoppingBag, Heart, Search, User as UserIcon, Menu, X, ShieldAlert } from 'lucide-react';
+import { ShoppingBag, Search, User as UserIcon, Menu, X, ShieldAlert } from 'lucide-react';
 
 export const Navbar = () => {
   const pathname = usePathname();
-  const { t } = useLanguage();
-  const { user, isAdmin, logout } = useAuth();
+  const { t, language } = useLanguage();
+  const isThai = language === 'TH';
+  const { user, isAdmin } = useAuth();
   const { totalItemsCount } = useCart();
-  const { wishlistProductIds } = useWishlist();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,7 +22,7 @@ export const Navbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 30) {
+      if (window.scrollY > 40) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
@@ -35,191 +33,147 @@ export const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { href: '/', label: t.nav.home },
-    { href: '/shop', label: t.nav.tiles },
-    { href: '/categories', label: t.nav.categories },
-    { href: '/room-studio', label: t.nav.roomStudio, badge: 'HOT' },
-    { href: '/about', label: t.nav.about },
-    { href: '/contact', label: t.nav.contact },
+    { href: '/', label: 'Home' },
+    { href: '/shop', label: 'Collections' },
+    { href: '/categories', label: 'Category' },
+    { href: '/about', label: 'About' },
+    { href: '/contact', label: 'Contact' },
   ];
+
+  const isTransparent = isHome && !isScrolled;
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled || !isHome
-          ? 'bg-bg-primary/95 backdrop-blur-md border-b border-border-subtle py-4'
-          : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent py-6'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        isTransparent
+          ? 'bg-transparent py-6 border-b border-transparent'
+          : 'bg-[#FAF9F6]/95 backdrop-blur-md border-b border-neutral-200/80 py-4 shadow-sm'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        {/* Brand Wordmark */}
-        <Link href="/" className="group flex items-center gap-2">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 flex items-center justify-between">
+        {/* Brand Wordmark matching Image 3 */}
+        <Link href="/" className="group flex items-center gap-2 select-none">
           <div className="flex flex-col">
-            <span className="font-heading text-xl sm:text-2xl font-bold tracking-[0.25em] text-txt-main group-hover:text-gold transition-colors">
+            <span
+              className={`font-heading text-xl sm:text-2xl font-normal tracking-[0.3em] uppercase transition-colors ${
+                isTransparent ? 'text-white drop-shadow-md' : 'text-neutral-900'
+              }`}
+            >
               SUNMA
             </span>
-            <span className="text-[9px] tracking-[0.4em] font-semibold text-stone uppercase -mt-1">
+            <span
+              className={`text-[8.5px] tracking-[0.45em] font-medium uppercase -mt-1 transition-colors ${
+                isTransparent ? 'text-white/80 drop-shadow-sm' : 'text-neutral-500'
+              }`}
+            >
               CERAMIC
             </span>
           </div>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
-          {navLinks.map(link => {
+        {/* Desktop Navigation matching Image 3 */}
+        <nav className="hidden md:flex items-center space-x-10">
+          {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-xs font-semibold uppercase tracking-wider transition-colors relative py-1 ${
-                  isActive ? 'text-gold' : 'text-txt-muted hover:text-txt-main'
+                className={`text-[13px] font-normal tracking-wide transition-all relative py-1 ${
+                  isTransparent
+                    ? isActive
+                      ? 'text-white font-medium drop-shadow-md'
+                      : 'text-white/85 hover:text-white drop-shadow-sm'
+                    : isActive
+                    ? 'text-neutral-900 font-medium'
+                    : 'text-neutral-600 hover:text-neutral-900'
                 }`}
               >
                 {link.label}
-                {link.badge && (
-                  <span className="ml-1.5 px-1.5 py-0.2 bg-gold/20 text-gold border border-gold/40 text-[9px] rounded-full font-bold">
-                    {link.badge}
-                  </span>
-                )}
-                {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gold rounded-full" />
-                )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Utilities: Search, Cart, Account, Language */}
-        <div className="hidden sm:flex items-center space-x-5">
-          <LanguageSwitcher />
-
-          <Link href="/shop" className="text-txt-muted hover:text-gold transition-colors p-1.5">
-            <Search className="w-4 h-4" />
+        {/* Utilities: Search, User, Cart, Hamburger Menu matching Image 3 */}
+        <div className="flex items-center space-x-5 sm:space-x-6">
+          <Link
+            href="/shop"
+            className={`transition-colors p-1 ${
+              isTransparent ? 'text-white/90 hover:text-white drop-shadow-sm' : 'text-neutral-700 hover:text-neutral-900'
+            }`}
+            aria-label="Search catalog"
+          >
+            <Search className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[1.5]" />
           </Link>
 
-          <Link href="/cart" className="text-txt-muted hover:text-gold transition-colors relative p-1.5">
-            <ShoppingBag className="w-4 h-4" />
+          <Link
+            href={user ? '/account' : '/login'}
+            className={`transition-colors p-1 ${
+              isTransparent ? 'text-white/90 hover:text-white drop-shadow-sm' : 'text-neutral-700 hover:text-neutral-900'
+            }`}
+            aria-label="Account"
+          >
+            <UserIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[1.5]" />
+          </Link>
+
+          <Link
+            href="/cart"
+            className={`transition-colors relative p-1 ${
+              isTransparent ? 'text-white/90 hover:text-white drop-shadow-sm' : 'text-neutral-700 hover:text-neutral-900'
+            }`}
+            aria-label="Cart"
+          >
+            <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[1.5]" />
             {totalItemsCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-gold text-bg-primary text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-[9px] font-semibold w-4 h-4 rounded-full flex items-center justify-center">
                 {totalItemsCount}
               </span>
             )}
           </Link>
 
-          {isAdmin && (
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-1 text-xs font-bold text-gold border border-gold/40 px-2.5 py-1 rounded bg-gold/10 hover:bg-gold/20 transition-all"
-            >
-              <ShieldAlert className="w-3.5 h-3.5" />
-              {t.nav.admin}
-            </Link>
-          )}
-
-          {user ? (
-            <Link
-              href="/account"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-txt-main hover:text-gold border border-border-subtle px-3 py-1.5 rounded transition-all"
-            >
-              <UserIcon className="w-3.5 h-3.5 text-gold" />
-              <span className="max-w-[100px] truncate">{user.fullName || user.email}</span>
-            </Link>
-          ) : (
-            <Link
-              href="/login"
-              className="text-xs uppercase tracking-wider font-semibold text-bg-primary bg-gold hover:bg-gold-hover px-3.5 py-1.5 rounded transition-all"
-            >
-              {t.nav.login}
-            </Link>
-          )}
-        </div>
-
-        {/* Mobile Menu Button */}
-        <div className="flex sm:hidden items-center space-x-3">
-          <LanguageSwitcher />
-
-          <Link href="/cart" className="text-txt-muted hover:text-gold relative p-1.5">
-            <ShoppingBag className="w-5 h-5" />
-            {totalItemsCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-gold text-bg-primary text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                {totalItemsCount}
-              </span>
-            )}
-          </Link>
-
+          {/* Mobile Menu Toggle (hidden on desktop per user instruction) */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-txt-main p-1.5 focus:outline-none"
+            className={`md:hidden transition-colors p-1 ${
+              isTransparent ? 'text-white/90 hover:text-white drop-shadow-sm' : 'text-neutral-700 hover:text-neutral-900'
+            }`}
+            aria-label="Toggle Menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? (
+              <X className="w-5 h-5 stroke-[1.5]" />
+            ) : (
+              <div className="w-5 h-4 flex flex-col justify-between py-0.5">
+                <span className={`block h-[1.5px] w-full transition-colors ${isTransparent ? 'bg-white' : 'bg-neutral-800'}`} />
+                <span className={`block h-[1.5px] w-full transition-colors ${isTransparent ? 'bg-white' : 'bg-neutral-800'}`} />
+              </div>
+            )}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu Drawer */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="sm:hidden bg-bg-secondary border-b border-border-subtle px-4 pt-4 pb-6 space-y-3 mt-3 animate-fadeIn">
-          {navLinks.map(link => (
+        <div className="md:hidden bg-white/95 backdrop-blur-xl border-b border-neutral-200 px-6 py-6 space-y-4 animate-fadeIn">
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-semibold uppercase tracking-wider text-txt-muted hover:text-gold py-1.5"
+              className="block text-sm font-medium text-neutral-800 hover:text-neutral-950 py-1"
             >
               {link.label}
             </Link>
           ))}
-
           {isAdmin && (
             <Link
               href="/admin"
               onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-bold text-gold py-1.5"
+              className="block text-xs font-semibold uppercase tracking-wider text-amber-800 py-1"
             >
-              👑 {t.nav.admin}
+              Admin Portal
             </Link>
           )}
-
-          <div className="pt-3 border-t border-border-subtle flex items-center justify-between">
-            {user ? (
-              <div className="flex items-center justify-between w-full">
-                <Link
-                  href="/account"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-sm text-gold font-semibold"
-                >
-                  {t.nav.account} ({user.fullName})
-                </Link>
-                <button
-                  onClick={() => {
-                    logout();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="text-xs text-stone hover:text-white"
-                >
-                  {t.nav.logout}
-                </button>
-              </div>
-            ) : (
-              <div className="flex gap-2 w-full pt-1">
-                <Link
-                  href="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 text-center py-2 bg-gold text-bg-primary text-xs font-bold uppercase rounded"
-                >
-                  {t.nav.login}
-                </Link>
-                <Link
-                  href="/register"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex-1 text-center py-2 border border-border-subtle text-txt-main text-xs font-bold uppercase rounded"
-                >
-                  {t.nav.register}
-                </Link>
-              </div>
-            )}
-          </div>
         </div>
       )}
     </header>

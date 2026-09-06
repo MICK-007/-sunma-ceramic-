@@ -34,8 +34,8 @@ export const CMSHero: React.FC<CMSHeroProps> = ({ content }) => {
   const btn2Url = sanitizeUrl(settings.btn2Url, '/room-studio');
 
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center -mt-24 pt-24 overflow-hidden bg-black">
-      {/* Background Image Overlay */}
+    <section className="relative min-h-[88vh] flex items-center justify-center -mt-24 pt-28 overflow-hidden bg-contrast-bg text-white">
+      {/* Background Image Overlay with Architectural Treatment */}
       <div className="absolute inset-0 z-0">
         <Image
           src={bgImage}
@@ -44,36 +44,37 @@ export const CMSHero: React.FC<CMSHeroProps> = ({ content }) => {
           priority
           unoptimized
           sizes="100vw"
-          className="object-cover opacity-40 scale-105 transition-transform duration-10000"
+          className="object-cover opacity-60 scale-105 transition-transform duration-[12000ms]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-contrast-bg via-contrast-bg/40 to-black/60" />
+        <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/20 to-black/60" />
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 text-center space-y-6">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-gold/40 bg-gold/10 backdrop-blur-md text-gold text-xs font-bold tracking-[0.3em] uppercase animate-fadeIn">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-7">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-[2px] border border-white/25 bg-white/10 backdrop-blur-md text-white text-[11px] font-semibold tracking-[0.3em] uppercase animate-fadeIn">
           <Gem className="w-3.5 h-3.5 text-gold" />
           {eyebrow}
         </div>
 
-        <h1 className="font-heading text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight">
+        <h1 className="font-heading text-4xl sm:text-6xl lg:text-7xl font-normal tracking-tight text-white leading-[1.08]">
           {headline}
         </h1>
 
-        <p className="text-sm sm:text-base text-stone-light max-w-2xl mx-auto leading-relaxed">
+        <p className="text-sm sm:text-base text-white/80 max-w-2xl mx-auto leading-relaxed font-light">
           {description}
         </p>
 
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link href={btn1Url}>
-            <Button variant="gold" size="lg" className="w-full sm:w-auto">
+            <Button variant="gold" size="lg" className="w-full sm:w-auto shadow-lg">
               {btn1Label} <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
           <Link href={btn2Url}>
-            <Button variant="outline" size="lg" className="w-full sm:w-auto bg-black/40 backdrop-blur-md">
+            <button className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 text-xs font-semibold uppercase tracking-widest text-white border border-white/30 bg-black/40 hover:bg-white/15 backdrop-blur-md rounded-[2px] transition-all">
               <Sparkles className="w-4 h-4 mr-2 text-gold" />
               {btn2Label}
-            </Button>
+            </button>
           </Link>
         </div>
       </div>

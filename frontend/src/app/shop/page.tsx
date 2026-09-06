@@ -102,21 +102,21 @@ function ShopContent() {
       {/* Header */}
       <div className="border-b border-border-subtle pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <span className="text-xs uppercase font-bold tracking-[0.25em] text-gold block">
-            FULL CERAMIC & TILE CATALOG
+          <span className="text-[11px] uppercase font-semibold tracking-[0.25em] text-gold block">
+            FULL CERAMIC & ARCHITECTURAL SLAB CATALOG
           </span>
-          <h1 className="font-heading text-3xl font-bold text-txt-main">
+          <h1 className="font-heading text-3xl sm:text-4xl font-normal text-txt-main">
             {t.shop.title}
           </h1>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="text-xs text-stone font-semibold">
+          <div className="text-xs text-txt-muted font-medium">
             {products.length} Products Found
           </div>
           <button
             onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-            className="md:hidden border border-border-subtle p-2 rounded text-gold text-xs font-bold flex items-center gap-1.5"
+            className="md:hidden border border-border-subtle p-2 rounded-[2px] text-txt-main text-xs font-semibold flex items-center gap-1.5"
           >
             <SlidersHorizontal className="w-4 h-4" />
             Filters
@@ -125,17 +125,17 @@ function ShopContent() {
       </div>
 
       {/* Search Bar & Sort Controller */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-bg-card p-4 rounded-lg border border-border-subtle">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-bg-card p-4 rounded-[2px] border border-border-subtle shadow-xs">
         <div className="w-full sm:w-2/3">
           <SearchBar value={search} onChange={setSearch} />
         </div>
 
         <div className="flex items-center space-x-2 w-full sm:w-auto">
-          <span className="text-xs text-stone font-semibold shrink-0">{t.shop.sortBy}:</span>
+          <span className="text-xs text-txt-muted font-medium shrink-0">{t.shop.sortBy}:</span>
           <select
             value={sort}
             onChange={e => setSort(e.target.value)}
-            className="bg-bg-secondary border border-border-subtle text-xs text-txt-main rounded p-2 focus:outline-none focus:border-gold w-full sm:w-auto"
+            className="bg-bg-secondary border border-border-subtle text-xs text-txt-main rounded-[2px] p-2.5 focus:outline-none focus:border-gold w-full sm:w-auto"
           >
             <option value="featured">{t.shop.sortFeatured}</option>
             <option value="newest">{t.shop.sortNewest}</option>
@@ -194,19 +194,19 @@ function ShopContent() {
 
                 return (
                   <section key={cat.id} className="space-y-6">
-                    <div className="flex items-center justify-between border-b border-border-gold/30 pb-3">
+                    <div className="flex items-center justify-between border-b border-border-subtle pb-3">
                       <div>
-                        <span className="text-[10px] text-gold font-bold uppercase tracking-[0.2em] block">
-                          CATEGORY DIVISION
+                        <span className="text-[10px] text-gold font-semibold uppercase tracking-[0.25em] block">
+                          COLLECTION DIVISION
                         </span>
-                        <h2 className="font-heading text-xl font-bold text-white uppercase tracking-wider">
+                        <h2 className="font-heading text-2xl font-normal text-txt-main tracking-wide">
                           {isThai && cat.nameTh ? cat.nameTh : cat.name}
                         </h2>
                       </div>
 
                       <Link
                         href={`/shop?category=${cat.slug}`}
-                        className="text-xs font-bold text-gold uppercase hover:underline inline-flex items-center gap-1"
+                        className="text-xs font-semibold text-gold uppercase hover:underline inline-flex items-center gap-1 tracking-wider"
                       >
                         View all {cat.name} <ArrowRight className="w-3.5 h-3.5" />
                       </Link>

@@ -52,7 +52,7 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center space-y-4">
-        <h2 className="text-xl font-heading font-bold text-white">Product Not Found</h2>
+        <h2 className="text-xl font-heading font-normal text-txt-main">Product Not Found</h2>
         <Link href="/shop">
           <Button variant="gold">Return to Catalog</Button>
         </Link>
@@ -93,14 +93,14 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Right Column: Product Info & Actions */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-stone font-semibold uppercase tracking-wider">
+        <div className="lg:col-span-5 space-y-6 text-left">
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between text-xs text-txt-muted font-medium uppercase tracking-wider">
               <span>{product.brandName || 'SUNMA Atelier'}</span>
-              <span>CODE: {product.productCode}</span>
+              <span className="font-mono">CODE: {product.productCode}</span>
             </div>
 
-            <h1 className="font-heading text-2xl sm:text-3xl font-bold text-white">
+            <h1 className="font-heading text-2xl sm:text-4xl font-normal text-txt-main tracking-tight">
               {isThai && product.nameTh ? product.nameTh : product.name}
             </h1>
 
@@ -111,45 +111,46 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          <p className="text-xs text-txt-muted leading-relaxed">
+          <p className="text-xs sm:text-sm text-txt-muted leading-relaxed font-light">
             {isThai && product.descriptionTh ? product.descriptionTh : product.description}
           </p>
 
           {/* Pricing Box */}
-          <div className="bg-bg-card border border-border-subtle p-5 rounded-lg space-y-3">
+          <div className="bg-bg-card border border-border-subtle p-6 rounded-[2px] space-y-3.5 shadow-xs">
             <div className="flex items-baseline justify-between">
               <div>
-                <span className="text-2xl font-bold font-heading text-gold">
+                <span className="text-3xl font-normal font-heading text-txt-main font-mono">
                   ฿{product.pricePerPiece.toLocaleString()}
                 </span>
                 <span className="text-xs text-txt-muted ml-1">/ piece</span>
               </div>
               <div className="text-right">
-                <span className="text-sm font-semibold text-stone-light">
+                <span className="text-sm font-semibold text-txt-main font-mono">
                   ฿{product.pricePerBox.toLocaleString()}
                 </span>
-                <span className="text-xs text-stone ml-1">/ box ({piecesPerBox} pcs)</span>
+                <span className="text-xs text-txt-muted ml-1">/ box ({piecesPerBox} pcs)</span>
               </div>
             </div>
 
-            <div className="text-xs text-stone border-t border-border-subtle pt-2 flex justify-between">
-              <span>Stock Status:</span>
-              <span className="font-bold text-emerald-400">
-                {product.stockPieces > 0 ? `${product.stockPieces} pieces available` : 'Out of Stock'}
+            <div className="text-xs text-txt-muted border-t border-border-subtle pt-3 flex justify-between">
+              <span>Inventory Status:</span>
+              <span className={`font-semibold ${product.stockPieces > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+                {product.stockPieces > 0 ? `${product.stockPieces} pieces in stock` : 'Order on request'}
               </span>
             </div>
           </div>
 
           {/* Quantity Selector */}
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-txt-main block">
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-txt-muted block">
               {t.product.quantity}
             </label>
             <div className="flex items-center space-x-4">
-              <div className="flex items-center border border-border-subtle bg-bg-secondary rounded p-1">
+              <div className="flex items-center border border-border-subtle bg-bg-secondary rounded-[2px] p-1">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="p-2 text-stone hover:text-white"
+                  className="p-2 text-txt-muted hover:text-txt-main"
+                  aria-label="Decrease quantity"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
@@ -157,18 +158,19 @@ export default function ProductDetailPage() {
                   type="number"
                   value={quantity}
                   onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-16 text-center bg-transparent text-xs font-bold text-white focus:outline-none"
+                  className="w-16 text-center bg-transparent text-xs font-semibold text-txt-main focus:outline-none font-mono"
                 />
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="p-2 text-stone hover:text-white"
+                  className="p-2 text-txt-muted hover:text-txt-main"
+                  aria-label="Increase quantity"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="text-xs text-stone font-semibold">
-                = approx. <span className="text-gold font-bold">{calculatedBoxes}</span> boxes (Total: ฿{totalPrice.toLocaleString()})
+              <div className="text-xs text-txt-muted font-light">
+                = approx. <span className="text-txt-main font-semibold font-mono">{calculatedBoxes}</span> boxes (Total: <span className="text-txt-main font-semibold font-mono">฿{totalPrice.toLocaleString()}</span>)
               </div>
             </div>
           </div>
@@ -176,26 +178,27 @@ export default function ProductDetailPage() {
           {/* Primary Action Buttons */}
           <div className="space-y-3 pt-2">
             <div className="flex gap-3">
-              <Button variant="gold" size="lg" className="flex-1" onClick={handleAddToCart}>
+              <Button variant="gold" size="lg" className="flex-1 shadow-md" onClick={handleAddToCart}>
                 <ShoppingBag className="w-4 h-4 mr-2" />
                 {t.product.addToCart}
               </Button>
               <button
                 onClick={() => toggleWishlist(product.id)}
-                className={`p-3.5 rounded border transition-colors ${
+                className={`p-3.5 rounded-[2px] border transition-colors ${
                   isFav
-                    ? 'bg-gold text-bg-primary border-gold'
-                    : 'border-border-subtle text-white hover:border-gold hover:text-gold bg-bg-card'
+                    ? 'bg-gold text-white border-gold shadow-xs'
+                    : 'border-border-subtle text-txt-muted hover:border-gold hover:text-gold bg-bg-card'
                 }`}
                 title="Save to Wishlist"
+                aria-label="Save to Wishlist"
               >
-                <Heart className={`w-5 h-5 ${isFav ? 'fill-current' : ''}`} />
+                <Heart className={`w-5 h-5 ${isFav ? 'fill-current text-white' : ''}`} />
               </button>
             </div>
 
             {/* Room Studio Launch Action */}
             <Link href={`/room-studio?tile=${product.slug}`} className="block">
-              <Button variant="outline" size="md" className="w-full bg-black/40">
+              <Button variant="outline" size="md" className="w-full">
                 <Sparkles className="w-4 h-4 mr-2 text-gold" />
                 {t.product.tryInRoomStudio}
               </Button>

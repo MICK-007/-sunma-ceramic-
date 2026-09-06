@@ -30,58 +30,58 @@ export default function AdminDashboardPage() {
     <div className="space-y-8">
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-bg-card border border-border-subtle p-5 rounded-lg space-y-2">
+        <div className="bg-bg-card border border-border-subtle p-5 rounded-[2px] space-y-2 shadow-sm">
           <div className="flex items-center justify-between text-gold">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-stone">{t.admin.totalSales}</span>
-            <DollarSign className="w-5 h-5" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-txt-muted">{t.admin.totalSales}</span>
+            <DollarSign className="w-4 h-4" />
           </div>
-          <div className="font-heading text-2xl font-bold text-white">
+          <div className="font-heading text-2xl font-bold text-txt-main">
             ฿{stats.totalSales?.toLocaleString()}
           </div>
-          <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+          <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
             <TrendingUp className="w-3 h-3" /> +18.4% vs last month
           </span>
         </div>
 
-        <div className="bg-bg-card border border-border-subtle p-5 rounded-lg space-y-2">
+        <div className="bg-bg-card border border-border-subtle p-5 rounded-[2px] space-y-2 shadow-sm">
           <div className="flex items-center justify-between text-gold">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-stone">{t.admin.totalOrders}</span>
-            <ShoppingCart className="w-5 h-5" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-txt-muted">{t.admin.totalOrders}</span>
+            <ShoppingCart className="w-4 h-4" />
           </div>
-          <div className="font-heading text-2xl font-bold text-white">
+          <div className="font-heading text-2xl font-bold text-txt-main">
             {stats.totalOrders}
           </div>
-          <span className="text-[10px] text-stone">Completed & In Progress</span>
+          <span className="text-[10px] text-txt-muted">Completed & In Progress</span>
         </div>
 
-        <div className="bg-bg-card border border-border-subtle p-5 rounded-lg space-y-2">
+        <div className="bg-bg-card border border-border-subtle p-5 rounded-[2px] space-y-2 shadow-sm">
           <div className="flex items-center justify-between text-gold">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-stone">{t.admin.totalCustomers}</span>
-            <Users className="w-5 h-5" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-txt-muted">{t.admin.totalCustomers}</span>
+            <Users className="w-4 h-4" />
           </div>
-          <div className="font-heading text-2xl font-bold text-white">
+          <div className="font-heading text-2xl font-bold text-txt-main">
             {stats.totalCustomers}
           </div>
-          <span className="text-[10px] text-stone">Registered Architects & Owners</span>
+          <span className="text-[10px] text-txt-muted">Registered Architects & Owners</span>
         </div>
 
-        <div className="bg-bg-card border border-border-subtle p-5 rounded-lg space-y-2">
+        <div className="bg-bg-card border border-border-subtle p-5 rounded-[2px] space-y-2 shadow-sm">
           <div className="flex items-center justify-between text-gold">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-stone">{t.admin.totalProducts}</span>
-            <Package className="w-5 h-5" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-txt-muted">{t.admin.totalProducts}</span>
+            <Package className="w-4 h-4" />
           </div>
-          <div className="font-heading text-2xl font-bold text-white">
+          <div className="font-heading text-2xl font-bold text-txt-main">
             {stats.totalProducts}
           </div>
-          <span className="text-[10px] text-stone">Active Tile SKUs</span>
+          <span className="text-[10px] text-txt-muted">Active Tile SKUs</span>
         </div>
 
-        <div className="bg-bg-card border border-amber-500/30 p-5 rounded-lg space-y-2">
-          <div className="flex items-center justify-between text-amber-400">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">{t.admin.lowStockAlert}</span>
-            <AlertTriangle className="w-5 h-5" />
+        <div className="bg-bg-card border border-amber-500/30 p-5 rounded-[2px] space-y-2 shadow-sm">
+          <div className="flex items-center justify-between text-amber-500">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">{t.admin.lowStockAlert}</span>
+            <AlertTriangle className="w-4 h-4" />
           </div>
-          <div className="font-heading text-2xl font-bold text-amber-400">
+          <div className="font-heading text-2xl font-bold text-amber-600">
             {stats.lowStockCount}
           </div>
           <Link href="/admin/inventory" className="text-[10px] font-bold text-gold hover:underline">
@@ -91,7 +91,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Revenue Performance Bar Chart */}
-      <div className="bg-bg-card border border-border-subtle p-6 rounded-lg space-y-4">
+      <div className="bg-bg-card border border-border-subtle p-6 rounded-[2px] space-y-4 shadow-sm">
         <h3 className="font-heading text-sm font-bold text-gold uppercase tracking-wider border-b border-border-subtle pb-3">
           Monthly Revenue Trajectory (THB)
         </h3>
@@ -102,14 +102,14 @@ export default function AdminDashboardPage() {
             const heightPct = Math.min(100, Math.max(15, (item.revenue / max) * 100));
             return (
               <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
-                <span className="text-[9px] font-mono text-stone opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[9px] font-mono text-txt-muted opacity-0 group-hover:opacity-100 transition-opacity">
                   ฿{(item.revenue / 1000).toFixed(0)}k
                 </span>
                 <div
                   style={{ height: `${heightPct}%` }}
-                  className="w-full bg-gradient-to-t from-gold/30 to-gold rounded-t transition-all group-hover:brightness-125"
+                  className="w-full bg-gradient-to-t from-gold/30 to-gold rounded-t-[2px] transition-all group-hover:brightness-110"
                 />
-                <span className="text-[10px] font-bold text-stone uppercase">{item.month}</span>
+                <span className="text-[10px] font-bold text-txt-muted uppercase">{item.month}</span>
               </div>
             );
           })}
@@ -117,7 +117,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Recent Orders List */}
-      <div className="bg-bg-card border border-border-subtle p-6 rounded-lg space-y-4">
+      <div className="bg-bg-card border border-border-subtle p-6 rounded-[2px] space-y-4 shadow-sm">
         <div className="flex items-center justify-between border-b border-border-subtle pb-3">
           <h3 className="font-heading text-sm font-bold text-gold uppercase tracking-wider">
             {t.admin.recentOrders}
@@ -127,12 +127,12 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {stats.recentOrders?.map((ord: any) => (
-            <div key={ord.id} className="flex items-center justify-between p-3 bg-bg-secondary rounded border border-border-subtle text-xs">
+            <div key={ord.id} className="flex items-center justify-between p-3 bg-bg-secondary/40 rounded-[2px] border border-border-subtle text-xs">
               <div>
-                <span className="font-bold text-white font-mono">{ord.orderNumber}</span>
-                <span className="text-stone text-[11px] block">{ord.recipientName} • {ord.paymentMethod}</span>
+                <span className="font-bold text-txt-main font-mono">{ord.orderNumber}</span>
+                <span className="text-txt-muted text-[11px] block">{ord.recipientName} • {ord.paymentMethod}</span>
               </div>
               <div className="flex items-center gap-4">
                 <Badge variant={ord.status === 'Confirmed' ? 'success' : 'gold'}>{ord.status}</Badge>

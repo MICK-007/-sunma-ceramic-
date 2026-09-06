@@ -170,13 +170,13 @@ export default function AdminProductsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between border-b border-border-subtle pb-4">
         <div>
-          <h2 className="font-heading text-xl font-bold text-white">
+          <h2 className="font-heading text-xl font-bold text-txt-main">
             {t.admin.navProducts} ({products.length})
           </h2>
-          <p className="text-xs text-stone">Manage tile prices, stock in pieces, and catalog publications.</p>
+          <p className="text-xs text-txt-muted">Manage tile prices, stock in pieces, and catalog publications.</p>
         </div>
 
-        <Button variant="gold" size="sm" onClick={handleOpenCreate}>
+        <Button variant="gold" size="sm" onClick={handleOpenCreate} className="rounded-[2px]">
           <Plus className="w-4 h-4 mr-1.5" />
           {t.admin.addProduct}
         </Button>
@@ -185,9 +185,9 @@ export default function AdminProductsPage() {
       {isLoading ? (
         <div className="p-12 text-center text-gold">{t.common.loading}</div>
       ) : (
-        <div className="bg-bg-card border border-border-subtle rounded-lg overflow-x-auto">
+        <div className="bg-bg-card border border-border-subtle rounded-[2px] overflow-x-auto shadow-sm">
           <table className="w-full text-left text-xs">
-            <thead className="bg-bg-secondary border-b border-border-subtle text-stone uppercase font-mono">
+            <thead className="bg-bg-secondary/60 border-b border-border-subtle text-txt-muted uppercase font-mono">
               <tr>
                 <th className="p-3">Product</th>
                 <th className="p-3">Code</th>
@@ -200,34 +200,34 @@ export default function AdminProductsPage() {
             </thead>
             <tbody className="divide-y divide-border-subtle">
               {products.map(p => (
-                <tr key={p.id} className="hover:bg-bg-secondary/50 transition-colors">
+                <tr key={p.id} className="hover:bg-bg-secondary/40 transition-colors">
                   <td className="p-3 flex items-center space-x-3">
-                    <div className="relative w-10 h-10 rounded overflow-hidden bg-bg-secondary shrink-0 border border-border-subtle">
+                    <div className="relative w-10 h-10 rounded-[2px] overflow-hidden bg-bg-secondary shrink-0 border border-border-subtle">
                       <Image src={p.thumbnail} alt={p.name} fill className="object-cover" />
                     </div>
                     <div>
-                      <span className="font-bold text-white block">{p.name}</span>
-                      <span className="text-[10px] text-stone">{p.brandName || 'SUNMA'}</span>
+                      <span className="font-bold text-txt-main block">{p.name}</span>
+                      <span className="text-[10px] text-txt-muted">{p.brandName || 'SUNMA'}</span>
                     </div>
                   </td>
                   <td className="p-3 font-mono text-gold">{p.productCode}</td>
-                  <td className="p-3">{p.size}</td>
-                  <td className="p-3 font-bold text-emerald-400">{p.stockPieces} pcs</td>
-                  <td className="p-3 font-bold text-white">฿{p.pricePerPiece}</td>
+                  <td className="p-3 text-txt-muted">{p.size}</td>
+                  <td className="p-3 font-bold text-emerald-600">{p.stockPieces} pcs</td>
+                  <td className="p-3 font-bold text-txt-main">฿{p.pricePerPiece}</td>
                   <td className="p-3">
                     {p.featured && <Badge variant="gold">FEATURED</Badge>}
                   </td>
                   <td className="p-3 text-right space-x-2">
                     <button
                       onClick={() => handleOpenEdit(p)}
-                      className="p-1.5 text-stone hover:text-gold transition-colors"
+                      className="p-1.5 text-txt-muted hover:text-gold transition-colors"
                       title="Edit"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(p.id)}
-                      className="p-1.5 text-stone hover:text-red-400 transition-colors"
+                      className="p-1.5 text-txt-muted hover:text-red-500 transition-colors"
                       title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -249,55 +249,55 @@ export default function AdminProductsPage() {
         <form onSubmit={handleSave} className="space-y-4 text-xs">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-stone font-semibold mb-1">Product Code *</label>
+              <label className="block text-txt-muted font-medium mb-1">Product Code *</label>
               <input
                 type="text"
                 required
                 value={productCode}
                 onChange={e => setProductCode(e.target.value)}
-                className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white"
+                className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main focus:outline-none focus:border-gold"
               />
             </div>
             <div>
-              <label className="block text-stone font-semibold mb-1">Size (cm) *</label>
+              <label className="block text-txt-muted font-medium mb-1">Size (cm) *</label>
               <input
                 type="text"
                 required
                 value={size}
                 onChange={e => setSize(e.target.value)}
-                className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white"
+                className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main focus:outline-none focus:border-gold"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-stone font-semibold mb-1">Product Name (EN) *</label>
+            <label className="block text-txt-muted font-medium mb-1">Product Name (EN) *</label>
             <input
               type="text"
               required
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white"
+              className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main focus:outline-none focus:border-gold"
             />
           </div>
 
           <div>
-            <label className="block text-stone font-semibold mb-1">Product Name (TH)</label>
+            <label className="block text-txt-muted font-medium mb-1">Product Name (TH)</label>
             <input
               type="text"
               value={nameTh}
               onChange={e => setNameTh(e.target.value)}
-              className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white"
+              className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main focus:outline-none focus:border-gold"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-stone font-semibold mb-1">Category *</label>
+              <label className="block text-txt-muted font-medium mb-1">Category *</label>
               <select
                 value={categoryId}
                 onChange={e => setCategoryId(e.target.value)}
-                className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white"
+                className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main focus:outline-none focus:border-gold"
               >
                 {categories.map(c => (
                   <option key={c.id} value={c.id}>
@@ -307,11 +307,11 @@ export default function AdminProductsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-stone font-semibold mb-1">Brand</label>
+              <label className="block text-txt-muted font-medium mb-1">Brand</label>
               <select
                 value={brandId}
                 onChange={e => setBrandId(e.target.value)}
-                className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white"
+                className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main focus:outline-none focus:border-gold"
               >
                 {brands.map(b => (
                   <option key={b.id} value={b.id}>
@@ -323,9 +323,9 @@ export default function AdminProductsPage() {
           </div>
 
           <div>
-            <label className="block text-stone font-semibold mb-1">Product Image (Upload from Computer or enter URL)</label>
-            <div className="flex items-center space-x-3 bg-bg-secondary p-2.5 rounded border border-border-subtle">
-              <div className="relative w-14 h-14 rounded border border-border-gold overflow-hidden shrink-0 bg-black">
+            <label className="block text-txt-muted font-medium mb-1">Product Image (Upload from Computer or enter URL)</label>
+            <div className="flex items-center space-x-3 bg-bg-secondary/40 p-2.5 rounded-[2px] border border-border-subtle">
+              <div className="relative w-14 h-14 rounded-[2px] border border-border-gold overflow-hidden shrink-0 bg-black">
                 {thumbnail && <Image src={thumbnail} alt="Preview" fill className="object-cover" />}
               </div>
               <div className="flex-1 space-y-1.5">
@@ -333,14 +333,14 @@ export default function AdminProductsPage() {
                   type="file"
                   accept="image/*"
                   onChange={handleImageFileChange}
-                  className="w-full text-[11px] text-stone-light file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-bg-primary hover:file:bg-gold-hover cursor-pointer"
+                  className="w-full text-[11px] text-txt-muted file:mr-2 file:py-1 file:px-2.5 file:rounded-[2px] file:border-0 file:text-xs file:font-semibold file:bg-gold file:text-white hover:file:bg-gold-hover cursor-pointer"
                 />
                 <input
                   type="text"
                   value={thumbnail}
                   onChange={e => setThumbnail(e.target.value)}
                   placeholder="/images/tiles/calacatta-marble.jpeg or Data URL"
-                  className="w-full bg-bg-card border border-border-subtle rounded p-1.5 text-white font-mono text-[10px]"
+                  className="w-full bg-white border border-border-subtle rounded-[2px] p-1.5 text-txt-main font-mono text-[10px]"
                 />
               </div>
             </div>
@@ -348,23 +348,23 @@ export default function AdminProductsPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-stone font-semibold mb-1">Price per Piece (THB) *</label>
+              <label className="block text-txt-muted font-medium mb-1">Price per Piece (THB) *</label>
               <input
                 type="number"
                 required
                 value={pricePerPiece}
                 onChange={e => setPricePerPiece(e.target.value)}
-                className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white"
+                className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main focus:outline-none focus:border-gold"
               />
             </div>
             <div>
-              <label className="block text-stone font-semibold mb-1">Stock (Pieces) *</label>
+              <label className="block text-txt-muted font-medium mb-1">Stock (Pieces) *</label>
               <input
                 type="number"
                 required
                 value={stockPieces}
                 onChange={e => setStockPieces(e.target.value)}
-                className="w-full bg-bg-secondary border border-border-subtle rounded p-2 text-white"
+                className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main focus:outline-none focus:border-gold"
               />
             </div>
           </div>
@@ -377,16 +377,16 @@ export default function AdminProductsPage() {
               onChange={e => setFeatured(e.target.checked)}
               className="accent-gold"
             />
-            <label htmlFor="feat" className="text-white font-semibold cursor-pointer">
+            <label htmlFor="feat" className="text-txt-main font-medium cursor-pointer">
               Set as Featured Product on Homepage
             </label>
           </div>
 
           <div className="pt-4 flex justify-end space-x-3">
-            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)}>
+            <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} className="rounded-[2px]">
               {t.common.cancel}
             </Button>
-            <Button type="submit" variant="gold">
+            <Button type="submit" variant="gold" className="rounded-[2px]">
               {t.common.save}
             </Button>
           </div>

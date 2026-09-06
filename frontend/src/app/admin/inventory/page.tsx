@@ -21,11 +21,11 @@ export default function AdminInventoryPage() {
     <div className="space-y-6">
       <div className="border-b border-border-subtle pb-4 flex items-center justify-between">
         <div>
-          <h2 className="font-heading text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="font-heading text-xl font-bold text-txt-main flex items-center gap-2">
             <Warehouse className="w-5 h-5 text-gold" />
             {t.admin.navInventory} ({inventory.length} SKUs)
           </h2>
-          <p className="text-xs text-stone">
+          <p className="text-xs text-txt-muted">
             Inventory is stored primarily in <strong>PIECES</strong> with calculated box conversions.
           </p>
         </div>
@@ -34,9 +34,9 @@ export default function AdminInventoryPage() {
       {isLoading ? (
         <div className="p-12 text-center text-gold">{t.common.loading}</div>
       ) : (
-        <div className="bg-bg-card border border-border-subtle rounded-lg overflow-x-auto">
+        <div className="bg-bg-card border border-border-subtle rounded-[2px] overflow-x-auto shadow-sm">
           <table className="w-full text-left text-xs">
-            <thead className="bg-bg-secondary border-b border-border-subtle text-stone uppercase font-mono">
+            <thead className="bg-bg-secondary/60 border-b border-border-subtle text-txt-muted uppercase font-mono">
               <tr>
                 <th className="p-3">Product Name</th>
                 <th className="p-3">SKU / Code</th>
@@ -49,16 +49,16 @@ export default function AdminInventoryPage() {
             </thead>
             <tbody className="divide-y divide-border-subtle">
               {inventory.map(item => (
-                <tr key={item.id} className="hover:bg-bg-secondary/50">
-                  <td className="p-3 font-bold text-white">{item.name}</td>
+                <tr key={item.id} className="hover:bg-bg-secondary/40 transition-colors">
+                  <td className="p-3 font-bold text-txt-main">{item.name}</td>
                   <td className="p-3 font-mono text-gold">{item.productCode}</td>
-                  <td className="p-3 font-bold text-emerald-400">{item.stockPieces} pcs</td>
-                  <td className="p-3">{item.piecesPerBox}</td>
-                  <td className="p-3 text-stone-light">{item.calculatedBoxes} boxes</td>
-                  <td className="p-3 font-bold text-white">฿{item.pricePerPiece}</td>
+                  <td className="p-3 font-bold text-emerald-600">{item.stockPieces} pcs</td>
+                  <td className="p-3 text-txt-muted">{item.piecesPerBox}</td>
+                  <td className="p-3 text-txt-muted">{item.calculatedBoxes} boxes</td>
+                  <td className="p-3 font-bold text-txt-main">฿{item.pricePerPiece}</td>
                   <td className="p-3">
                     {item.isLowStock ? (
-                      <span className="text-amber-400 font-bold flex items-center gap-1">
+                      <span className="text-amber-600 font-bold flex items-center gap-1">
                         <AlertTriangle className="w-3.5 h-3.5" /> Low Stock
                       </span>
                     ) : (

@@ -3,12 +3,6 @@ const getApiBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
   }
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    if (host === 'localhost' || host.startsWith('192.168.') || host.startsWith('127.0.')) {
-      return `http://${host}:5000/api`;
-    }
-  }
   return '/api';
 };
 

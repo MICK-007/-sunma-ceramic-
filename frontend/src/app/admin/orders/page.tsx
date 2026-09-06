@@ -30,18 +30,18 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-6">
       <div className="border-b border-border-subtle pb-4">
-        <h2 className="font-heading text-xl font-bold text-white">
+        <h2 className="font-heading text-xl font-bold text-txt-main">
           {t.admin.navOrders} ({orders.length})
         </h2>
-        <p className="text-xs text-stone">Update customer order statuses (Pending → Confirmed → Preparing → Cancelled).</p>
+        <p className="text-xs text-txt-muted">Update customer order statuses (Pending → Confirmed → Preparing → Cancelled).</p>
       </div>
 
       {isLoading ? (
         <div className="p-12 text-center text-gold">{t.common.loading}</div>
       ) : (
-        <div className="bg-bg-card border border-border-subtle rounded-lg overflow-x-auto">
+        <div className="bg-bg-card border border-border-subtle rounded-[2px] overflow-x-auto shadow-sm">
           <table className="w-full text-left text-xs">
-            <thead className="bg-bg-secondary border-b border-border-subtle text-stone uppercase font-mono">
+            <thead className="bg-bg-secondary/60 border-b border-border-subtle text-txt-muted uppercase font-mono">
               <tr>
                 <th className="p-3">Order Ref</th>
                 <th className="p-3">Customer</th>
@@ -54,23 +54,23 @@ export default function AdminOrdersPage() {
             </thead>
             <tbody className="divide-y divide-border-subtle">
               {orders.map(ord => (
-                <tr key={ord.id} className="hover:bg-bg-secondary/50 transition-colors">
+                <tr key={ord.id} className="hover:bg-bg-secondary/40 transition-colors">
                   <td className="p-3 font-mono font-bold text-gold">{ord.orderNumber}</td>
                   <td className="p-3">
-                    <span className="font-bold text-white block">{ord.recipientName}</span>
-                    <span className="text-[10px] text-stone">{ord.recipientPhone}</span>
+                    <span className="font-bold text-txt-main block">{ord.recipientName}</span>
+                    <span className="text-[10px] text-txt-muted">{ord.recipientPhone}</span>
                   </td>
-                  <td className="p-3 font-semibold text-stone-light">{ord.paymentMethod}</td>
+                  <td className="p-3 font-medium text-txt-muted">{ord.paymentMethod}</td>
                   <td className="p-3">
                     {ord.taxInvoiceRequested ? (
                       <span className="text-gold font-bold flex items-center gap-1">
                         <FileText className="w-3.5 h-3.5" /> VAT 7%
                       </span>
                     ) : (
-                      <span className="text-stone">No</span>
+                      <span className="text-txt-muted">No</span>
                     )}
                   </td>
-                  <td className="p-3 font-bold text-white">฿{ord.totalAmount?.toLocaleString()}</td>
+                  <td className="p-3 font-bold text-txt-main">฿{ord.totalAmount?.toLocaleString()}</td>
                   <td className="p-3">
                     <Badge variant={ord.status === 'Confirmed' ? 'success' : ord.status === 'Preparing' ? 'warning' : 'gold'}>
                       {ord.status}
@@ -80,7 +80,7 @@ export default function AdminOrdersPage() {
                     <select
                       value={ord.status}
                       onChange={e => handleStatusChange(ord.id, e.target.value)}
-                      className="bg-bg-secondary border border-border-subtle text-xs text-white rounded p-1 focus:outline-none focus:border-gold"
+                      className="bg-white border border-border-subtle text-xs text-txt-main rounded-[2px] p-1.5 focus:outline-none focus:border-gold"
                     >
                       <option value="Pending">Pending</option>
                       <option value="Confirmed">Confirmed</option>

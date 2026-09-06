@@ -17,7 +17,7 @@ export const ProductGallery: React.FC<GalleryProps> = ({ images, productName }) 
   return (
     <div className="space-y-4">
       {/* Main Image View */}
-      <div className="relative aspect-[4/3] w-full rounded-lg overflow-hidden bg-bg-secondary border border-border-subtle group">
+      <div className="relative aspect-[4/3] w-full rounded-[2px] overflow-hidden bg-bg-secondary border border-border-subtle group shadow-xs">
         <Image
           src={activeImage}
           alt={productName}
@@ -36,8 +36,8 @@ export const ProductGallery: React.FC<GalleryProps> = ({ images, productName }) 
             <button
               key={idx}
               onClick={() => setSelectedIdx(idx)}
-              className={`relative w-20 aspect-square rounded overflow-hidden border transition-all shrink-0 ${
-                selectedIdx === idx ? 'border-gold ring-1 ring-gold' : 'border-border-subtle opacity-70 hover:opacity-100'
+              className={`relative w-20 aspect-square rounded-[2px] overflow-hidden border transition-all shrink-0 ${
+                selectedIdx === idx ? 'border-gold ring-1 ring-gold shadow-xs' : 'border-border-subtle opacity-70 hover:opacity-100'
               }`}
             >
               <Image

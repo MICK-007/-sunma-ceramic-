@@ -43,7 +43,7 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
   };
 
   return (
-    <div className="luxury-card group rounded-lg overflow-hidden flex flex-col justify-between h-full relative">
+    <div className="luxury-card group rounded-[2px] overflow-hidden flex flex-col justify-between h-full relative bg-bg-card border border-border-subtle hover:border-gold transition-all duration-300">
       {/* Top Image Container */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-bg-secondary">
         <Image
@@ -57,36 +57,37 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-          {product.featured && <Badge variant="gold">FEATURED</Badge>}
+          {product.featured && <Badge variant="gold">ARCHITECTURAL</Badge>}
           <Badge variant="stone">{product.size}</Badge>
         </div>
 
-        {/* Wishlist Button - z-30 to ensure it stays clickable above hover overlay */}
+        {/* Wishlist Button */}
         <button
           type="button"
           onClick={handleWishlistClick}
           className={`absolute top-3 right-3 p-2 rounded-full border transition-all z-30 cursor-pointer ${
             isFav
-              ? 'bg-gold text-bg-primary border-gold shadow-lg scale-105'
-              : 'bg-black/60 backdrop-blur-md text-white border-white/20 hover:text-gold hover:border-gold'
+              ? 'bg-gold text-white border-gold shadow-md scale-105'
+              : 'bg-white/80 backdrop-blur-md text-txt-main border-border-subtle hover:text-gold hover:border-gold shadow-xs'
           }`}
           title="Save to Wishlist"
+          aria-label="Save to Wishlist"
         >
-          <Heart className={`w-4 h-4 ${isFav ? 'fill-current text-bg-primary' : ''}`} />
+          <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-current text-white' : ''}`} />
         </button>
 
         {/* Quick Room Studio Hover Overlay */}
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 p-4 z-10">
+        <div className="absolute inset-0 bg-contrast-bg/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2.5 p-4 z-10">
           <Link
             href={`/products/${product.slug}`}
-            className="px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/30 text-white rounded text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors"
+            className="px-3.5 py-2 bg-white/90 hover:bg-white text-txt-main rounded-[2px] text-[10.5px] font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-sm"
           >
             <Eye className="w-3.5 h-3.5" />
-            View Detail
+            Specs
           </Link>
           <Link
             href={`/room-studio?tile=${product.slug}`}
-            className="px-3.5 py-2 bg-gold hover:bg-gold-hover text-bg-primary font-bold rounded text-[11px] uppercase tracking-wider flex items-center gap-1.5 shadow-lg transition-colors"
+            className="px-3.5 py-2 bg-gold hover:bg-gold-hover text-white font-semibold rounded-[2px] text-[10.5px] uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" />
             Room Studio
@@ -95,47 +96,47 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
       </div>
 
       {/* Card Content */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
         <div>
-          <div className="flex items-center justify-between text-[10px] text-stone font-semibold tracking-wider uppercase mb-1">
+          <div className="flex items-center justify-between text-[10px] text-txt-muted font-medium tracking-wider uppercase mb-1">
             <span>{product.brandName || 'SUNMA'}</span>
-            <span>{product.productCode}</span>
+            <span className="font-mono text-txt-muted/70">{product.productCode}</span>
           </div>
 
           <Link href={`/products/${product.slug}`}>
-            <h3 className="font-heading text-sm font-bold text-txt-main group-hover:text-gold transition-colors line-clamp-1">
+            <h3 className="font-heading text-base font-normal text-txt-main group-hover:text-gold transition-colors line-clamp-1">
               {isThai && product.nameTh ? product.nameTh : product.name}
             </h3>
           </Link>
 
-          <p className="text-[11px] text-txt-muted mt-1 line-clamp-1">
+          <p className="text-[11.5px] text-txt-muted mt-1 line-clamp-1 font-light">
             {product.material} • {product.surface} Surface
           </p>
         </div>
 
         {/* Pricing & Stock */}
-        <div className="mt-4 pt-3 border-t border-border-subtle flex items-end justify-between">
+        <div className="pt-3 border-t border-border-subtle flex items-end justify-between">
           <div>
             <div className="flex items-baseline gap-1">
-              <span className="text-xs font-bold text-gold">
+              <span className="text-sm font-semibold text-txt-main font-mono">
                 ฿{product.pricePerPiece.toLocaleString()}
               </span>
               <span className="text-[10px] text-txt-muted">/ {t.product.pieces.slice(0, 3)}</span>
             </div>
-            <div className="text-[10px] text-stone">
+            <div className="text-[10px] text-txt-muted/80">
               ฿{product.pricePerBox.toLocaleString()} / {t.product.boxes.slice(0, 3)} ({product.piecesPerBox} pcs)
             </div>
           </div>
 
           <div className="text-right">
-            <span className="text-[10px] text-emerald-400 font-semibold block">
-              {product.stockPieces > 0 ? `${product.stockPieces} pcs in stock` : 'Out of Stock'}
+            <span className={`text-[10px] font-medium block ${product.stockPieces > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+              {product.stockPieces > 0 ? `${product.stockPieces} in stock` : 'Order on request'}
             </span>
             <Link
               href={`/products/${product.slug}`}
-              className="text-[10px] uppercase font-bold text-gold hover:underline"
+              className="text-[10px] uppercase font-semibold text-gold hover:underline tracking-wider inline-block mt-0.5"
             >
-              Select →
+              Configure →
             </Link>
           </div>
         </div>
