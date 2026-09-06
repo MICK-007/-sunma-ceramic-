@@ -96,51 +96,51 @@ export const TileCategoriesGrid: React.FC = () => {
   }, []);
 
   return (
-    <section className="w-full bg-[#FAF9F6] py-16 sm:py-24 px-6 sm:px-10 lg:px-12 border-t border-neutral-200/60">
+    <section className="w-full bg-[#FAF9F6] py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-t border-border-subtle">
       <div className="max-w-7xl mx-auto space-y-12">
         {/* Header matching Image 2 */}
-        <div className="text-center space-y-2.5 max-w-2xl mx-auto">
-          <span className="text-[11px] uppercase font-semibold tracking-[0.3em] text-amber-800/90 block">
+        <div className="text-center max-w-2xl mx-auto mb-14 space-y-2.5">
+          <span className="text-[11px] uppercase font-semibold tracking-[0.3em] text-gold block">
             ARCHITECTURAL SERIES
           </span>
-          <h2 className="font-heading text-3xl sm:text-4xl lg:text-5xl font-normal text-neutral-900 tracking-tight">
+          <h2 className="font-heading text-3xl sm:text-4xl font-normal text-txt-main">
             {isThai ? 'คอลเลกชันกระเบื้องที่คัดสรร' : 'Curated Tile Collections'}
           </h2>
         </div>
 
-        {/* 4-Column Tall Portrait Cards matching Image 2 (aspect-[3/4] with generous gap) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+        {/* 4-Column Tall Portrait Cards matching Image 2 (aspect-[3/4] with gap-6 sm:gap-8) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
           {categoriesList.map((cat) => (
             <Link
               key={cat.id}
               href={cat.href}
-              className="luxury-card group rounded-[2px] overflow-hidden relative aspect-[3/4] min-h-[380px] flex flex-col justify-end p-5 sm:p-6 border border-neutral-200/70 hover:border-neutral-900 hover:shadow-2xl transition-all duration-500"
+              className="luxury-card group rounded-[2px] overflow-hidden relative aspect-[3/4] flex flex-col justify-end p-6 border border-border-subtle hover:border-gold transition-all duration-500"
             >
-              {/* Background Full-Height Image */}
+              {/* Background Full-Height Image with opacity treatment */}
               <Image
                 src={cat.image}
                 alt={isThai ? cat.nameTh : cat.nameEn}
                 fill
                 unoptimized
-                className="object-cover group-hover:scale-105 transition-transform duration-700 pointer-events-none"
+                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-75 pointer-events-none"
               />
 
-              {/* Dark Atmospheric Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+              {/* Dark Atmospheric Gradient Overlay matching Image 2 */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none" />
 
               {/* Bottom Content Container */}
               <div className="relative z-10 space-y-1.5 text-left">
-                <h3 className="font-heading text-xl font-normal text-white group-hover:text-amber-200 transition-colors">
+                <h3 className="font-heading text-xl font-normal text-white group-hover:text-gold transition-colors">
                   {isThai ? cat.nameTh : cat.nameEn}
                 </h3>
 
-                <p className="text-[11.5px] text-white/75 line-clamp-2 font-light leading-relaxed">
+                <p className="text-[11.5px] text-white/70 line-clamp-2 font-light leading-relaxed">
                   {isThai ? cat.descTh : cat.descEn}
                 </p>
 
-                <span className="text-[10px] font-semibold text-amber-200 uppercase tracking-[0.2em] inline-flex items-center gap-1.5 pt-2 group-hover:translate-x-1 transition-transform">
+                <span className="text-[10px] font-semibold text-gold uppercase tracking-[0.2em] inline-flex items-center gap-1 pt-2 group-hover:translate-x-1 transition-transform">
                   <span>{isThai ? 'สำรวจคอลเลกชัน' : 'Explore Series'}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3 h-3" />
                 </span>
               </div>
             </Link>
