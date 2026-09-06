@@ -116,6 +116,21 @@ export const Navbar = () => {
             <UserIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[1.5]" />
           </Link>
 
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className={`hidden md:flex items-center gap-1 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-wider rounded-[2px] border transition-all ${
+                isTransparent
+                  ? 'bg-white/15 text-white border-white/30 hover:bg-white/25 drop-shadow-sm'
+                  : 'bg-gold/10 text-gold border-gold/40 hover:bg-gold hover:text-white'
+              }`}
+              title="Admin Console"
+            >
+              <span>👑</span>
+              <span>{isThai ? 'จัดการระบบ' : 'Admin'}</span>
+            </Link>
+          )}
+
           <Link
             href="/cart"
             className={`transition-colors relative p-1 ${

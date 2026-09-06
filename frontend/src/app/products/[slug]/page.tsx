@@ -7,12 +7,13 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { api } from '@/services/api';
+import { useAuth } from '@/context/AuthContext';
 import { ProductGallery } from '@/components/product/ProductGallery';
 import { SpecificationTable } from '@/components/product/SpecificationTable';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { ShoppingBag, Heart, Sparkles, Plus, Minus, Check, ArrowLeft, ShieldAlert } from 'lucide-react';
+import { ShoppingBag, Heart, Sparkles, Plus, Minus, Check, ArrowLeft, ShieldAlert, Edit } from 'lucide-react';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -21,6 +22,7 @@ export default function ProductDetailPage() {
   const { t, language } = useLanguage();
   const { addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { isAdmin } = useAuth();
   const isThai = language === 'TH';
 
   const [product, setProduct] = useState<any>(null);
@@ -110,6 +112,24 @@ export default function ProductDetailPage() {
               <Badge variant="stone">{product.surface} Surface</Badge>
             </div>
           </div>
+
+          {/* Admin Edit Shortcut */}
+          {isAdmin && (
+            <div className="p-3 bg-gold/10 border border-gold/30 rounded-[2px] flex items-center justify-between">
+              <div className="text-xs text-txt-main font-medium flex items-center gap-1.5">
+                <span className="text-gold font-bold">👑 Admin:</span>
+                <span className="text-txt-muted">
+                  {isThai ? 'เข้าสู่ระบบด้วยสิทธิ์ผู้ดูแล' : 'Admin Privileges Active'}
+                </span>
+              </div>
+              <Link href="/admin/products">
+                <Button variant="gold" size="sm" className="text-xs h-7 rounded-[2px]">
+                  <Edit className="w-3 h-3 mr-1" />
+                  {isThai ? 'แก้ไขสินค้าในแอดมิน' : 'Edit in Admin'}
+                </Button>
+              </Link>
+            </div>
+          )}
 
           <p className="text-xs sm:text-sm text-txt-muted leading-relaxed font-light">
             {isThai && product.descriptionTh ? product.descriptionTh : product.description}

@@ -69,8 +69,8 @@ export const InteriorRoomShowcase: React.FC = () => {
               {livingPopupOpen ? (
                 <div className="bg-white/95 backdrop-blur-md text-neutral-900 border border-neutral-200/80 rounded-[2px] p-4 sm:p-5 shadow-2xl max-w-sm w-full animate-fadeIn transition-all">
                   <div className="flex items-start justify-between pb-2 border-b border-neutral-100">
-                    <span className="text-[10px] uppercase tracking-[0.22em] text-amber-800 font-semibold">
-                      Featured Collection
+                    <span className="text-[10px] uppercase tracking-[0.22em] text-gold font-semibold">
+                      {isThai ? 'คอลเลกชันแนะนำ' : 'Featured Collection'}
                     </span>
                     <button
                       onClick={() => setLivingPopupOpen(false)}
@@ -83,33 +83,40 @@ export const InteriorRoomShowcase: React.FC = () => {
 
                   <div className="flex items-center gap-4 pt-3">
                     {/* Swatch Image */}
-                    <div className="relative w-20 h-24 sm:w-24 sm:h-28 flex-shrink-0 bg-neutral-100 rounded-[2px] overflow-hidden border border-neutral-200">
+                    <Link
+                      href="/products/calacatta-oro-polished-slab"
+                      className="relative w-20 h-24 sm:w-24 sm:h-28 flex-shrink-0 bg-neutral-100 rounded-[2px] overflow-hidden border border-neutral-200 hover:opacity-90 transition-opacity"
+                    >
                       <Image
                         src="/images/tiles/calacatta-marble.jpeg"
-                        alt="Calacatta White"
+                        alt={isThai ? 'กระเบื้องหินอ่อน Calacatta Oro' : 'Calacatta Oro Polished Slab'}
                         fill
                         unoptimized
                         className="object-cover"
                       />
-                    </div>
+                    </Link>
 
                     {/* Spec Details */}
                     <div className="space-y-1 text-left">
-                      <h4 className="font-heading text-base sm:text-lg font-normal text-neutral-900 leading-snug">
-                        Calacatta White
-                      </h4>
-                      <div className="text-[11px] text-neutral-500 font-medium">Porcelain Tile</div>
+                      <Link href="/products/calacatta-oro-polished-slab" className="block group/title">
+                        <h4 className="font-heading text-base sm:text-lg font-normal text-neutral-900 group-hover/title:text-gold transition-colors leading-snug">
+                          {isThai ? 'Calacatta Oro Polished' : 'Calacatta Oro Polished Slab'}
+                        </h4>
+                      </Link>
+                      <div className="text-[11px] text-neutral-500 font-medium">
+                        {isThai ? 'กระเบื้องพอร์ซเลน (ผิวเงา)' : 'Porcelain Tile (Polished)'}
+                      </div>
                       <div className="text-xs font-mono text-neutral-700 font-semibold pt-0.5">
                         60 × 120 cm
                       </div>
 
                       <div className="pt-2">
                         <Link
-                          href="/shop?search=calacatta"
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-neutral-900 hover:text-amber-800 transition group"
+                          href="/products/calacatta-oro-polished-slab"
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-neutral-900 hover:text-gold transition group"
                         >
-                          <span>{isThai ? 'ดูรายละเอียด' : 'View Details'}</span>
-                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-amber-800" />
+                          <span>{isThai ? 'ดูรายละเอียดสินค้า' : 'View Details'}</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-gold" />
                         </Link>
                       </div>
                     </div>
@@ -181,8 +188,8 @@ export const InteriorRoomShowcase: React.FC = () => {
               {kitchenPopupOpen ? (
                 <div className="bg-white/95 backdrop-blur-md text-neutral-900 border border-neutral-200/80 rounded-[2px] p-4 sm:p-5 shadow-2xl max-w-sm w-full animate-fadeIn transition-all">
                   <div className="flex items-start justify-between pb-2 border-b border-neutral-100">
-                    <span className="text-[10px] uppercase tracking-[0.22em] text-amber-800 font-semibold">
-                      Island Slab Spec
+                    <span className="text-[10px] uppercase tracking-[0.22em] text-gold font-semibold">
+                      {isThai ? 'สเปกกระเบื้องไอแลนด์' : 'Island Slab Spec'}
                     </span>
                     <button
                       onClick={() => setKitchenPopupOpen(false)}
@@ -194,32 +201,40 @@ export const InteriorRoomShowcase: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-4 pt-3">
-                    <div className="relative w-20 h-24 sm:w-24 sm:h-28 flex-shrink-0 bg-neutral-100 rounded-[2px] overflow-hidden border border-neutral-200">
+                    {/* Swatch Image */}
+                    <Link
+                      href="/products/walnut-heritage-chevron-slab"
+                      className="relative w-20 h-24 sm:w-24 sm:h-28 flex-shrink-0 bg-neutral-100 rounded-[2px] overflow-hidden border border-neutral-200 hover:opacity-90 transition-opacity"
+                    >
                       <Image
                         src="/images/tiles/sandstone-beige.jpeg"
-                        alt="Statuario Waterfall Island"
+                        alt={isThai ? 'กระเบื้องหินทรายสีเบจ Sandstone Beige' : 'Sandstone Beige Porcelain Slab'}
                         fill
                         unoptimized
                         className="object-cover"
                       />
-                    </div>
+                    </Link>
 
                     <div className="space-y-1 text-left">
-                      <h4 className="font-heading text-base sm:text-lg font-normal text-neutral-900 leading-snug">
-                        Statuario Waterfall
-                      </h4>
-                      <div className="text-[11px] text-neutral-500 font-medium">Ultra-Slab Porcelain</div>
+                      <Link href="/products/walnut-heritage-chevron-slab" className="block group/title">
+                        <h4 className="font-heading text-base sm:text-lg font-normal text-neutral-900 group-hover/title:text-gold transition-colors leading-snug">
+                          {isThai ? 'Sandstone Beige Slab' : 'Sandstone Beige Porcelain Slab'}
+                        </h4>
+                      </Link>
+                      <div className="text-[11px] text-neutral-500 font-medium">
+                        {isThai ? 'กระเบื้องพอร์ซเลนแผ่นใหญ่ (ผิวแมตต์)' : 'Porcelain Slab (Matt)'}
+                      </div>
                       <div className="text-xs font-mono text-neutral-700 font-semibold pt-0.5">
-                        120 × 240 cm
+                        60 × 120 cm
                       </div>
 
                       <div className="pt-2">
                         <Link
-                          href="/shop?room=kitchen"
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-neutral-900 hover:text-amber-800 transition group"
+                          href="/products/walnut-heritage-chevron-slab"
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-neutral-900 hover:text-gold transition group"
                         >
-                          <span>{isThai ? 'ดูรายละเอียด' : 'View Details'}</span>
-                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-amber-800" />
+                          <span>{isThai ? 'ดูรายละเอียดสินค้า' : 'View Details'}</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-gold" />
                         </Link>
                       </div>
                     </div>

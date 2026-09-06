@@ -3,11 +3,11 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, Eye, Sparkles } from 'lucide-react';
+import { Heart, Eye, Sparkles, Edit } from 'lucide-react';
 import { useWishlist } from '@/context/WishlistContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import { resolveMediaUrl } from '@/lib/media';
-import { Badge } from '../ui/Badge';
 
 export interface ProductProps {
   id: string;
@@ -32,6 +32,7 @@ export interface ProductProps {
 export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) => {
   const { language, t } = useLanguage();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { isAdmin } = useAuth();
 
   const isFav = isInWishlist(product.id) || isInWishlist(product.slug);
   const isThai = language === 'TH';
@@ -55,11 +56,17 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
           className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
         />
 
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-          {product.featured && <Badge variant="gold">ARCHITECTURAL</Badge>}
-          <Badge variant="stone">{product.size}</Badge>
-        </div>
+        {/* Admin Quick Edit Shortcut (Only visible to admin) */}
+        {isAdmin && (
+          <Link
+            href="/admin/products"
+            onClick={(e) => e.stopPropagation()}
+            className="absolute top-3 left-3 p-1.5 rounded-full bg-black/70 hover:bg-gold text-white border border-white/20 transition-all z-30 cursor-pointer shadow-md"
+            title="Edit in Admin Products"
+          >
+            <Edit className="w-3.5 h-3.5" />
+          </Link>
+        )}
 
         {/* Wishlist Button */}
         <button
