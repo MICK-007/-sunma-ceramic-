@@ -115,28 +115,32 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
         </div>
 
         {/* Pricing & Stock */}
-        <div className="pt-3 border-t border-border-subtle flex items-end justify-between">
-          <div>
+        <div className="pt-3 border-t border-border-subtle flex items-end justify-between gap-2">
+          <div className="min-w-0">
             <div className="flex items-baseline gap-1">
               <span className="text-sm font-semibold text-txt-main font-mono">
                 ฿{product.pricePerPiece.toLocaleString()}
               </span>
-              <span className="text-[10px] text-txt-muted">/ {t.product.pieces.slice(0, 3)}</span>
+              <span className="text-[10.5px] text-txt-muted whitespace-nowrap">
+                / {isThai ? 'แผ่น' : 'pc'}
+              </span>
             </div>
-            <div className="text-[10px] text-txt-muted/80">
-              ฿{product.pricePerBox.toLocaleString()} / {t.product.boxes.slice(0, 3)} ({product.piecesPerBox} pcs)
+            <div className="text-[10.5px] text-txt-muted/80 whitespace-nowrap">
+              ฿{product.pricePerBox.toLocaleString()} / {isThai ? 'กล่อง' : 'box'} ({product.piecesPerBox} {isThai ? 'แผ่น' : 'pcs'})
             </div>
           </div>
 
-          <div className="text-right">
+          <div className="text-right flex-shrink-0">
             <span className={`text-[10px] font-medium block ${product.stockPieces > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
-              {product.stockPieces > 0 ? `${product.stockPieces} in stock` : 'Order on request'}
+              {product.stockPieces > 0
+                ? (isThai ? `มีสินค้า ${product.stockPieces} แผ่น` : `${product.stockPieces} in stock`)
+                : (isThai ? 'สั่งผลิตตามรอบ' : 'Order on request')}
             </span>
             <Link
               href={`/products/${product.slug}`}
               className="text-[10px] uppercase font-semibold text-gold hover:underline tracking-wider inline-block mt-0.5"
             >
-              Configure →
+              {isThai ? 'ดูรายละเอียด →' : 'Configure →'}
             </Link>
           </div>
         </div>

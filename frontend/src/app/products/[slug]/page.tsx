@@ -122,20 +122,22 @@ export default function ProductDetailPage() {
                 <span className="text-3xl font-normal font-heading text-txt-main font-mono">
                   ฿{product.pricePerPiece.toLocaleString()}
                 </span>
-                <span className="text-xs text-txt-muted ml-1">/ piece</span>
+                <span className="text-xs text-txt-muted ml-1">/ {isThai ? 'แผ่น' : 'piece'}</span>
               </div>
               <div className="text-right">
                 <span className="text-sm font-semibold text-txt-main font-mono">
                   ฿{product.pricePerBox.toLocaleString()}
                 </span>
-                <span className="text-xs text-txt-muted ml-1">/ box ({piecesPerBox} pcs)</span>
+                <span className="text-xs text-txt-muted ml-1">/ {isThai ? 'กล่อง' : 'box'} ({piecesPerBox} {isThai ? 'แผ่น' : 'pcs'})</span>
               </div>
             </div>
 
             <div className="text-xs text-txt-muted border-t border-border-subtle pt-3 flex justify-between">
-              <span>Inventory Status:</span>
+              <span>{isThai ? 'สถานะสินค้าคงคลัง:' : 'Inventory Status:'}</span>
               <span className={`font-semibold ${product.stockPieces > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
-                {product.stockPieces > 0 ? `${product.stockPieces} pieces in stock` : 'Order on request'}
+                {product.stockPieces > 0
+                  ? (isThai ? `มีสินค้าพร้อมส่ง ${product.stockPieces} แผ่น` : `${product.stockPieces} pieces in stock`)
+                  : (isThai ? 'สั่งผลิตตามรอบ' : 'Order on request')}
               </span>
             </div>
           </div>

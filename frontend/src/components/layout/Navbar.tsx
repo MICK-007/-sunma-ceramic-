@@ -10,7 +10,7 @@ import { ShoppingBag, Search, User as UserIcon, Menu, X, ShieldAlert } from 'luc
 
 export const Navbar = () => {
   const pathname = usePathname();
-  const { t, language } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const isThai = language === 'TH';
   const { user, isAdmin } = useAuth();
   const { totalItemsCount } = useCart();
@@ -33,11 +33,10 @@ export const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/shop', label: 'Collections' },
-    { href: '/categories', label: 'Category' },
-    { href: '/about', label: 'About' },
-    { href: '/contact', label: 'Contact' },
+    { href: '/', label: isThai ? 'หน้าแรก' : 'Home' },
+    { href: '/shop', label: isThai ? 'คอลเลกชัน' : 'Collections' },
+    { href: '/about', label: isThai ? 'เกี่ยวกับเรา' : 'About' },
+    { href: '/contact', label: isThai ? 'ติดต่อเรา' : 'Contact' },
   ];
 
   const isTransparent = isHome && !isScrolled;
@@ -132,6 +131,22 @@ export const Navbar = () => {
             )}
           </Link>
 
+          {/* Language Switcher (TH | EN) */}
+          <button
+            onClick={() => setLanguage(language === 'TH' ? 'EN' : 'TH')}
+            className={`flex items-center text-xs tracking-wider font-medium px-2 py-1 rounded transition-colors ${
+              isTransparent
+                ? 'text-white/90 hover:text-white drop-shadow-sm'
+                : 'text-neutral-700 hover:text-neutral-900'
+            }`}
+            title={language === 'TH' ? 'Switch to English' : 'เปลี่ยนเป็นภาษาไทย'}
+            aria-label="Toggle language"
+          >
+            <span className={language === 'TH' ? 'font-bold underline underline-offset-4' : 'opacity-60'}>TH</span>
+            <span className="mx-1 opacity-40">|</span>
+            <span className={language === 'EN' ? 'font-bold underline underline-offset-4' : 'opacity-60'}>EN</span>
+          </button>
+
           {/* Mobile Menu Toggle (hidden on desktop per user instruction) */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -165,6 +180,20 @@ export const Navbar = () => {
               {link.label}
             </Link>
           ))}
+
+          {/* Mobile Language Switcher */}
+          <div className="pt-3 border-t border-neutral-100 flex items-center justify-between">
+            <span className="text-xs text-neutral-500 font-medium">ภาษา / Language:</span>
+            <button
+              onClick={() => setLanguage(language === 'TH' ? 'EN' : 'TH')}
+              className="text-xs font-semibold px-3 py-1 bg-neutral-100 rounded text-neutral-900 flex items-center gap-1.5"
+            >
+              <span className={language === 'TH' ? 'text-amber-800 font-bold' : 'text-neutral-400'}>TH</span>
+              <span>/</span>
+              <span className={language === 'EN' ? 'text-amber-800 font-bold' : 'text-neutral-400'}>EN</span>
+            </button>
+          </div>
+
           {isAdmin && (
             <Link
               href="/admin"
