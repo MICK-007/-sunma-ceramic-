@@ -60,16 +60,6 @@ const CATEGORIES: TileCategoryCard[] = [
     image: '/images/rooms/poolside.png',
     href: '/shop?category=outdoor-tiles',
   },
-  {
-    id: 'wood-look',
-    slug: 'wood-look-tiles',
-    nameEn: 'Wood Look Tiles',
-    nameTh: 'กระเบื้องลายไม้',
-    descEn: 'Embossed architectural wood grain planks with zero maintenance',
-    descTh: 'กระเบื้องพอร์ซเลนลายไม้ธรรมชาติ สัมผัสเสมือนไม้จริง ไม่กลัวน้ำ',
-    image: '/images/tiles/sandstone-beige.jpeg',
-    href: '/shop?category=wood-look-tiles',
-  },
 ];
 
 export const TileCategoriesGrid: React.FC = () => {
@@ -81,20 +71,25 @@ export const TileCategoriesGrid: React.FC = () => {
     api.getCategories()
       .then((res) => {
         if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-          const mapped = res.data.slice(0, 5).map((bCat: any) => {
-            const fallback = CATEGORIES.find((c) => c.slug === bCat.slug) || CATEGORIES[0];
-            return {
-              id: String(bCat.id || fallback.id),
-              slug: bCat.slug || fallback.slug,
-              nameEn: bCat.nameEn || fallback.nameEn,
-              nameTh: bCat.nameTh || fallback.nameTh,
-              descEn: fallback.descEn,
-              descTh: fallback.descTh,
-              image: bCat.imageUrl || fallback.image,
-              href: `/shop?category=${bCat.slug || fallback.slug}`,
-            };
-          });
-          setCategoriesList(mapped);
+          const mapped = res.data
+            .filter((bCat: any) => bCat.slug !== 'wood-look-tiles')
+            .slice(0, 4)
+            .map((bCat: any) => {
+              const fallback = CATEGORIES.find((c) => c.slug === bCat.slug) || CATEGORIES[0];
+              return {
+                id: String(bCat.id || fallback.id),
+                slug: bCat.slug || fallback.slug,
+                nameEn: bCat.nameEn || fallback.nameEn,
+                nameTh: bCat.nameTh || fallback.nameTh,
+                descEn: fallback.descEn,
+                descTh: fallback.descTh,
+                image: bCat.imageUrl || fallback.image,
+                href: `/shop?category=${bCat.slug || fallback.slug}`,
+              };
+            });
+          if (mapped.length > 0) {
+            setCategoriesList(mapped);
+          }
         }
       })
       .catch(() => {});
@@ -113,8 +108,8 @@ export const TileCategoriesGrid: React.FC = () => {
           </h2>
         </div>
 
-        {/* 5-Column Tall Portrait Cards matching Image 2 (aspect-[3/4]) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 sm:gap-6">
+        {/* 4-Column Tall Portrait Cards matching Image 2 (aspect-[3/4] with generous gap) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {categoriesList.map((cat) => (
             <Link
               key={cat.id}
