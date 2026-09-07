@@ -98,7 +98,9 @@ function AccountContent() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-gold block">
-              {isUserAdmin ? 'EXECUTIVE ADMIN ACCOUNT' : 'MY ARCHITECTURAL ACCOUNT'}
+              {isUserAdmin
+                ? (isThai ? 'บัญชีผู้ดูแลระดับผู้บริหาร (EXECUTIVE ADMIN ACCOUNT)' : 'EXECUTIVE ADMIN ACCOUNT')
+                : (isThai ? 'บัญชีผู้ใช้งานของฉัน' : 'MY ARCHITECTURAL ACCOUNT')}
             </span>
             {isUserAdmin && (
               <span className="px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider bg-gold/15 text-gold border border-gold/40 rounded-[2px] inline-flex items-center gap-1">
@@ -426,7 +428,7 @@ function AccountContent() {
                   {order.items?.map((item: any) => (
                     <div key={item.id} className="flex justify-between text-xs py-1">
                       <span className="text-txt-main font-semibold">
-                        {item.productName} ({item.quantity} pcs)
+                        {item.productName} ({item.quantity} {isThai ? 'แผ่น' : 'pcs'})
                       </span>
                       <span className="text-gold font-mono">฿{item.totalPrice?.toLocaleString()}</span>
                     </div>
@@ -438,7 +440,10 @@ function AccountContent() {
                   <div className="bg-bg-secondary/40 p-3 rounded-[2px] border border-border-subtle text-[11px] text-txt-muted flex items-center gap-2">
                     <FileText className="w-4 h-4 text-gold shrink-0" />
                     <span>
-                      Tax Invoice Requested for: <strong>{order.taxInvoiceDetails?.companyName}</strong> (Tax ID: {order.taxInvoiceDetails?.taxId})
+                      {isThai
+                        ? `ขอใบกำกับภาษีในนาม: `
+                        : 'Tax Invoice Requested for: '}
+                      <strong>{order.taxInvoiceDetails?.companyName}</strong> ({isThai ? 'เลขประจำตัวผู้เสียภาษี:' : 'Tax ID:'} {order.taxInvoiceDetails?.taxId})
                     </span>
                   </div>
                 )}
@@ -453,7 +458,7 @@ function AccountContent() {
         <div>
           {wishlistProducts.length === 0 ? (
             <div className="bg-bg-card border border-border-subtle p-12 text-center rounded-[2px] text-txt-muted font-medium text-xs shadow-sm">
-              No saved wishlist products.
+              {isThai ? 'ยังไม่มีสินค้าในรายการโปรด' : 'No saved wishlist products.'}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -469,24 +474,24 @@ function AccountContent() {
       {activeTab === 'profile' && (
         <div className="bg-bg-card border border-border-subtle rounded-[2px] p-6 max-w-xl space-y-4 text-xs shadow-sm">
           <h3 className="font-heading text-sm font-bold text-gold uppercase tracking-wider border-b border-border-subtle pb-3">
-            Architect Profile Details
+            {isThai ? 'ข้อมูลบัญชีผู้ใช้งาน' : 'Architect Profile Details'}
           </h3>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <span className="text-txt-muted font-medium block">Full Name:</span>
+              <span className="text-txt-muted font-medium block">{isThai ? 'ชื่อ-นามสกุล:' : 'Full Name:'}</span>
               <span className="text-txt-main font-bold">{user.fullName}</span>
             </div>
             <div>
-              <span className="text-txt-muted font-medium block">Email:</span>
+              <span className="text-txt-muted font-medium block">{isThai ? 'อีเมล:' : 'Email:'}</span>
               <span className="text-txt-main font-bold">{user.email}</span>
             </div>
             <div>
-              <span className="text-txt-muted font-medium block">Phone:</span>
+              <span className="text-txt-muted font-medium block">{isThai ? 'เบอร์โทรศัพท์:' : 'Phone:'}</span>
               <span className="text-txt-main font-bold">{user.phone || 'N/A'}</span>
             </div>
             <div>
-              <span className="text-txt-muted font-medium block">Account Role:</span>
+              <span className="text-txt-muted font-medium block">{isThai ? 'ระดับสิทธิ์บัญชี:' : 'Account Role:'}</span>
               <Badge variant={user.role === 'ADMIN' ? 'gold' : 'stone'}>{user.role}</Badge>
             </div>
           </div>

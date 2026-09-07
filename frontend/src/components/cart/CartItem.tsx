@@ -9,7 +9,8 @@ import { useLanguage } from '@/context/LanguageContext';
 
 export const CartItem: React.FC<{ item: CartItemType }> = ({ item }) => {
   const { updateQuantity, removeItem } = useCart();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const isThai = language === 'TH';
 
   const product = item.product || {};
   const piecesPerBox = product.piecesPerBox || 4;
@@ -35,13 +36,23 @@ export const CartItem: React.FC<{ item: CartItemType }> = ({ item }) => {
             href={`/products/${product.slug}`}
             className="font-heading text-sm font-bold text-txt-main hover:text-gold transition-colors line-clamp-1"
           >
-            {product.name}
+            {isThai && product.nameTh ? product.nameTh : product.name}
           </Link>
           <div className="text-[11px] text-txt-muted mt-0.5">
-            Size: {product.size} • {product.surface} Surface
+            {isThai
+              ? `ขนาด: ${product.size} ซม. • ผิว${product.surface}`
+              : `Size: ${product.size} • ${product.surface} Surface`}
           </div>
           <div className="text-[10px] text-txt-muted mt-1">
-            ฿{item.unitPrice.toLocaleString()} / piece • approx. {calculatedBoxes} boxes ({piecesPerBox} pcs/box)
+            {isThai ? (
+              <>
+                ฿{item.unitPrice.toLocaleString()} / แผ่น • ประมาณ {calculatedBoxes} กล่อง ({piecesPerBox} แผ่น/กล่อง)
+              </>
+            ) : (
+              <>
+                ฿{item.unitPrice.toLocaleString()} / piece • approx. {calculatedBoxes} boxes ({piecesPerBox} pcs/box)
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -56,7 +67,7 @@ export const CartItem: React.FC<{ item: CartItemType }> = ({ item }) => {
             <Minus className="w-3.5 h-3.5" />
           </button>
           <span className="w-12 text-center text-xs font-bold text-txt-main">
-            {item.quantity} pcs
+            {item.quantity} {isThai ? 'แผ่น' : 'pcs'}
           </span>
           <button
             onClick={() => updateQuantity(item.id, item.quantity + 1)}
@@ -76,7 +87,7 @@ export const CartItem: React.FC<{ item: CartItemType }> = ({ item }) => {
           <button
             onClick={() => removeItem(item.id)}
             className="text-txt-muted hover:text-red-500 p-1.5 transition-colors"
-            title="Remove item"
+            title={isThai ? 'ลบรายการนี้' : 'Remove item'}
           >
             <Trash2 className="w-4 h-4" />
           </button>

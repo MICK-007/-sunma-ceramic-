@@ -127,7 +127,9 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
             {t.roomStudio.subtitle}
           </h1>
           <p className="text-xs text-txt-muted mt-1">
-            Seamless texture repeat simulation calibrated for physical tile dimensions (60x60, 60x120, 30x60).
+            {isThai
+              ? 'ระบบจำลองลวดลายต่อเนื่องคำนวณตามสัดส่วนกระเบื้องจริง (60x60, 60x120, 30x60 ซม.)'
+              : 'Seamless texture repeat simulation calibrated for physical tile dimensions (60x60, 60x120, 30x60).'}
           </p>
         </div>
 
@@ -186,9 +188,13 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
                 >
                   <div>
                     <span className="block font-semibold">{area.name}</span>
-                    <span className="text-[9px] text-txt-muted uppercase tracking-wider">{area.areaType} Zone</span>
+                    <span className="text-[9px] text-txt-muted uppercase tracking-wider">
+                      {isThai
+                        ? `โซน${area.areaType === 'Floor' ? 'พื้น' : area.areaType === 'Wall' ? 'ผนัง' : 'ผนังครัว'}`
+                        : `${area.areaType} Zone`}
+                    </span>
                   </div>
-                  {activeArea?.id === area.id && <Badge variant="gold">Active</Badge>}
+                  {activeArea?.id === area.id && <Badge variant="gold">{isThai ? 'เลือกอยู่' : 'Active'}</Badge>}
                 </button>
               ))}
             </div>
@@ -267,7 +273,9 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
             {/* Active Area Indicator Tag */}
             <div className="absolute top-4 left-4 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-[2px] border border-gold/40 text-[10px] font-bold text-gold uppercase tracking-wider flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-gold animate-ping" />
-              Viewing: {activeArea?.name} {selectedTile ? `(${selectedTile.name})` : '(Original Base Floor)'}
+              {isThai
+                ? `กำลังดู: ${activeArea?.name} ${selectedTile ? `(${selectedTile.nameTh || selectedTile.name})` : '(พื้นเดิม)'}`
+                : `Viewing: ${activeArea?.name} ${selectedTile ? `(${selectedTile.name})` : '(Original Base Floor)'}`}
             </div>
           </div>
 
@@ -276,24 +284,32 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
             {selectedTile ? (
               <>
                 <div>
-                  <span className="text-txt-muted uppercase text-[10px] block font-medium tracking-wider">Active Tile Surface</span>
-                  <span className="font-heading font-bold text-txt-main">{selectedTile.name}</span>
+                  <span className="text-txt-muted uppercase text-[10px] block font-medium tracking-wider">
+                    {isThai ? 'กระเบื้องที่กำลังจำลอง' : 'Active Tile Surface'}
+                  </span>
+                  <span className="font-heading font-bold text-txt-main">
+                    {isThai && selectedTile.nameTh ? selectedTile.nameTh : selectedTile.name}
+                  </span>
                   <span className="text-txt-muted ml-2 font-mono text-[11px]">({selectedTile.size} cm)</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-gold font-bold block">฿{selectedTile.pricePerPiece.toLocaleString()} / pc</span>
+                  <span className="text-gold font-bold block">
+                    ฿{selectedTile.pricePerPiece.toLocaleString()} / {isThai ? 'แผ่น' : 'pc'}
+                  </span>
                   <a
                     href={`/products/${selectedTile.slug}`}
                     className="text-[10px] text-txt-muted hover:text-gold transition-colors inline-flex items-center gap-1"
                   >
-                    Product Details <ArrowRight className="w-3 h-3" />
+                    {isThai ? 'ดูรายละเอียดสินค้า' : 'Product Details'} <ArrowRight className="w-3 h-3" />
                   </a>
                 </div>
               </>
             ) : (
               <div className="text-txt-muted text-xs italic flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-gold" />
-                เลือกลายกระเบื้องจากเมนูด้านขวามือ เพื่อแสดงผลจำลองบนพื้นห้อง
+                {isThai
+                  ? 'เลือกลายกระเบื้องจากเมนูด้านขวามือ เพื่อแสดงผลจำลองบนพื้นห้อง'
+                  : 'Select a tile design from the right panel to preview simulation.'}
               </div>
             )}
           </div>
@@ -333,7 +349,7 @@ export const RoomStudioCanvas: React.FC<RoomStudioProps> = ({
                         {tile.size}
                       </span>
                       <span className="text-xs font-bold text-txt-main line-clamp-1 group-hover:text-gold transition-colors">
-                        {tile.name}
+                        {isThai && tile.nameTh ? tile.nameTh : tile.name}
                       </span>
                       <span className="text-[10px] font-bold text-gold block mt-0.5">
                         ฿{tile.pricePerPiece}

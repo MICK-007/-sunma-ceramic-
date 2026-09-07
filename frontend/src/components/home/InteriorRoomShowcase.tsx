@@ -127,7 +127,7 @@ export const InteriorRoomShowcase: React.FC = () => {
                   onClick={() => setLivingPopupOpen(true)}
                   className="bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-[2px] shadow-lg text-xs font-semibold uppercase tracking-wider text-neutral-900 border border-neutral-200 hover:bg-white transition"
                 >
-                  + Show Tile Spec
+                  {isThai ? '+ แสดงสเปกกระเบื้อง' : '+ Show Tile Spec'}
                 </button>
               )}
             </div>
@@ -245,7 +245,7 @@ export const InteriorRoomShowcase: React.FC = () => {
                   onClick={() => setKitchenPopupOpen(true)}
                   className="bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-[2px] shadow-lg text-xs font-semibold uppercase tracking-wider text-neutral-900 border border-neutral-200 hover:bg-white transition"
                 >
-                  + Show Kitchen Spec
+                  {isThai ? '+ แสดงสเปกกระเบื้องไอแลนด์' : '+ Show Kitchen Spec'}
                 </button>
               )}
             </div>

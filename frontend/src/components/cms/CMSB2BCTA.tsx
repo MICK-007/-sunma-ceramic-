@@ -16,11 +16,24 @@ export interface CMSB2BCTAProps {
   };
 }
 
+import { useLanguage } from '@/context/LanguageContext';
+
 export const CMSB2BCTA: React.FC<CMSB2BCTAProps> = ({ content }) => {
-  const subtitle = content.subtitle || 'ARCHITECT & CONTRACTOR SERVICES';
-  const title = content.title || 'Architect & Commercial Project Supply';
-  const description = content.settings?.description || 'Special wholesale rates, custom slab cutting, sample kits, and project specifier support for architects, interior designers, and real estate developers.';
-  const buttonLabel = content.settings?.buttonLabel || 'Request Project Quote';
+  const { language } = useLanguage();
+  const isThai = language === 'TH';
+
+  const subtitle = isThai
+    ? 'บริการสำหรับสถาปนิกและผู้รับเหมา'
+    : (content.subtitle || 'ARCHITECT & CONTRACTOR SERVICES');
+  const title = isThai
+    ? 'จัดหากระเบื้องสำหรับโครงการสถาปัตยกรรมและพาณิชย์'
+    : (content.title || 'Architect & Commercial Project Supply');
+  const description = isThai
+    ? 'ราคาส่งพิเศษสำหรับโครงการ บริการตัดแผ่นสแลปตามแบบ ชุดตัวอย่างกระเบื้อง และทีมสนับสนุนงานสเปกสำหรับสถาปนิก อินทีเรียร์ และผู้พัฒนาอสังหาริมทรัพย์'
+    : (content.settings?.description || 'Special wholesale rates, custom slab cutting, sample kits, and project specifier support for architects, interior designers, and real estate developers.');
+  const buttonLabel = isThai
+    ? 'ขอใบเสนอราคาโครงการ'
+    : (content.settings?.buttonLabel || 'Request Project Quote');
   const buttonUrl = sanitizeUrl(content.settings?.buttonUrl, '/contact');
 
   return (

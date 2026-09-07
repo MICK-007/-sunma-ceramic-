@@ -215,7 +215,7 @@ export const Navbar = () => {
               onClick={() => setMobileMenuOpen(false)}
               className="block text-xs font-semibold uppercase tracking-wider text-amber-800 py-1"
             >
-              Admin Portal
+              {isThai ? 'ระบบจัดการหลังบ้าน' : 'Admin Portal'}
             </Link>
           )}
         </div>

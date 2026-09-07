@@ -54,9 +54,11 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center space-y-4">
-        <h2 className="text-xl font-heading font-normal text-txt-main">Product Not Found</h2>
+        <h2 className="text-xl font-heading font-normal text-txt-main">
+          {isThai ? 'ไม่พบข้อมูลสินค้า' : 'Product Not Found'}
+        </h2>
         <Link href="/shop">
-          <Button variant="gold">Return to Catalog</Button>
+          <Button variant="gold">{isThai ? 'กลับไปยังแคตตาล็อก' : 'Return to Catalog'}</Button>
         </Link>
       </div>
     );
@@ -71,10 +73,10 @@ export default function ProductDetailPage() {
     setFeedbackMsg('');
     const res = await addToCart(product.id, quantity, product);
     if (res.success) {
-      setFeedbackMsg('Item added to your shopping cart!');
+      setFeedbackMsg(isThai ? 'เพิ่มสินค้าลงในตระกร้าเรียบร้อยแล้ว!' : 'Item added to your shopping cart!');
       setTimeout(() => setFeedbackMsg(''), 4000);
     } else if (res.message) {
-      setFeedbackMsg(res.message);
+      setFeedbackMsg(isThai ? 'กรุณาเข้าสู่ระบบเพื่อเพิ่มสินค้าลงในตระกร้า' : res.message);
     }
   };
 
@@ -108,8 +110,8 @@ export default function ProductDetailPage() {
 
             <div className="flex items-center gap-2 pt-1">
               <Badge variant="gold">{product.size} cm</Badge>
-              <Badge variant="stone">{product.material}</Badge>
-              <Badge variant="stone">{product.surface} Surface</Badge>
+              <Badge variant="stone">{isThai ? (product.material === 'Porcelain' ? 'พอร์ซเลน' : product.material === 'Ceramic' ? 'เซรามิก' : product.material) : product.material}</Badge>
+              <Badge variant="stone">{isThai ? `ผิว${product.surface}` : `${product.surface} Surface`}</Badge>
             </div>
           </div>
 
@@ -192,7 +194,15 @@ export default function ProductDetailPage() {
               </div>
 
               <div className="text-xs text-txt-muted font-light">
-                = approx. <span className="text-txt-main font-semibold font-mono">{calculatedBoxes}</span> boxes (Total: <span className="text-txt-main font-semibold font-mono">฿{totalPrice.toLocaleString()}</span>)
+                {isThai ? (
+                  <>
+                    = ประมาณ <span className="text-txt-main font-semibold font-mono">{calculatedBoxes}</span> กล่อง (รวม: <span className="text-txt-main font-semibold font-mono">฿{totalPrice.toLocaleString()}</span>)
+                  </>
+                ) : (
+                  <>
+                    = approx. <span className="text-txt-main font-semibold font-mono">{calculatedBoxes}</span> boxes (Total: <span className="text-txt-main font-semibold font-mono">฿{totalPrice.toLocaleString()}</span>)
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -211,8 +221,8 @@ export default function ProductDetailPage() {
                     ? 'bg-gold text-white border-gold shadow-xs'
                     : 'border-border-subtle text-txt-muted hover:border-gold hover:text-gold bg-bg-card'
                 }`}
-                title="Save to Wishlist"
-                aria-label="Save to Wishlist"
+                title={isThai ? 'บันทึกในรายการโปรด' : 'Save to Wishlist'}
+                aria-label={isThai ? 'บันทึกในรายการโปรด' : 'Save to Wishlist'}
               >
                 <Heart className={`w-5 h-5 ${isFav ? 'fill-current text-white' : ''}`} />
               </button>

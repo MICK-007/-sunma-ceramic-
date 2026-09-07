@@ -14,7 +14,8 @@ import { ArrowRight, ShoppingBag, ShieldCheck } from 'lucide-react';
 export default function CartPage() {
   const { items, subtotal, totalItemsCount } = useCart();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isThai = language === 'TH';
 
   const shippingFee = subtotal > 15000 ? 0 : 500;
   const taxAmount = Math.round(subtotal * 0.07);
@@ -27,7 +28,7 @@ export default function CartPage() {
       <div className="border-b border-border-subtle pb-4">
         <h1 className="font-heading text-3xl font-bold text-txt-main flex items-center gap-3">
           <ShoppingBag className="w-7 h-7 text-gold" />
-          {t.cart.title} ({totalItemsCount} pieces)
+          {t.cart.title} ({totalItemsCount} {isThai ? 'แผ่น' : 'pieces'})
         </h1>
       </div>
 
@@ -35,7 +36,7 @@ export default function CartPage() {
         <EmptyState
           title={t.cart.emptyTitle}
           description={t.cart.emptyDesc}
-          actionText="Explore Tile Catalog"
+          actionText={isThai ? 'เลือกชมแคตตาล็อกกระเบื้อง' : 'Explore Tile Catalog'}
           onAction={() => (window.location.href = '/shop')}
         />
       ) : (
@@ -51,7 +52,7 @@ export default function CartPage() {
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-bg-card border border-border-subtle rounded-[2px] p-6 space-y-4 shadow-sm">
               <h3 className="font-heading text-sm font-bold text-gold uppercase tracking-wider border-b border-border-subtle pb-3">
-                Order Summary
+                {isThai ? 'สรุปคำสั่งซื้อ' : 'Order Summary'}
               </h3>
 
               <div className="space-y-2.5 text-xs">
@@ -66,7 +67,7 @@ export default function CartPage() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-txt-muted">Est. VAT (7%)</span>
+                  <span className="text-txt-muted">{isThai ? 'ภาษีมูลค่าเพิ่มโดยประมาณ (7%)' : 'Est. VAT (7%)'}</span>
                   <span className="font-bold text-txt-main">฿{taxAmount.toLocaleString()}</span>
                 </div>
                 <div className="border-t border-border-subtle pt-3 flex justify-between text-sm">
@@ -91,9 +92,9 @@ export default function CartPage() {
                 </Link>
               )}
 
-              <div className="pt-2 text-[10px] text-txt-muted flex items-center justify-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-gold" />
-                Guaranteed SUNMA Factory Inspection & Direct Logistics
+              <div className="pt-2 text-[10px] text-txt-muted flex items-center justify-center gap-1.5 text-center">
+                <ShieldCheck className="w-3.5 h-3.5 text-gold shrink-0" />
+                <span>{isThai ? 'รับประกันการตรวจสอบคุณภาพมาตรฐาน SUNMA และบริการจัดส่งโดยตรง' : 'Guaranteed SUNMA Factory Inspection & Direct Logistics'}</span>
               </div>
             </div>
           </div>

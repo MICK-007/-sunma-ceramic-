@@ -77,8 +77,8 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
               ? 'bg-gold text-white border-gold shadow-md scale-105'
               : 'bg-white/80 backdrop-blur-md text-txt-main border-border-subtle hover:text-gold hover:border-gold shadow-xs'
           }`}
-          title="Save to Wishlist"
-          aria-label="Save to Wishlist"
+          title={isThai ? 'บันทึกในรายการโปรด' : 'Save to Wishlist'}
+          aria-label={isThai ? 'บันทึกในรายการโปรด' : 'Save to Wishlist'}
         >
           <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-current text-white' : ''}`} />
         </button>
@@ -90,7 +90,7 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
             className="px-3.5 py-2 bg-white/90 hover:bg-white text-txt-main rounded-[2px] text-[10.5px] font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-sm"
           >
             <Eye className="w-3.5 h-3.5" />
-            Specs
+            {isThai ? 'ข้อมูลสเปก' : 'Specs'}
           </Link>
           <Link
             href={`/room-studio?tile=${product.slug}`}
@@ -117,7 +117,9 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
           </Link>
 
           <p className="text-[11.5px] text-txt-muted mt-1 line-clamp-1 font-light">
-            {product.material} • {product.surface} Surface
+            {isThai
+              ? `${product.material === 'Porcelain' ? 'พอร์ซเลน' : product.material === 'Ceramic' ? 'เซรามิก' : product.material} • ผิว${product.surface}`
+              : `${product.material} • ${product.surface} Surface`}
           </p>
         </div>
 

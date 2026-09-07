@@ -11,7 +11,8 @@ import { UserPlus } from 'lucide-react';
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isThai = language === 'TH';
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -128,11 +129,11 @@ export default function RegisterPage() {
 
         <Button type="submit" variant="gold" size="lg" className="w-full rounded-[2px]" disabled={isSubmitting || username.length < 3 || password.length < 8}>
           <UserPlus className="w-4 h-4 mr-2" />
-          {isSubmitting ? 'Creating Account...' : t.nav.register}
+          {isSubmitting ? (isThai ? 'กำลังสร้างบัญชี...' : 'Creating Account...') : t.nav.register}
         </Button>
 
         <div className="pt-2 border-t border-border-subtle flex items-center justify-between text-xs text-txt-muted">
-          <span>Already registered?</span>
+          <span>{isThai ? 'มีบัญชีอยู่แล้ว?' : 'Already registered?'}</span>
           <Link href="/login" className="text-gold font-bold hover:underline">
             {t.nav.login}
           </Link>

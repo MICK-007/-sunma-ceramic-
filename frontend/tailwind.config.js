@@ -43,8 +43,9 @@ module.exports = {
         },
       },
       fontFamily: {
-        heading: ['var(--font-heading)', 'Playfair Display', 'Cinzel', 'Didot', 'serif'],
-        body: ['var(--font-body)', 'Inter', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-heading)', 'var(--font-thai)', 'Playfair Display', 'Cinzel', 'Didot', 'serif'],
+        body: ['var(--font-body)', 'var(--font-thai)', 'Inter', 'system-ui', 'sans-serif'],
+        thai: ['var(--font-thai)', 'sans-serif'],
         mono: ['var(--font-mono)', 'monospace'],
       },
       letterSpacing: {

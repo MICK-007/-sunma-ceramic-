@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Gem, ArrowRight, Sparkles } from 'lucide-react';
 import { sanitizeUrl } from '@/lib/cms-utils';
 import { resolveMediaUrl } from '@/lib/media';
+import { useLanguage } from '@/context/LanguageContext';
 
 export interface CMSHeroProps {
   content: {
@@ -23,14 +24,29 @@ export interface CMSHeroProps {
 }
 
 export const CMSHero: React.FC<CMSHeroProps> = ({ content }) => {
+  const { language } = useLanguage();
+  const isThai = language === 'TH';
+
   const settings = content.settings || {};
-  const eyebrow = settings.eyebrow || 'LUXURY CERAMIC TILES';
-  const headline = content.title || 'ARCHITECTURAL SURFACE ATELIER';
-  const description = content.subtitle || 'Discover Thailand\'s finest curated porcelain slabs, relief wall tiles, and engineered architectural surface solutions.';
+  const isDefaultEyebrow = !settings.eyebrow || settings.eyebrow === 'LUXURY CERAMIC TILES';
+  const eyebrow = isThai && isDefaultEyebrow
+    ? 'กระเบื้องสถาปัตยกรรมระดับพรีเมียม'
+    : (settings.eyebrow || 'LUXURY CERAMIC TILES');
+
+  const isDefaultHeadline = !content.title || content.title === 'ARCHITECTURAL SURFACE ATELIER';
+  const headline = isThai && isDefaultHeadline
+    ? 'สตูดิโอกระเบื้องสถาปัตยกรรมและพื้นผิวระดับพรีเมียม'
+    : (content.title || 'ARCHITECTURAL SURFACE ATELIER');
+
+  const isDefaultDesc = !content.subtitle || content.subtitle === "Discover Thailand's finest curated porcelain slabs, relief wall tiles, and engineered architectural surface solutions.";
+  const description = isThai && isDefaultDesc
+    ? 'ค้นพบคอลเลกชันแผ่นพอร์ซเลนสแลป กระเบื้องผนังลายนูน และโซลูชันพื้นผิวสถาปัตยกรรมระดับพรีเมียมในประเทศไทย'
+    : (content.subtitle || "Discover Thailand's finest curated porcelain slabs, relief wall tiles, and engineered architectural surface solutions.");
+
   const bgImage = resolveMediaUrl(settings.bgImage) || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=90';
-  const btn1Label = settings.btn1Label || 'Explore Catalog';
+  const btn1Label = isThai ? 'สำรวจคอลเลกชัน' : (settings.btn1Label || 'Explore Catalog');
   const btn1Url = sanitizeUrl(settings.btn1Url, '/shop');
-  const btn2Label = settings.btn2Label || 'Try Room Studio';
+  const btn2Label = isThai ? 'ทดลองจำลองห้อง Room Studio' : (settings.btn2Label || 'Try Room Studio');
   const btn2Url = sanitizeUrl(settings.btn2Url, '/room-studio');
 
   return (

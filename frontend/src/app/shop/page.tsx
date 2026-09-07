@@ -103,7 +103,7 @@ function ShopContent() {
       <div className="border-b border-border-subtle pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <span className="text-[11px] uppercase font-semibold tracking-[0.25em] text-gold block">
-            FULL CERAMIC & ARCHITECTURAL SLAB CATALOG
+            {isThai ? 'แคตตาล็อกกระเบื้องและแผ่นหินสถาปัตยกรรมทั้งหมด' : 'FULL CERAMIC & ARCHITECTURAL SLAB CATALOG'}
           </span>
           <h1 className="font-heading text-3xl sm:text-4xl font-normal text-txt-main">
             {t.shop.title}
@@ -112,14 +112,14 @@ function ShopContent() {
 
         <div className="flex items-center gap-3">
           <div className="text-xs text-txt-muted font-medium">
-            {products.length} Products Found
+            {isThai ? `พบสินค้า ${products.length} รายการ` : `${products.length} Products Found`}
           </div>
           <button
             onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
             className="md:hidden border border-border-subtle p-2 rounded-[2px] text-txt-main text-xs font-semibold flex items-center gap-1.5"
           >
             <SlidersHorizontal className="w-4 h-4" />
-            Filters
+            {isThai ? 'ตัวกรอง' : 'Filters'}
           </button>
         </div>
       </div>
@@ -174,7 +174,11 @@ function ShopContent() {
           ) : products.length === 0 ? (
             <EmptyState
               title={t.shop.noProducts}
-              description="Try adjusting search terms, clearing size parameters, or choosing another category."
+              description={
+                isThai
+                  ? 'ลองปรับคำค้นหา ล้างตัวกรองขนาด หรือเลือกหมวดหมู่อื่นเพื่อค้นหากระเบื้องที่ต้องการ'
+                  : 'Try adjusting search terms, clearing size parameters, or choosing another category.'
+              }
               actionText={t.shop.resetFilters}
               onAction={handleResetFilters}
             />
@@ -197,7 +201,7 @@ function ShopContent() {
                     <div className="flex items-center justify-between border-b border-border-subtle pb-3">
                       <div>
                         <span className="text-[10px] text-gold font-semibold uppercase tracking-[0.25em] block">
-                          COLLECTION DIVISION
+                          {isThai ? 'หมวดหมู่คอลเลกชัน' : 'COLLECTION DIVISION'}
                         </span>
                         <h2 className="font-heading text-2xl font-normal text-txt-main tracking-wide">
                           {isThai && cat.nameTh ? cat.nameTh : cat.name}
@@ -208,7 +212,10 @@ function ShopContent() {
                         href={`/shop?category=${cat.slug}`}
                         className="text-xs font-semibold text-gold uppercase hover:underline inline-flex items-center gap-1 tracking-wider"
                       >
-                        View all {cat.name} <ArrowRight className="w-3.5 h-3.5" />
+                        {isThai
+                          ? `ดูทั้งหมดในหมวด ${cat.nameTh || cat.name}`
+                          : `View all ${cat.name}`}{' '}
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
 

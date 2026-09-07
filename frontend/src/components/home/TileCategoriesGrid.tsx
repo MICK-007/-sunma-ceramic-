@@ -101,7 +101,7 @@ export const TileCategoriesGrid: React.FC = () => {
         {/* Header matching Image 2 */}
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-2.5">
           <span className="text-[11px] uppercase font-semibold tracking-[0.3em] text-gold block">
-            ARCHITECTURAL SERIES
+            {isThai ? 'ซีรีส์กระเบื้องสถาปัตยกรรม' : 'ARCHITECTURAL SERIES'}
           </span>
           <h2 className="font-heading text-3xl sm:text-4xl font-normal text-txt-main">
             {isThai ? 'คอลเลกชันกระเบื้องที่คัดสรร' : 'Curated Tile Collections'}

@@ -14,7 +14,8 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isThai = language === 'TH';
 
   const [recipientName, setRecipientName] = useState(user?.fullName || '');
   const [phone, setPhone] = useState(user?.phone || '');
@@ -45,12 +46,12 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!recipientName || !phone || !addressLine) {
-      setErrorMsg('Please complete all shipping address fields.');
+      setErrorMsg(isThai ? 'กรุณากรอกข้อมูลที่อยู่จัดส่งให้ครบถ้วน' : 'Please complete all shipping address fields.');
       return;
     }
 
     if (items.length === 0) {
-      setErrorMsg('Your cart is empty.');
+      setErrorMsg(isThai ? 'ตระกร้าสินค้าว่างเปล่า' : 'Your cart is empty.');
       return;
     }
 
@@ -85,10 +86,10 @@ export default function CheckoutPage() {
         setCompletedOrder(res.data);
         clearCart();
       } else {
-        setErrorMsg(res.message || 'Failed to process order.');
+        setErrorMsg(res.message || (isThai ? 'เกิดข้อผิดพลาดในการประมวลผลคำสั่งซื้อ' : 'Failed to process order.'));
       }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Server connection error.');
+      setErrorMsg(err.message || (isThai ? 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้' : 'Server connection error.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -111,34 +112,36 @@ export default function CheckoutPage() {
 
         <div className="bg-bg-card border border-border-subtle p-6 rounded-[2px] text-left text-xs space-y-3 shadow-sm">
           <div className="flex justify-between border-b border-border-subtle pb-2">
-            <span className="text-txt-muted font-medium">Order Reference:</span>
+            <span className="text-txt-muted font-medium">{isThai ? 'หมายเลขคำสั่งซื้อ:' : 'Order Reference:'}</span>
             <span className="font-bold text-gold font-mono">{completedOrder.orderNumber}</span>
           </div>
           <div className="flex justify-between border-b border-border-subtle pb-2">
-            <span className="text-txt-muted font-medium">Total Amount:</span>
+            <span className="text-txt-muted font-medium">{isThai ? 'ยอดรวมสุทธิ:' : 'Total Amount:'}</span>
             <span className="font-bold text-txt-main">฿{completedOrder.totalAmount?.toLocaleString()}</span>
           </div>
           <div className="flex justify-between border-b border-border-subtle pb-2">
-            <span className="text-txt-muted font-medium">Selected Payment Method:</span>
+            <span className="text-txt-muted font-medium">{isThai ? 'ช่องทางการชำระเงิน:' : 'Selected Payment Method:'}</span>
             <span className="font-bold text-gold">{completedOrder.paymentMethod}</span>
           </div>
 
           {completedOrder.paymentMethod === 'Bank Transfer' && (
             <div className="bg-bg-secondary/50 p-4 rounded-[2px] border border-border-subtle text-txt-muted space-y-1 mt-4">
-              <span className="text-gold font-bold uppercase tracking-wider text-[10px] block mb-1">SUNMA Bank Account for Transfer:</span>
-              <div>Bank: Kasikornbank (KBank)</div>
-              <div>Account Name: SUNMA CERAMIC CO., LTD.</div>
-              <div>Account No: 088-2-99999-1 (Siam Square Branch)</div>
+              <span className="text-gold font-bold uppercase tracking-wider text-[10px] block mb-1">
+                {isThai ? 'ข้อมูลบัญชีธนาคารสำหรับโอนเงิน:' : 'SUNMA Bank Account for Transfer:'}
+              </span>
+              <div>{isThai ? 'ธนาคาร: กสิกรไทย (Kasikornbank / KBank)' : 'Bank: Kasikornbank (KBank)'}</div>
+              <div>{isThai ? 'ชื่อบัญชี: บริษัท ซันม่า เซรามิก จำกัด' : 'Account Name: SUNMA CERAMIC CO., LTD.'}</div>
+              <div>{isThai ? 'เลขที่บัญชี: 088-2-99999-1 (สาขาสยามสแควร์)' : 'Account No: 088-2-99999-1 (Siam Square Branch)'}</div>
             </div>
           )}
         </div>
 
         <div className="pt-4 flex justify-center gap-4">
           <Button variant="gold" size="lg" onClick={() => router.push('/account')} className="rounded-[2px]">
-            View Order Status in Account
+            {isThai ? 'ดูสถานะคำสั่งซื้อในบัญชีของฉัน' : 'View Order Status in Account'}
           </Button>
           <Button variant="outline" size="lg" onClick={() => router.push('/shop')} className="rounded-[2px]">
-            Continue Shopping
+            {isThai ? 'เลือกซื้อสินค้าต่อ' : 'Continue Shopping'}
           </Button>
         </div>
       </div>
@@ -198,7 +201,7 @@ export default function CheckoutPage() {
                   required
                   value={addressLine}
                   onChange={e => setAddressLine(e.target.value)}
-                  placeholder="Street address, building, floor..."
+                  placeholder={isThai ? 'บ้านเลขที่, อาคาร, ชั้น, ซอย, ถนน...' : 'Street address, building, floor...'}
                   className="w-full bg-white border border-border-subtle rounded-[2px] p-2.5 text-txt-main focus:outline-none focus:border-gold"
                 />
               </div>
@@ -300,7 +303,7 @@ export default function CheckoutPage() {
                     type="text"
                     value={taxAddress}
                     onChange={e => setTaxAddress(e.target.value)}
-                    placeholder="Same as shipping if blank"
+                    placeholder={isThai ? 'หากเว้นว่างไว้จะใช้ที่อยู่เดียวกับที่อยู่จัดส่ง' : 'Same as shipping if blank'}
                     className="w-full bg-white border border-border-subtle rounded-[2px] p-2.5 text-txt-main focus:outline-none focus:border-gold"
                   />
                 </div>
@@ -354,16 +357,16 @@ export default function CheckoutPage() {
         <div className="lg:col-span-5 space-y-6">
           <div className="bg-bg-card border border-border-subtle rounded-[2px] p-6 space-y-4 shadow-sm">
             <h3 className="font-heading text-sm font-bold text-gold uppercase tracking-wider border-b border-border-subtle pb-3">
-              Order Summary ({items.length} Products)
+              {isThai ? `สรุปคำสั่งซื้อ (${items.length} รายการ)` : `Order Summary (${items.length} Products)`}
             </h3>
 
             <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
               {items.map(item => (
                 <div key={item.id} className="flex justify-between text-xs border-b border-border-subtle pb-2">
                   <div className="max-w-[70%]">
-                    <span className="font-bold text-txt-main block line-clamp-1">{item.product?.name}</span>
+                    <span className="font-bold text-txt-main block line-clamp-1">{isThai && item.product?.nameTh ? item.product.nameTh : item.product?.name}</span>
                     <span className="text-[10px] text-txt-muted">
-                      {item.quantity} pcs x ฿{item.unitPrice}
+                      {item.quantity} {isThai ? 'แผ่น' : 'pcs'} x ฿{item.unitPrice}
                     </span>
                   </div>
                   <span className="font-bold text-gold">
@@ -375,23 +378,23 @@ export default function CheckoutPage() {
 
             <div className="space-y-2 text-xs pt-3 border-t border-border-subtle">
               <div className="flex justify-between text-txt-muted">
-                <span>Subtotal</span>
+                <span>{isThai ? 'ยอดรวมสินค้า' : 'Subtotal'}</span>
                 <span className="font-bold text-txt-main">฿{subtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-txt-muted">
-                <span>Shipping</span>
+                <span>{isThai ? 'ค่าจัดส่ง' : 'Shipping'}</span>
                 <span className="font-bold text-emerald-600">
-                  {shippingFee === 0 ? 'FREE' : `฿${shippingFee}`}
+                  {shippingFee === 0 ? (isThai ? 'ฟรี' : 'FREE') : `฿${shippingFee}`}
                 </span>
               </div>
               <div className="flex justify-between text-sm font-bold pt-2 border-t border-border-subtle">
-                <span className="text-txt-main">Total Amount</span>
+                <span className="text-txt-main">{isThai ? 'ยอดชำระสุทธิ' : 'Total Amount'}</span>
                 <span className="text-gold font-heading text-lg">฿{totalAmount.toLocaleString()}</span>
               </div>
             </div>
 
             <Button type="submit" variant="gold" size="lg" className="w-full rounded-[2px]" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating Order...' : t.checkout.placeOrder}
+              {isSubmitting ? (isThai ? 'กำลังสร้างคำสั่งซื้อ...' : 'Creating Order...') : t.checkout.placeOrder}
             </Button>
           </div>
         </div>

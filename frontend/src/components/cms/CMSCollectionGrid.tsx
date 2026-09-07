@@ -41,14 +41,33 @@ const CollectionImage: React.FC<{ src: string; alt: string }> = ({ src, alt }) =
   );
 };
 
+import { useLanguage } from '@/context/LanguageContext';
+
 export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content }) => {
-  const subtitle = content.subtitle || 'ARCHITECTURAL SERIES';
-  const title = content.title || 'Curated Tile Collections';
+  const { language } = useLanguage();
+  const isThai = language === 'TH';
+
+  const subtitle = isThai
+    ? 'คอลเลกชันสถาปัตยกรรม'
+    : (content.subtitle || 'ARCHITECTURAL SERIES');
+  const title = isThai
+    ? 'คอลเลกชันกระเบื้องที่คัดสรร'
+    : (content.title || 'Curated Tile Collections');
+
   const items = (content.items || [])
     .filter(item => item.is_enabled !== false)
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
   if (items.length === 0) return null;
+
+  const getThaiDescription = (titleStr: string, defaultDesc?: string) => {
+    if (!isThai) return defaultDesc;
+    if (titleStr.includes('Calacatta')) return 'กระเบื้องหินอ่อน Calacatta สลับเส้นทองหรูหรา เหนือกาลเวลา';
+    if (titleStr.includes('Basaltic')) return 'หินชนวนภูเขาไฟและแผ่นหินบะซอลต์ ผิวสัมผัสเนื้อเนียน ละมุนเท้า';
+    if (titleStr.includes('Nordic') || titleStr.includes('Oak')) return 'กระเบื้องลายไม้โอ๊คธรรมชาติ ลวดลายนูนเสมือนไม้จริง ทนทานสูง';
+    if (titleStr.includes('Terrazzo')) return 'พื้นผิวหินขัดควอตซ์ผสมผสานเม็ดแร่ ดีไซน์สถาปัตยกรรมร่วมสมัย';
+    return defaultDesc;
+  };
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -65,6 +84,7 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
         {items.map(col => {
           const href = sanitizeUrl(col.link_url, '/shop');
           const imageSrc = resolveMediaUrl(col.custom_image_url) || DEFAULT_FALLBACK_IMAGE;
+          const displayDesc = getThaiDescription(col.title, col.description);
 
           return (
             <Link
@@ -78,13 +98,14 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
                 <h3 className="font-heading text-xl font-normal text-white group-hover:text-gold transition-colors">
                   {col.title}
                 </h3>
-                {col.description && (
+                {displayDesc && (
                   <p className="text-[11.5px] text-white/70 line-clamp-2 font-light leading-relaxed">
-                    {col.description}
+                    {displayDesc}
                   </p>
                 )}
                 <span className="text-[10px] font-semibold text-gold uppercase tracking-[0.2em] inline-flex items-center gap-1 pt-2">
-                  Explore Series <ArrowRight className="w-3 h-3" />
+                  <span>{isThai ? 'สำรวจคอลเลกชัน' : 'Explore Series'}</span>
+                  <ArrowRight className="w-3 h-3" />
                 </span>
               </div>
             </Link>

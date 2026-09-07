@@ -20,11 +20,11 @@ export default function CategoriesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      <Breadcrumb items={[{ label: 'Categories' }]} />
+      <Breadcrumb items={[{ label: isThai ? 'หมวดหมู่สินค้า' : 'Categories' }]} />
 
       <div className="border-b border-border-subtle pb-6 text-left">
         <span className="text-[11px] uppercase font-semibold tracking-[0.3em] text-gold block mb-1">
-          ARCHITECTURAL DIVISIONS
+          {isThai ? 'หมวดหมู่งานสถาปัตยกรรม' : 'ARCHITECTURAL DIVISIONS'}
         </span>
         <h1 className="font-heading text-3xl sm:text-4xl font-normal text-txt-main">
           {t.categories.title}
@@ -48,7 +48,7 @@ export default function CategoriesPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
             <div className="relative z-10 space-y-2 text-left">
               <span className="text-[9.5px] font-mono font-medium text-gold uppercase tracking-widest">
-                DIVISION 0{cat.sortOrder}
+                {isThai ? `หมวดที่ 0${cat.sortOrder}` : `DIVISION 0${cat.sortOrder}`}
               </span>
               <h2 className="font-heading text-xl font-normal text-white group-hover:text-gold transition-colors">
                 {isThai && cat.nameTh ? cat.nameTh : cat.name}
@@ -57,7 +57,7 @@ export default function CategoriesPage() {
                 {isThai && cat.descriptionTh ? cat.descriptionTh : cat.description}
               </p>
               <span className="text-[10.5px] font-medium text-gold uppercase tracking-widest inline-flex items-center gap-1.5 pt-2">
-                Explore Division <ArrowRight className="w-3.5 h-3.5" />
+                {isThai ? 'สำรวจหมวดหมู่นี้' : 'Explore Division'} <ArrowRight className="w-3.5 h-3.5" />
               </span>
             </div>
           </Link>

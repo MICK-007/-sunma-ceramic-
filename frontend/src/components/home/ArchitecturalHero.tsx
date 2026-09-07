@@ -41,7 +41,15 @@ export const ArchitecturalHero: React.FC = () => {
 
           {/* Headline */}
           <h1 className="font-heading text-4xl sm:text-6xl lg:text-7xl font-normal tracking-tight text-white leading-[1.08] uppercase drop-shadow-md">
-            A Better<br />Living Space
+            {isThai ? (
+              <>
+                ยกระดับ<br />พื้นที่การใช้ชีวิต
+              </>
+            ) : (
+              <>
+                A Better<br />Living Space
+              </>
+            )}
           </h1>
 
           {/* Subtitle */}

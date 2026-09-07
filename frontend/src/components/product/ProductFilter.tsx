@@ -61,7 +61,7 @@ export const ProductFilter: React.FC<FilterProps> = ({
       {/* Categories Filter */}
       <div>
         <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
-          Collection Division
+          {isThai ? 'หมวดหมู่คอลเลกชัน' : 'Collection Division'}
         </label>
         <div className="space-y-1">
           <button
@@ -89,7 +89,7 @@ export const ProductFilter: React.FC<FilterProps> = ({
       {/* Brands Filter */}
       <div>
         <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
-          Brand & Atelier
+          {isThai ? 'แบรนด์และสตูดิโอผู้ผลิต' : 'Brand & Atelier'}
         </label>
         <select
           value={selectedBrand}
@@ -108,7 +108,7 @@ export const ProductFilter: React.FC<FilterProps> = ({
       {/* Size Filter */}
       <div>
         <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
-          Format Dimensions (cm)
+          {isThai ? 'ขนาดสัดส่วน (ซม.)' : 'Format Dimensions (cm)'}
         </label>
         <div className="grid grid-cols-2 gap-1.5">
           {sizes.map(sz => (
@@ -130,29 +130,38 @@ export const ProductFilter: React.FC<FilterProps> = ({
       {/* Surface Filter */}
       <div>
         <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
-          Surface Finish
+          {isThai ? 'ลักษณะพื้นผิว' : 'Surface Finish'}
         </label>
         <div className="flex flex-wrap gap-1.5">
-          {surfaces.map(surf => (
-            <button
-              key={surf}
-              onClick={() => setSelectedSurface(selectedSurface === surf ? '' : surf)}
-              className={`text-[11px] px-3 py-1 rounded-[2px] border transition-colors ${
-                selectedSurface === surf
-                  ? 'border-gold bg-gold/15 text-gold font-semibold'
-                  : 'border-border-subtle text-txt-muted hover:border-txt-main/40'
-              }`}
-            >
-              {surf}
-            </button>
-          ))}
+          {surfaces.map(surf => {
+            const surfaceLabelTh: Record<string, string> = {
+              Matt: 'ด้าน (Matt)',
+              Satin: 'ซาติน (Satin)',
+              Polished: 'ขัดเงา (Polished)',
+              Carved: 'แกะลาย (Carved)',
+              Glossy: 'เงา (Glossy)',
+            };
+            return (
+              <button
+                key={surf}
+                onClick={() => setSelectedSurface(selectedSurface === surf ? '' : surf)}
+                className={`text-[11px] px-3 py-1 rounded-[2px] border transition-colors ${
+                  selectedSurface === surf
+                    ? 'border-gold bg-gold/15 text-gold font-semibold'
+                    : 'border-border-subtle text-txt-muted hover:border-txt-main/40'
+                }`}
+              >
+                {isThai ? (surfaceLabelTh[surf] || surf) : surf}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Material Filter */}
       <div>
         <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
-          Engineered Material
+          {isThai ? 'ประเภทวัสดุ' : 'Engineered Material'}
         </label>
         <select
           value={selectedMaterial}
@@ -162,7 +171,7 @@ export const ProductFilter: React.FC<FilterProps> = ({
           <option value="">{t.shop.allMaterials}</option>
           {materials.map(m => (
             <option key={m} value={m}>
-              {m}
+              {isThai ? (m === 'Porcelain' ? 'พอร์ซเลน (Porcelain)' : m === 'Ceramic' ? 'เซรามิก (Ceramic)' : m) : m}
             </option>
           ))}
         </select>

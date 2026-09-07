@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { api } from '@/services/api';
 import { ProductCard } from '@/components/product/ProductCard';
 
+import { useLanguage } from '@/context/LanguageContext';
+
 export interface CMSFeaturedProductsProps {
   content: {
     title?: string;
@@ -17,8 +19,15 @@ export interface CMSFeaturedProductsProps {
 }
 
 export const CMSFeaturedProducts: React.FC<CMSFeaturedProductsProps> = ({ content }) => {
-  const subtitle = content.subtitle || 'SELECTED CATALOG';
-  const title = content.title || 'Curated Architectural Slabs';
+  const { language } = useLanguage();
+  const isThai = language === 'TH';
+
+  const subtitle = isThai
+    ? 'สินค้าคัดสรรพิเศษ'
+    : (content.subtitle || 'SELECTED CATALOG');
+  const title = isThai
+    ? 'แผ่นพอร์ซเลนและกระเบื้องแนะนำ'
+    : (content.title || 'Curated Architectural Slabs');
   const limit = content.settings?.limit || 6;
   const viewAllUrl = content.settings?.viewAllUrl || '/shop?featured=true';
 
@@ -55,14 +64,18 @@ export const CMSFeaturedProducts: React.FC<CMSFeaturedProductsProps> = ({ conten
           </h2>
         </div>
         <Link href={viewAllUrl} className="text-xs font-bold text-gold uppercase hover:underline">
-          View All Featured →
+          {isThai ? 'ดูสินค้าแนะนำทั้งหมด →' : 'View All Featured →'}
         </Link>
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-xs text-stone">Loading featured products...</div>
+        <div className="py-12 text-center text-xs text-stone">
+          {isThai ? 'กำลังโหลดสินค้าแนะนำ...' : 'Loading featured products...'}
+        </div>
       ) : products.length === 0 ? (
-        <div className="py-12 text-center text-xs text-stone">No featured products currently available.</div>
+        <div className="py-12 text-center text-xs text-stone">
+          {isThai ? 'ยังไม่มีสินค้าแนะนำในขณะนี้' : 'No featured products currently available.'}
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map(p => (

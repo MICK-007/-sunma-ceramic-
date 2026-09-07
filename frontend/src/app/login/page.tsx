@@ -16,7 +16,8 @@ function LoginContent() {
   const registeredParam = searchParams.get('registered');
 
   const { login } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isThai = language === 'TH';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -101,7 +102,9 @@ function LoginContent() {
         </div>
 
         <div className="space-y-1 text-xs">
-          <label className="block text-txt-muted font-medium">Password</label>
+          <label className="block text-txt-muted font-medium">
+            {isThai ? 'รหัสผ่าน (Password)' : 'Password'}
+          </label>
           <input
             type="password"
             required
@@ -114,11 +117,11 @@ function LoginContent() {
 
         <Button type="submit" variant="gold" size="lg" className="w-full rounded-[2px]" disabled={isSubmitting}>
           <LogIn className="w-4 h-4 mr-2" />
-          {isSubmitting ? 'Authenticating...' : t.nav.login}
+          {isSubmitting ? (isThai ? 'กำลังเข้าสู่ระบบ...' : 'Authenticating...') : t.nav.login}
         </Button>
 
         <div className="pt-2 border-t border-border-subtle flex items-center justify-between text-xs text-txt-muted">
-          <span>Don't have an account?</span>
+          <span>{isThai ? 'ยังไม่มีบัญชีผู้ใช้งาน?' : "Don't have an account?"}</span>
           <Link href="/register" className="text-gold font-bold hover:underline">
             {t.nav.register}
           </Link>
