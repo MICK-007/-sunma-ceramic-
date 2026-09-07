@@ -38,6 +38,11 @@ export default function HomePage() {
     s => s && s.is_enabled !== false && (s.section_type === 'HERO' || s.section_key === 'hero')
   );
 
+  // Find why_choose section from CMS if published
+  const whyChooseSection = (cmsSections || []).find(
+    s => s && s.is_enabled !== false && (s.section_type === 'WHY_CHOOSE' || s.section_key === 'why_choose')
+  );
+
   // Filter out any published sections that might augment the page (e.g. B2B services, Brand partners)
   const additionalCmsSections = (cmsSections || []).filter(
     s => s && s.is_enabled !== false && s.section_type !== 'HERO' && s.section_type !== 'WHY_CHOOSE' && s.section_key !== 'hero' && s.section_key !== 'why_choose'
@@ -54,8 +59,8 @@ export default function HomePage() {
       {/* 3. CATEGORIES SECTION — 5-Column Minimalist Tile Grid */}
       <TileCategoriesGrid />
 
-      {/* 4. FEATURES SECTION — Why Choose SUNMA Ceramic */}
-      <BrandFeaturesBar />
+      {/* 4. FEATURES SECTION — Why Choose SUNMA Ceramic (Connected to CMS) */}
+      <BrandFeaturesBar content={whyChooseSection} />
 
       {/* 5. DYNAMIC CMS SECTIONS (B2B Project Partner, Brand Partners, etc.) */}
       {additionalCmsSections.length > 0 && (

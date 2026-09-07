@@ -10,8 +10,13 @@ export interface CMSB2BCTAProps {
     subtitle?: string;
     settings?: {
       description?: string;
+      descriptionTh?: string;
       buttonLabel?: string;
+      buttonLabelTh?: string;
       buttonUrl?: string;
+      titleTh?: string;
+      subtitleTh?: string;
+      [key: string]: any;
     };
   };
 }
@@ -22,19 +27,44 @@ export const CMSB2BCTA: React.FC<CMSB2BCTAProps> = ({ content }) => {
   const { language } = useLanguage();
   const isThai = language === 'TH';
 
+  let settings = content.settings || {};
+  if (typeof settings === 'string') {
+    try {
+      settings = JSON.parse(settings);
+    } catch (e) {
+      settings = {};
+    }
+  }
+
+  const defaultSubEn = 'ARCHITECT & CONTRACTOR SERVICES';
+  const defaultSubTh = 'บริการสำหรับสถาปนิกและผู้รับเหมา';
+  const rawSub = content.subtitle || defaultSubEn;
   const subtitle = isThai
-    ? 'บริการสำหรับสถาปนิกและผู้รับเหมา'
-    : (content.subtitle || 'ARCHITECT & CONTRACTOR SERVICES');
+    ? (settings.subtitleTh || (rawSub !== defaultSubEn ? rawSub : defaultSubTh))
+    : rawSub;
+
+  const defaultTitleEn = 'Architect & Commercial Project Supply';
+  const defaultTitleTh = 'จัดหากระเบื้องสำหรับโครงการสถาปัตยกรรมและพาณิชย์';
+  const rawTitle = content.title || defaultTitleEn;
   const title = isThai
-    ? 'จัดหากระเบื้องสำหรับโครงการสถาปัตยกรรมและพาณิชย์'
-    : (content.title || 'Architect & Commercial Project Supply');
+    ? (settings.titleTh || (rawTitle !== defaultTitleEn ? rawTitle : defaultTitleTh))
+    : rawTitle;
+
+  const defaultDescEn = 'Special wholesale rates, custom slab cutting, sample kits, and project specifier support for architects, interior designers, and real estate developers.';
+  const defaultDescTh = 'ราคาส่งพิเศษสำหรับโครงการ บริการตัดแผ่นสแลปตามแบบ ชุดตัวอย่างกระเบื้อง และทีมสนับสนุนงานสเปกสำหรับสถาปนิก อินทีเรียร์ และผู้พัฒนาอสังหาริมทรัพย์';
+  const rawDesc = settings.description || defaultDescEn;
   const description = isThai
-    ? 'ราคาส่งพิเศษสำหรับโครงการ บริการตัดแผ่นสแลปตามแบบ ชุดตัวอย่างกระเบื้อง และทีมสนับสนุนงานสเปกสำหรับสถาปนิก อินทีเรียร์ และผู้พัฒนาอสังหาริมทรัพย์'
-    : (content.settings?.description || 'Special wholesale rates, custom slab cutting, sample kits, and project specifier support for architects, interior designers, and real estate developers.');
+    ? (settings.descriptionTh || (rawDesc !== defaultDescEn ? rawDesc : defaultDescTh))
+    : rawDesc;
+
+  const defaultBtnEn = 'Request Project Quote';
+  const defaultBtnTh = 'ขอใบเสนอราคาโครงการ';
+  const rawBtn = settings.buttonLabel || defaultBtnEn;
   const buttonLabel = isThai
-    ? 'ขอใบเสนอราคาโครงการ'
-    : (content.settings?.buttonLabel || 'Request Project Quote');
-  const buttonUrl = sanitizeUrl(content.settings?.buttonUrl, '/contact');
+    ? (settings.buttonLabelTh || (rawBtn !== defaultBtnEn ? rawBtn : defaultBtnTh))
+    : rawBtn;
+
+  const buttonUrl = sanitizeUrl(settings.buttonUrl, '/contact');
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

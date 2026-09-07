@@ -12,12 +12,18 @@ export interface CMSCollectionItem {
   link_url?: string;
   sort_order?: number;
   is_enabled?: boolean;
+  metadata?: {
+    titleTh?: string;
+    descriptionTh?: string;
+    [key: string]: any;
+  };
 }
 
 export interface CMSCollectionGridProps {
   content: {
     title?: string;
     subtitle?: string;
+    settings?: any;
     items?: CMSCollectionItem[];
   };
 }
@@ -47,12 +53,28 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
   const { language } = useLanguage();
   const isThai = language === 'TH';
 
+  let settings = content.settings || {};
+  if (typeof settings === 'string') {
+    try {
+      settings = JSON.parse(settings);
+    } catch (e) {
+      settings = {};
+    }
+  }
+
+  const defaultSubEn = 'ARCHITECTURAL SERIES';
+  const defaultSubTh = 'คอลเลกชันสถาปัตยกรรม';
+  const rawSub = content.subtitle || defaultSubEn;
   const subtitle = isThai
-    ? 'คอลเลกชันสถาปัตยกรรม'
-    : (content.subtitle || 'ARCHITECTURAL SERIES');
+    ? (settings.subtitleTh || (rawSub !== defaultSubEn ? rawSub : defaultSubTh))
+    : rawSub;
+
+  const defaultTitleEn = 'Curated Tile Collections';
+  const defaultTitleTh = 'คอลเลกชันกระเบื้องที่คัดสรร';
+  const rawTitle = content.title || defaultTitleEn;
   const title = isThai
-    ? 'คอลเลกชันกระเบื้องที่คัดสรร'
-    : (content.title || 'Curated Tile Collections');
+    ? (settings.titleTh || (rawTitle !== defaultTitleEn ? rawTitle : defaultTitleTh))
+    : rawTitle;
 
   const items = (content.items || [])
     .filter(item => item.is_enabled !== false)
@@ -82,9 +104,22 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
         {items.map(col => {
+          let meta = col.metadata;
+          if (typeof meta === 'string') {
+            try {
+              meta = JSON.parse(meta);
+            } catch (e) {
+              meta = {};
+            }
+          }
+          meta = meta || {};
+
+          const displayTitle = isThai ? (meta.titleTh || col.title) : col.title;
           const href = sanitizeUrl(col.link_url, '/shop');
           const imageSrc = resolveMediaUrl(col.custom_image_url) || DEFAULT_FALLBACK_IMAGE;
-          const displayDesc = getThaiDescription(col.title, col.description);
+          const displayDesc = isThai
+            ? (meta.descriptionTh || getThaiDescription(col.title, col.description))
+            : col.description;
 
           return (
             <Link
@@ -92,11 +127,11 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
               href={href}
               className="luxury-card group rounded-[2px] overflow-hidden relative aspect-[3/4] flex flex-col justify-end p-6 border border-border-subtle hover:border-gold transition-all"
             >
-              <CollectionImage src={imageSrc} alt={col.title} />
+              <CollectionImage src={imageSrc} alt={displayTitle} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
               <div className="relative z-10 space-y-1.5 text-left">
                 <h3 className="font-heading text-xl font-normal text-white group-hover:text-gold transition-colors">
-                  {col.title}
+                  {displayTitle}
                 </h3>
                 {displayDesc && (
                   <p className="text-[11.5px] text-white/70 line-clamp-2 font-light leading-relaxed">

@@ -382,7 +382,8 @@ async function updateAdminCmsItem(req, res) {
         link_label = COALESCE(${updates.linkLabel !== undefined ? updates.linkLabel : null}, link_label),
         media_id = ${updates.mediaId !== undefined ? updates.mediaId : sql `media_id`},
         custom_image_url = ${updates.customImageUrl !== undefined ? updates.customImageUrl : sql `custom_image_url`},
-        badge_tag = COALESCE(${updates.badgeTag !== undefined ? updates.badgeTag : null}, badge_tag),
+        badge_tag = ${updates.badgeTag !== undefined ? updates.badgeTag : sql `badge_tag`},
+        metadata = ${updates.metadata !== undefined ? sql `${JSON.stringify(updates.metadata)}::jsonb` : sql `metadata`},
         sort_order = COALESCE(${updates.sortOrder !== undefined ? updates.sortOrder : null}, sort_order),
         is_enabled = COALESCE(${updates.isEnabled !== undefined ? updates.isEnabled : null}, is_enabled),
         updated_at = NOW()

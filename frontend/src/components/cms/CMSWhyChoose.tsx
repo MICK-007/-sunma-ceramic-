@@ -55,12 +55,18 @@ export interface CMSWhyChooseItem {
   icon_name?: string;
   sort_order?: number;
   is_enabled?: boolean;
+  metadata?: {
+    titleTh?: string;
+    descriptionTh?: string;
+    [key: string]: any;
+  };
 }
 
 export interface CMSWhyChooseProps {
   content: {
     title?: string;
     subtitle?: string;
+    settings?: any;
     items?: CMSWhyChooseItem[];
   };
 }
@@ -69,14 +75,23 @@ export const CMSWhyChoose: React.FC<CMSWhyChooseProps> = ({ content }) => {
   const { language } = useLanguage();
   const isThai = language === 'TH';
 
+  let settings = content.settings || {};
+  if (typeof settings === 'string') {
+    try {
+      settings = JSON.parse(settings);
+    } catch (e) {
+      settings = {};
+    }
+  }
+
   const isDefaultSubtitle = !content.subtitle || content.subtitle === 'OUR STANDARDS';
-  const subtitle = isThai && isDefaultSubtitle
-    ? 'มาตรฐานระดับสากล'
+  const subtitle = isThai
+    ? (settings.subtitleTh || (isDefaultSubtitle ? 'มาตรฐานระดับสากล' : content.subtitle))
     : (content.subtitle || 'OUR STANDARDS');
 
   const isDefaultTitle = !content.title || content.title === 'Why Choose SUNMA CERAMIC';
-  const title = isThai && isDefaultTitle
-    ? 'ทำไมต้องเลือก SUNMA CERAMIC'
+  const title = isThai
+    ? (settings.titleTh || (isDefaultTitle ? 'ทำไมต้องเลือก SUNMA CERAMIC' : content.title))
     : (content.title || 'Why Choose SUNMA CERAMIC');
 
   const items = (content.items || [])
@@ -99,7 +114,25 @@ export const CMSWhyChoose: React.FC<CMSWhyChooseProps> = ({ content }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {items.map(item => {
+            let meta = item.metadata;
+            if (typeof meta === 'string') {
+              try {
+                meta = JSON.parse(meta);
+              } catch (e) {
+                meta = {};
+              }
+            }
+            meta = meta || {};
+
             const IconComponent = (item.icon_name && ICON_MAP[item.icon_name]) ? ICON_MAP[item.icon_name] : ShieldCheck;
+
+            const displayTitle = isThai
+              ? (meta.titleTh || WHY_CHOOSE_TH_MAP[item.title]?.title || item.title)
+              : item.title;
+
+            const displayDesc = isThai
+              ? (meta.descriptionTh || WHY_CHOOSE_TH_MAP[item.title]?.description || item.description)
+              : item.description;
 
             return (
               <div key={item.id} className="bg-bg-card border border-border-subtle rounded-[2px] p-8 space-y-4 hover:border-gold transition-colors">
@@ -107,11 +140,11 @@ export const CMSWhyChoose: React.FC<CMSWhyChooseProps> = ({ content }) => {
                   <IconComponent className="w-6 h-6" />
                 </div>
                 <h3 className="font-heading text-lg font-normal text-txt-main">
-                  {isThai ? (WHY_CHOOSE_TH_MAP[item.title]?.title || item.title) : item.title}
+                  {displayTitle}
                 </h3>
-                {item.description && (
+                {displayDesc && (
                   <p className="text-xs text-txt-muted font-light leading-relaxed">
-                    {isThai ? (WHY_CHOOSE_TH_MAP[item.title]?.description || item.description) : item.description}
+                    {displayDesc}
                   </p>
                 )}
               </div>

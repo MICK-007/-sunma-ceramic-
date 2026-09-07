@@ -10,12 +10,19 @@ export interface CMSBrandItem {
   link_url?: string;
   sort_order?: number;
   is_enabled?: boolean;
+  metadata?: {
+    titleTh?: string;
+    descriptionTh?: string;
+    badgeTagTh?: string;
+    [key: string]: any;
+  };
 }
 
 export interface CMSBrandGridProps {
   content: {
     title?: string;
     subtitle?: string;
+    settings?: any;
     items?: CMSBrandItem[];
   };
 }
@@ -26,12 +33,28 @@ export const CMSBrandGrid: React.FC<CMSBrandGridProps> = ({ content }) => {
   const { language } = useLanguage();
   const isThai = language === 'TH';
 
+  let settings = content.settings || {};
+  if (typeof settings === 'string') {
+    try {
+      settings = JSON.parse(settings);
+    } catch (e) {
+      settings = {};
+    }
+  }
+
+  const defaultSubEn = 'MANUFACTURERS & IMPORTS';
+  const defaultSubTh = 'ผู้ผลิตและสตูดิโอนำเข้า';
+  const rawSub = content.subtitle || defaultSubEn;
   const subtitle = isThai
-    ? 'ผู้ผลิตและสตูดิโอนำเข้า'
-    : (content.subtitle || 'MANUFACTURERS & IMPORTS');
+    ? (settings.subtitleTh || (rawSub !== defaultSubEn ? rawSub : defaultSubTh))
+    : rawSub;
+
+  const defaultTitleEn = 'Global Tile Manufacturers & Ateliers';
+  const defaultTitleTh = 'แบรนด์กระเบื้องและสตูดิโอระดับโลก';
+  const rawTitle = content.title || defaultTitleEn;
   const title = isThai
-    ? 'แบรนด์กระเบื้องและสตูดิโอระดับโลก'
-    : (content.title || 'Global Tile Manufacturers & Ateliers');
+    ? (settings.titleTh || (rawTitle !== defaultTitleEn ? rawTitle : defaultTitleTh))
+    : rawTitle;
 
   const items = (content.items || [])
     .filter(b => b.is_enabled !== false)
@@ -48,16 +71,22 @@ export const CMSBrandGrid: React.FC<CMSBrandGridProps> = ({ content }) => {
     return defaultDesc;
   };
 
-  const formatOriginBadge = (tag?: string) => {
-    if (!tag) return null;
-    if (!isThai) return `Origin: ${tag}`;
+  const formatOriginBadge = (tag?: string, tagTh?: string) => {
+    if (!tag && !tagTh) return null;
+    if (!isThai) return `Origin: ${tag || tagTh}`;
+    if (tagTh) return `แหล่งกำเนิด: ${tagTh}`;
     const countryMap: Record<string, string> = {
       THAILAND: 'ประเทศไทย',
       ITALY: 'อิตาลี',
       JAPAN: 'ญี่ปุ่น',
       SPAIN: 'สเปน',
+      GERMANY: 'เยอรมนี',
+      FRANCE: 'ฝรั่งเศส',
+      CHINA: 'จีน',
+      VIETNAM: 'เวียดนาม',
     };
-    return `แหล่งกำเนิด: ${countryMap[tag.toUpperCase()] || tag}`;
+    const countryName = tag ? (countryMap[tag.toUpperCase()] || tag) : '';
+    return `แหล่งกำเนิด: ${countryName}`;
   };
 
   return (
@@ -73,9 +102,22 @@ export const CMSBrandGrid: React.FC<CMSBrandGridProps> = ({ content }) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {items.map(b => {
+          let meta = b.metadata;
+          if (typeof meta === 'string') {
+            try {
+              meta = JSON.parse(meta);
+            } catch (e) {
+              meta = {};
+            }
+          }
+          meta = meta || {};
+
+          const displayTitle = isThai ? (meta.titleTh || b.title) : b.title;
           const href = sanitizeUrl(b.link_url, `/shop?search=${encodeURIComponent(b.title)}`);
-          const displayDesc = getThaiDescription(b.title, b.description);
-          const originText = formatOriginBadge(b.badge_tag);
+          const displayDesc = isThai
+            ? (meta.descriptionTh || getThaiDescription(b.title, b.description))
+            : b.description;
+          const originText = formatOriginBadge(b.badge_tag, meta.badgeTagTh);
 
           return (
             <Link
@@ -84,7 +126,7 @@ export const CMSBrandGrid: React.FC<CMSBrandGridProps> = ({ content }) => {
               className="luxury-card rounded-[2px] p-6 text-center space-y-3 flex flex-col justify-between group border border-border-subtle hover:border-gold transition-all"
             >
               <div className="font-heading text-lg font-normal text-txt-main group-hover:text-gold transition-colors tracking-widest uppercase">
-                {b.title}
+                {displayTitle}
               </div>
               {displayDesc && (
                 <p className="text-xs text-txt-muted font-light line-clamp-2 leading-relaxed">{displayDesc}</p>

@@ -62,8 +62,11 @@ export default function AdminCmsStudioPage() {
   const [itemForm, setItemForm] = useState<{
     id?: string;
     title: string;
+    titleTh: string;
     description: string;
+    descriptionTh: string;
     badgeTag: string;
+    badgeTagTh: string;
     linkUrl: string;
     iconName: string;
     customImageUrl: string;
@@ -72,8 +75,11 @@ export default function AdminCmsStudioPage() {
     isEnabled: boolean;
   }>({
     title: '',
+    titleTh: '',
     description: '',
+    descriptionTh: '',
     badgeTag: '',
+    badgeTagTh: '',
     linkUrl: '',
     iconName: 'ShieldCheck',
     customImageUrl: '',
@@ -287,8 +293,11 @@ export default function AdminCmsStudioPage() {
     setEditingItem(null);
     setItemForm({
       title: '',
+      titleTh: '',
       description: '',
+      descriptionTh: '',
       badgeTag: '',
+      badgeTagTh: '',
       linkUrl: '',
       iconName: 'ShieldCheck',
       customImageUrl: '',
@@ -301,12 +310,25 @@ export default function AdminCmsStudioPage() {
   // 4. Create / Edit Section Item
   const handleOpenItemForm = (item?: any) => {
     if (item) {
+      let meta = item.metadata;
+      if (typeof meta === 'string') {
+        try {
+          meta = JSON.parse(meta);
+        } catch (e) {
+          meta = {};
+        }
+      }
+      meta = meta || {};
+
       setEditingItem(item);
       setItemForm({
         id: item.id,
         title: item.title || '',
+        titleTh: meta.titleTh || '',
         description: item.description || '',
+        descriptionTh: meta.descriptionTh || '',
         badgeTag: item.badge_tag || '',
+        badgeTagTh: meta.badgeTagTh || '',
         linkUrl: item.link_url || '',
         iconName: item.icon_name || 'ShieldCheck',
         customImageUrl: item.custom_image_url || '',
@@ -318,8 +340,11 @@ export default function AdminCmsStudioPage() {
       setEditingItem(null);
       setItemForm({
         title: '',
+        titleTh: '',
         description: '',
+        descriptionTh: '',
         badgeTag: '',
+        badgeTagTh: '',
         linkUrl: '',
         iconName: 'ShieldCheck',
         customImageUrl: '',
@@ -378,23 +403,33 @@ export default function AdminCmsStudioPage() {
         finalImageUrl = null;
       }
 
+      const itemMetadata = {
+        ...(editingItem?.metadata && typeof editingItem.metadata === 'object' ? editingItem.metadata : {}),
+        titleTh: itemForm.titleTh.trim(),
+        descriptionTh: itemForm.descriptionTh.trim(),
+        badgeTagTh: itemForm.badgeTagTh.trim(),
+      };
+
       if (editingItem) {
         // Update Existing Item
         const res = await api.updateAdminCmsItem(editingItem.id, {
           title: itemForm.title,
           description: itemForm.description,
-          badgeTag: itemForm.badgeTag,
+          badgeTag: itemForm.badgeTag.trim() || null,
           linkUrl: itemForm.linkUrl,
           iconName: itemForm.iconName as any,
           customImageUrl: finalImageUrl,
           mediaId: finalMediaId,
           sortOrder: itemForm.sortOrder,
           isEnabled: itemForm.isEnabled,
+          metadata: itemMetadata,
         });
 
         if (res.success) {
           const updatedItem = {
             ...res.data,
+            badge_tag: itemForm.badgeTag.trim() || null,
+            metadata: itemMetadata,
             custom_image_url: finalImageUrl || (itemForm.mediaId ? itemForm.customImageUrl : res.data.custom_image_url),
           };
 
@@ -420,18 +455,21 @@ export default function AdminCmsStudioPage() {
         const res = await api.createAdminCmsItem(editingSection.id, {
           title: itemForm.title,
           description: itemForm.description,
-          badgeTag: itemForm.badgeTag,
+          badgeTag: itemForm.badgeTag.trim() || null,
           linkUrl: itemForm.linkUrl,
           iconName: itemForm.iconName as any,
           customImageUrl: finalImageUrl,
           mediaId: finalMediaId,
           sortOrder: itemForm.sortOrder,
           isEnabled: itemForm.isEnabled,
+          metadata: itemMetadata,
         });
 
         if (res.success) {
           const newItem = {
             ...res.data,
+            badge_tag: itemForm.badgeTag.trim() || null,
+            metadata: itemMetadata,
             custom_image_url: finalImageUrl || (itemForm.mediaId ? itemForm.customImageUrl : res.data.custom_image_url),
           };
 
@@ -852,6 +890,106 @@ export default function AdminCmsStudioPage() {
                 </div>
               )}
 
+              {/* B2B_CTA Section-Specific Settings */}
+              {editingSection.section_type === 'B2B_CTA' && (
+                <div className="space-y-4 pt-4 border-t border-border-subtle text-xs">
+                  <h4 className="font-bold text-gold uppercase tracking-wider">
+                    ตั้งค่าเนื้อหาและปุ่มบริการโครงการ B2B (B2B CTA Settings)
+                  </h4>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        รายละเอียด / เนื้อหาโครงการ (Description EN) 🇬🇧
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={editingSection.settings?.description || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, description: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Special wholesale rates, custom slab cutting, sample kits..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        รายละเอียด / เนื้อหาโครงการภาษาไทย (Description TH) 🇹🇭
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={editingSection.settings?.descriptionTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, descriptionTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="ราคาส่งพิเศษสำหรับโครงการ บริการตัดแผ่นสแลปตามแบบ ชุดตัวอย่างกระเบื้อง..."
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        ข้อความบนปุ่ม (Button Label EN) 🇬🇧
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.buttonLabel || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, buttonLabel: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Request Project Quote"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        ข้อความบนปุ่มภาษาไทย (Button Label TH) 🇹🇭
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.buttonLabelTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, buttonLabelTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="ขอใบเสนอราคาโครงการ"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        ลิงก์ปลายทาง (Button URL)
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.buttonUrl || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, buttonUrl: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="/contact"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Section Items Manager */}
               {['COLLECTION_GRID', 'BRAND_GRID', 'WHY_CHOOSE'].includes(editingSection.section_type) && (
                 <div className="space-y-4 pt-4 border-t border-border-subtle">
@@ -863,22 +1001,46 @@ export default function AdminCmsStudioPage() {
                   </div>
 
                   <div className="space-y-2">
-                    {editingSection.items?.map((item: any) => (
-                      <div key={item.id} className="p-3 bg-bg-secondary/40 border border-border-subtle rounded-[2px] flex items-center justify-between text-xs">
-                        <div>
-                          <span className="font-bold text-txt-main block">{item.title}</span>
-                          <span className="text-[10px] text-txt-muted">{item.description || item.link_url}</span>
+                    {editingSection.items?.map((item: any) => {
+                      let meta = item.metadata;
+                      if (typeof meta === 'string') {
+                        try {
+                          meta = JSON.parse(meta);
+                        } catch (e) {
+                          meta = {};
+                        }
+                      }
+                      meta = meta || {};
+
+                      return (
+                        <div key={item.id} className="p-3 bg-bg-secondary/40 border border-border-subtle rounded-[2px] flex items-center justify-between text-xs">
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-txt-main">{item.title}</span>
+                              {meta.titleTh && (
+                                <span className="text-[11px] text-gold font-medium">({meta.titleTh})</span>
+                              )}
+                              {item.badge_tag && (
+                                <span className="px-1.5 py-0.5 rounded-[2px] bg-gold/15 text-gold text-[9px] font-mono font-semibold">
+                                  {item.badge_tag}{meta.badgeTagTh ? ` / ${meta.badgeTagTh}` : ''}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[10px] text-txt-muted line-clamp-1">
+                              {meta.descriptionTh ? `[TH] ${meta.descriptionTh}` : (item.description || item.link_url)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => handleOpenItemForm(item)} className="p-1 text-txt-muted hover:text-gold transition-colors" title="Edit item">
+                              <Edit className="w-3.5 h-3.5" />
+                            </button>
+                            <button onClick={() => handleDeleteItem(item.id)} className="p-1 text-txt-muted hover:text-red-500 transition-colors" title="Delete item">
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <button onClick={() => handleOpenItemForm(item)} className="p-1 text-txt-muted hover:text-gold transition-colors">
-                            <Edit className="w-3.5 h-3.5" />
-                          </button>
-                          <button onClick={() => handleDeleteItem(item.id)} className="p-1 text-txt-muted hover:text-red-500 transition-colors">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -899,30 +1061,118 @@ export default function AdminCmsStudioPage() {
               {editingItem ? t.cms.editItemTitle : t.cms.newItemTitle}
             </h3>
 
-            <div className="space-y-3 text-xs">
-              <div>
-                <label className="block text-txt-muted font-medium uppercase mb-1">{t.cms.itemTitleLabel}</label>
-                <input
-                  type="text"
-                  required
-                  value={itemForm.title}
-                  onChange={e => setItemForm(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                  placeholder={t.cms.itemTitlePlaceholder}
-                />
+            <div className="space-y-4 text-xs">
+              {/* Bilingual Title Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-txt-muted font-medium uppercase mb-1">
+                    {editingSection?.section_type === 'BRAND_GRID'
+                      ? 'ชื่อแบรนด์ (Brand Name EN) 🇬🇧'
+                      : `${t.cms.itemTitleLabel} (EN) 🇬🇧`}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={itemForm.title}
+                    onChange={e => setItemForm(prev => ({ ...prev, title: e.target.value }))}
+                    className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                    placeholder={
+                      editingSection?.section_type === 'BRAND_GRID'
+                        ? 'e.g. SUNMA CERAMIC'
+                        : t.cms.itemTitlePlaceholder
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gold font-medium uppercase mb-1">
+                    {editingSection?.section_type === 'BRAND_GRID'
+                      ? 'ชื่อแบรนด์ภาษาไทย (Brand Name TH) 🇹🇭'
+                      : 'หัวข้อภาษาไทย (Title TH) 🇹🇭'}
+                  </label>
+                  <input
+                    type="text"
+                    value={itemForm.titleTh}
+                    onChange={e => setItemForm(prev => ({ ...prev, titleTh: e.target.value }))}
+                    className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                    placeholder={
+                      editingSection?.section_type === 'BRAND_GRID'
+                        ? 'เช่น ซันม่า เซรามิก'
+                        : 'ใส่หัวข้อภาษาไทย...'
+                    }
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-txt-muted font-medium uppercase mb-1">{t.cms.itemDescLabel}</label>
-                <textarea
-                  rows={2}
-                  value={itemForm.description}
-                  onChange={e => setItemForm(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                  placeholder={t.cms.itemDescPlaceholder}
-                />
+              {/* Bilingual Description Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-txt-muted font-medium uppercase mb-1">
+                    {t.cms.itemDescLabel} (EN) 🇬🇧
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={itemForm.description}
+                    onChange={e => setItemForm(prev => ({ ...prev, description: e.target.value }))}
+                    className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                    placeholder={t.cms.itemDescPlaceholder}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gold font-medium uppercase mb-1">
+                    คำบรรยายภาษาไทย (Description TH) 🇹🇭
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={itemForm.descriptionTh}
+                    onChange={e => setItemForm(prev => ({ ...prev, descriptionTh: e.target.value }))}
+                    className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                    placeholder="ใส่คำบรรยายภาษาไทย..."
+                  />
+                </div>
               </div>
 
+              {/* BRAND_GRID: Country / Origin Fields */}
+              {editingSection?.section_type === 'BRAND_GRID' && (
+                <div className="bg-gold/5 border border-gold/25 p-3 rounded-[2px] space-y-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase mb-1">
+                        ประเทศแหล่งกำเนิด (Origin Country EN) 🇬🇧
+                      </label>
+                      <input
+                        type="text"
+                        value={itemForm.badgeTag}
+                        onChange={e => setItemForm(prev => ({ ...prev, badgeTag: e.target.value }))}
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="เช่น ITALY, SPAIN, JAPAN, THAILAND"
+                      />
+                      <span className="text-[10px] text-txt-muted mt-0.5 block">
+                        แสดงผลเป็น: Origin: {itemForm.badgeTag || 'ITALY'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="block text-gold font-medium uppercase mb-1">
+                        ประเทศแหล่งกำเนิดภาษาไทย (Origin Country TH) 🇹🇭
+                      </label>
+                      <input
+                        type="text"
+                        value={itemForm.badgeTagTh}
+                        onChange={e => setItemForm(prev => ({ ...prev, badgeTagTh: e.target.value }))}
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="เช่น อิตาลี, สเปน, ญี่ปุ่น, ประเทศไทย"
+                      />
+                      <span className="text-[10px] text-gold/80 mt-0.5 block">
+                        แสดงผลเป็น: แหล่งกำเนิด: {itemForm.badgeTagTh || 'อิตาลี'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* WHY_CHOOSE: Icon Selector */}
               {editingSection?.section_type === 'WHY_CHOOSE' && (
                 <div>
                   <label className="block text-txt-muted font-medium uppercase mb-1">{t.cms.itemIconLabel}</label>
@@ -940,96 +1190,114 @@ export default function AdminCmsStudioPage() {
                 </div>
               )}
 
-              <div>
-                <label className="block text-txt-muted font-medium uppercase mb-1">{t.cms.itemImageLabel}</label>
-                
-                <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-3 space-y-3">
-                  <div className="flex items-start gap-3">
-                    {/* Image Preview Thumbnail */}
-                    <div className="relative w-20 h-20 rounded-[2px] overflow-hidden border border-border-subtle bg-bg-secondary shrink-0 flex items-center justify-center">
-                      {itemForm.customImageUrl ? (
-                        <img
-                          src={resolveMediaUrl(itemForm.customImageUrl)}
-                          alt="Item Preview"
-                          onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = '/images/tiles/calacatta-marble.jpeg';
-                          }}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <ImageIcon className="w-8 h-8 text-stone/40" />
-                      )}
-                      {uploadingItemImage && (
-                        <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-gold text-[10px] gap-1">
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          <span>อัปโหลด...</span>
-                        </div>
-                      )}
-                    </div>
+              {/* Link URL for Brand Grid & Collection Grid */}
+              {['BRAND_GRID', 'COLLECTION_GRID'].includes(editingSection?.section_type) && (
+                <div>
+                  <label className="block text-txt-muted font-medium uppercase mb-1">
+                    {t.cms.itemLinkUrlLabel || 'ลิงก์เป้าหมายเมื่อคลิก (Link URL)'}
+                  </label>
+                  <input
+                    type="text"
+                    value={itemForm.linkUrl}
+                    onChange={e => setItemForm(prev => ({ ...prev, linkUrl: e.target.value }))}
+                    className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                    placeholder="/shop?search=marble"
+                  />
+                </div>
+              )}
 
-                    {/* Action buttons & URL input */}
-                    <div className="flex-1 space-y-2">
-                      <div className="flex flex-wrap gap-2">
-                        <input
-                          type="file"
-                          ref={itemFileInputRef}
-                          onChange={handleItemImageUpload}
-                          accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-                          className="hidden"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={uploadingItemImage}
-                          onClick={() => itemFileInputRef.current?.click()}
-                          className="text-xs rounded-[2px]"
-                        >
-                          <Upload className="w-3.5 h-3.5 mr-1" />
-                          {uploadingItemImage ? 'กำลังอัปโหลด...' : 'อัปโหลดจากเครื่อง'}
-                        </Button>
-
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setMediaTargetField('item');
-                            setIsMediaOpen(true);
-                          }}
-                          className="text-xs rounded-[2px]"
-                        >
-                          <ImageIcon className="w-3.5 h-3.5 mr-1" />
-                          {t.cms.chooseMediaButton || 'เลือกจากคลังสื่อ'}
-                        </Button>
-
-                        {itemForm.customImageUrl && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setItemForm(prev => ({ ...prev, customImageUrl: '', mediaId: '' }))}
-                            className="text-xs rounded-[2px] text-red-500 hover:text-red-600 hover:bg-red-950/10"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 mr-1" />
-                            ล้างรูปภาพ
-                          </Button>
+              {/* Image Uploader for Collection Grid and others */}
+              {editingSection?.section_type === 'COLLECTION_GRID' && (
+                <div>
+                  <label className="block text-txt-muted font-medium uppercase mb-1">{t.cms.itemImageLabel}</label>
+                  
+                  <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-3 space-y-3">
+                    <div className="flex items-start gap-3">
+                      {/* Image Preview Thumbnail */}
+                      <div className="relative w-20 h-20 rounded-[2px] overflow-hidden border border-border-subtle bg-bg-secondary shrink-0 flex items-center justify-center">
+                        {itemForm.customImageUrl ? (
+                          <img
+                            src={resolveMediaUrl(itemForm.customImageUrl)}
+                            alt="Item Preview"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = '/images/tiles/calacatta-marble.jpeg';
+                            }}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <ImageIcon className="w-8 h-8 text-stone/40" />
+                        )}
+                        {uploadingItemImage && (
+                          <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-gold text-[10px] gap-1">
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <span>อัปโหลด...</span>
+                          </div>
                         )}
                       </div>
 
-                      {/* URL input */}
-                      <input
-                        type="text"
-                        value={itemForm.customImageUrl}
-                        onChange={e => setItemForm(prev => ({ ...prev, customImageUrl: e.target.value, mediaId: '' }))}
-                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-xs text-txt-main focus:outline-none focus:border-gold truncate"
-                        placeholder={t.cms.itemImagePlaceholder || 'หรือใส่ URL รูปภาพ...'}
-                      />
+                      {/* Action buttons & URL input */}
+                      <div className="flex-1 space-y-2">
+                        <div className="flex flex-wrap gap-2">
+                          <input
+                            type="file"
+                            ref={itemFileInputRef}
+                            onChange={handleItemImageUpload}
+                            accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                            className="hidden"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={uploadingItemImage}
+                            onClick={() => itemFileInputRef.current?.click()}
+                            className="text-xs rounded-[2px]"
+                          >
+                            <Upload className="w-3.5 h-3.5 mr-1" />
+                            {uploadingItemImage ? 'กำลังอัปโหลด...' : 'อัปโหลดจากเครื่อง'}
+                          </Button>
+
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setMediaTargetField('item');
+                              setIsMediaOpen(true);
+                            }}
+                            className="text-xs rounded-[2px]"
+                          >
+                            <ImageIcon className="w-3.5 h-3.5 mr-1" />
+                            {t.cms.chooseMediaButton || 'เลือกจากคลังสื่อ'}
+                          </Button>
+
+                          {itemForm.customImageUrl && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setItemForm(prev => ({ ...prev, customImageUrl: '', mediaId: '' }))}
+                              className="text-xs rounded-[2px] text-red-500 hover:text-red-600 hover:bg-red-950/10"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 mr-1" />
+                              ล้างรูปภาพ
+                            </Button>
+                          )}
+                        </div>
+
+                        {/* URL input */}
+                        <input
+                          type="text"
+                          value={itemForm.customImageUrl}
+                          onChange={e => setItemForm(prev => ({ ...prev, customImageUrl: e.target.value, mediaId: '' }))}
+                          className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-xs text-txt-main focus:outline-none focus:border-gold truncate"
+                          placeholder={t.cms.itemImagePlaceholder || 'หรือใส่ URL รูปภาพ...'}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
+              )}
             </div>
 
             <div className="flex justify-end gap-2 pt-4 border-t border-border-subtle">
