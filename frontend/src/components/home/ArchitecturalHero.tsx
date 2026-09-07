@@ -5,18 +5,72 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { resolveMediaUrl } from '@/lib/media';
+import { sanitizeUrl } from '@/lib/cms-utils';
 
-export const ArchitecturalHero: React.FC = () => {
+export interface ArchitecturalHeroProps {
+  content?: {
+    id?: string;
+    title?: string;
+    subtitle?: string;
+    settings?: any;
+  };
+}
+
+export const ArchitecturalHero: React.FC<ArchitecturalHeroProps> = ({ content }) => {
   const { language } = useLanguage();
   const isThai = language === 'TH';
+
+  let settings = content?.settings || {};
+  if (typeof settings === 'string') {
+    try {
+      settings = JSON.parse(settings);
+    } catch (e) {
+      settings = {};
+    }
+  }
+
+  // Background Image
+  const bgImage = resolveMediaUrl(settings.bgImage) || '/images/hero-villa.webp';
+
+  // Eyebrow / Kicker
+  const defaultEyebrowEn = 'PREMIUM TILES FOR';
+  const defaultEyebrowTh = 'กระเบื้องพอร์ซเลนระดับพรีเมียม';
+  const eyebrow = isThai
+    ? (settings.eyebrowTh || (settings.eyebrow && settings.eyebrow !== defaultEyebrowEn ? settings.eyebrow : defaultEyebrowTh))
+    : (settings.eyebrow || defaultEyebrowEn);
+
+  // Headline
+  const defaultTitleEn = 'A Better Living Space';
+  const defaultTitleTh = 'ยกระดับ พื้นที่การใช้ชีวิต';
+  const rawTitle = content?.title || defaultTitleEn;
+  const headline = isThai
+    ? (settings.titleTh || (rawTitle && rawTitle !== defaultTitleEn ? rawTitle : defaultTitleTh))
+    : rawTitle;
+
+  // Subtitle / Description
+  const defaultDescEn = 'Timeless beauty, durable quality, for every space in your life.';
+  const defaultDescTh = 'ความงดงามเหนือกาลเวลา คุณภาพทนทานสำหรับทุกพื้นที่ในชีวิตคุณ';
+  const rawDesc = content?.subtitle || defaultDescEn;
+  const description = isThai
+    ? (settings.subtitleTh || (rawDesc && rawDesc !== defaultDescEn ? rawDesc : defaultDescTh))
+    : rawDesc;
+
+  // CTA Button
+  const defaultBtn1En = 'Explore Collection';
+  const defaultBtn1Th = 'สำรวจคอลเลกชัน';
+  const btn1Label = isThai
+    ? (settings.btn1LabelTh || (settings.btn1Label && settings.btn1Label !== defaultBtn1En ? settings.btn1Label : defaultBtn1Th))
+    : (settings.btn1Label || defaultBtn1En);
+  const btn1Url = sanitizeUrl(settings.btn1Url, '/shop');
 
   return (
     <section className="relative w-full h-screen min-h-[700px] flex items-center justify-start overflow-hidden bg-neutral-950">
       {/* Background Architectural Villa Image (Enhanced High-Res 2560px) */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/hero-villa.webp"
-          alt="Modern Minimal Architectural Villa with Pool"
+          src={bgImage}
+          alt={typeof headline === 'string' ? headline : 'Architectural Villa'}
           fill
           priority
           unoptimized
@@ -35,38 +89,28 @@ export const ArchitecturalHero: React.FC = () => {
           {/* Kicker */}
           <div>
             <span className="text-[11px] sm:text-xs font-medium uppercase tracking-[0.3em] text-white/90 drop-shadow-sm">
-              {isThai ? 'กระเบื้องพอร์ซเลนระดับพรีเมียม' : 'PREMIUM TILES FOR'}
+              {eyebrow}
             </span>
           </div>
 
           {/* Headline */}
           <h1 className="font-heading text-4xl sm:text-6xl lg:text-7xl font-normal tracking-tight text-white leading-[1.08] uppercase drop-shadow-md">
-            {isThai ? (
-              <>
-                ยกระดับ<br />พื้นที่การใช้ชีวิต
-              </>
-            ) : (
-              <>
-                A Better<br />Living Space
-              </>
-            )}
+            {headline}
           </h1>
 
           {/* Subtitle */}
           <p className="text-sm sm:text-base text-white/90 font-light max-w-sm leading-relaxed drop-shadow-sm">
-            {isThai
-              ? 'ความงดงามเหนือกาลเวลา คุณภาพทนทานสำหรับทุกพื้นที่ในชีวิตคุณ'
-              : 'Timeless beauty, durable quality, for every space in your life.'}
+            {description}
           </p>
 
           {/* CTA Link — Explore Collection → */}
           <div className="pt-2 sm:pt-4">
             <Link
-              href="/shop"
+              href={btn1Url}
               className="group inline-flex items-center gap-3 text-xs sm:text-sm font-medium tracking-[0.2em] uppercase text-white hover:text-amber-200 transition-all drop-shadow-sm"
             >
               <span className="w-7 h-[1.5px] bg-white group-hover:w-11 group-hover:bg-amber-200 transition-all" />
-              <span>{isThai ? 'สำรวจคอลเลกชัน' : 'Explore Collection'}</span>
+              <span>{btn1Label}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
             </Link>
           </div>

@@ -139,10 +139,21 @@ export default function AdminCmsStudioPage() {
     try {
       const res = await api.getAdminCmsDraftPage(slug);
       if (res && res.success && res.data) {
+        const normalizedSections = (res.data.sections || []).map((sec: any) => {
+          let parsedSettings = sec.settings;
+          if (typeof parsedSettings === 'string') {
+            try {
+              parsedSettings = JSON.parse(parsedSettings);
+            } catch (e) {
+              parsedSettings = {};
+            }
+          }
+          return { ...sec, settings: parsedSettings || {} };
+        });
         setPageData(res.data.page);
-        setSections(res.data.sections || []);
-        if (res.data.sections?.length > 0 && !editingSection) {
-          setEditingSection(res.data.sections[0]);
+        setSections(normalizedSections);
+        if (normalizedSections.length > 0 && !editingSection) {
+          setEditingSection(normalizedSections[0]);
         }
       } else {
         setErrorMessage(res?.message || `Failed to load CMS draft for '${slug}'`);
@@ -208,6 +219,18 @@ export default function AdminCmsStudioPage() {
     }
   };
 
+  const selectSection = (sec: any) => {
+    let parsedSettings = sec.settings;
+    if (typeof parsedSettings === 'string') {
+      try {
+        parsedSettings = JSON.parse(parsedSettings);
+      } catch (e) {
+        parsedSettings = {};
+      }
+    }
+    setEditingSection({ ...sec, settings: parsedSettings || {} });
+  };
+
   // 3. Save Section Settings / Title / Subtitle
   const handleSaveSectionConfig = async () => {
     if (!editingSection) return;
@@ -235,9 +258,19 @@ export default function AdminCmsStudioPage() {
       });
 
       if (res.success) {
+        let savedSettings = res.data?.settings || sectionSettings;
+        if (typeof savedSettings === 'string') {
+          try {
+            savedSettings = JSON.parse(savedSettings);
+          } catch (e) {
+            savedSettings = sectionSettings;
+          }
+        }
+        const updatedSec = { ...editingSection, ...res.data, settings: savedSettings };
         setSections(prev =>
-          prev.map(s => (s.id === editingSection.id ? { ...s, ...res.data } : s))
+          prev.map(s => (s.id === editingSection.id ? updatedSec : s))
         );
+        setEditingSection(updatedSec);
         setSuccessMessage('Section config saved to DRAFT successfully.');
       } else {
         setErrorMessage(res.message || 'Failed to save section draft.');
@@ -561,7 +594,7 @@ export default function AdminCmsStudioPage() {
                         : 'bg-bg-secondary/40 border-border-subtle hover:border-gold/50'
                     }`}
                   >
-                    <div className="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer" onClick={() => setEditingSection(sec)}>
+                    <div className="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer" onClick={() => selectSection(sec)}>
                       <span className="text-[10px] font-mono text-txt-muted w-4">{idx + 1}</span>
                       <div className="truncate">
                         <span className="text-xs font-bold text-txt-main block truncate">
@@ -600,7 +633,7 @@ export default function AdminCmsStudioPage() {
                       <Button
                         size="sm"
                         variant={isSelected ? 'gold' : 'outline'}
-                        onClick={() => setEditingSection(sec)}
+                        onClick={() => selectSection(sec)}
                         className="h-6 px-2 text-[10px] rounded-[2px]"
                       >
                         {t.cms.editButton}
@@ -632,26 +665,68 @@ export default function AdminCmsStudioPage() {
                 </Button>
               </div>
 
-              {/* Title & Subtitle Form */}
-              <div className="grid grid-cols-1 gap-4 text-xs">
-                <div>
-                  <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">{t.cms.sectionTitleLabel}</label>
-                  <input
-                    type="text"
-                    value={editingSection.title || ''}
-                    onChange={e => setEditingSection((prev: any) => ({ ...prev, title: e.target.value }))}
-                    className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                  />
+              {/* Title & Subtitle Form (Bilingual EN & TH) */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                      {t.cms.sectionTitleLabel} (EN) 🇬🇧
+                    </label>
+                    <input
+                      type="text"
+                      value={editingSection.title || ''}
+                      onChange={e => setEditingSection((prev: any) => ({ ...prev, title: e.target.value }))}
+                      className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                      placeholder="e.g. A Better Living Space"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                      หัวข้อภาษาไทย (Title TH) 🇹🇭
+                    </label>
+                    <input
+                      type="text"
+                      value={editingSection.settings?.titleTh || ''}
+                      onChange={e => setEditingSection((prev: any) => ({
+                        ...prev,
+                        settings: { ...prev.settings, titleTh: e.target.value }
+                      }))}
+                      className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                      placeholder="เช่น ยกระดับ พื้นที่การใช้ชีวิต"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">{t.cms.sectionSubtitleLabel}</label>
-                  <input
-                    type="text"
-                    value={editingSection.subtitle || ''}
-                    onChange={e => setEditingSection((prev: any) => ({ ...prev, subtitle: e.target.value }))}
-                    className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                      {t.cms.sectionSubtitleLabel} (EN) 🇬🇧
+                    </label>
+                    <input
+                      type="text"
+                      value={editingSection.subtitle || ''}
+                      onChange={e => setEditingSection((prev: any) => ({ ...prev, subtitle: e.target.value }))}
+                      className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                      placeholder="e.g. Timeless beauty, durable quality..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                      คำบรรยายภาษาไทย (Subtitle TH) 🇹🇭
+                    </label>
+                    <input
+                      type="text"
+                      value={editingSection.settings?.subtitleTh || ''}
+                      onChange={e => setEditingSection((prev: any) => ({
+                        ...prev,
+                        settings: { ...prev.settings, subtitleTh: e.target.value }
+                      }))}
+                      className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                      placeholder="เช่น ความงดงามเหนือกาลเวลา คุณภาพทนทาน..."
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -659,6 +734,43 @@ export default function AdminCmsStudioPage() {
               {editingSection.section_type === 'HERO' && (
                 <div className="space-y-4 pt-4 border-t border-border-subtle text-xs">
                   <h4 className="font-bold text-gold uppercase tracking-wider">{t.cms.heroConfigTitle}</h4>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        Eyebrow / Kicker (EN) 🇬🇧
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.eyebrow || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, eyebrow: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="e.g. PREMIUM TILES FOR"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        Eyebrow ภาษาไทย (TH) 🇹🇭
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.eyebrowTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, eyebrowTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="เช่น กระเบื้องพอร์ซเลนระดับพรีเมียม"
+                      />
+                    </div>
+                  </div>
 
                   <div>
                     <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">{t.cms.bgImageLabel}</label>
@@ -673,7 +785,7 @@ export default function AdminCmsStudioPage() {
                           }))
                         }
                         className="flex-1 bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                        placeholder={t.cms.bgImagePlaceholder}
+                        placeholder="/images/hero-villa.webp"
                       />
                       <Button
                         type="button"
@@ -690,9 +802,9 @@ export default function AdminCmsStudioPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">{t.cms.btn1Label}</label>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">{t.cms.btn1Label} (EN) 🇬🇧</label>
                       <input
                         type="text"
                         value={editingSection.settings?.btn1Label || ''}
@@ -703,6 +815,22 @@ export default function AdminCmsStudioPage() {
                           }))
                         }
                         className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Explore Collection"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">ปุ่มภาษาไทย (TH) 🇹🇭</label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.btn1LabelTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, btn1LabelTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="สำรวจคอลเลกชัน"
                       />
                     </div>
                     <div>
@@ -717,6 +845,7 @@ export default function AdminCmsStudioPage() {
                           }))
                         }
                         className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="/shop"
                       />
                     </div>
                   </div>

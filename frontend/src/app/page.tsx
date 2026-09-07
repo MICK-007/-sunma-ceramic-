@@ -33,6 +33,11 @@ export default function HomePage() {
       .catch(() => {});
   }, []);
 
+  // Find hero section from CMS if published
+  const heroSection = (cmsSections || []).find(
+    s => s && s.is_enabled !== false && (s.section_type === 'HERO' || s.section_key === 'hero')
+  );
+
   // Filter out any published sections that might augment the page (e.g. B2B services, Brand partners)
   const additionalCmsSections = (cmsSections || []).filter(
     s => s && s.is_enabled !== false && s.section_type !== 'HERO' && s.section_type !== 'WHY_CHOOSE' && s.section_key !== 'hero' && s.section_key !== 'why_choose'
@@ -40,8 +45,8 @@ export default function HomePage() {
 
   return (
     <div className="w-full bg-[#FAF9F6] overflow-x-hidden">
-      {/* 1. HERO SECTION — Modern Architectural Villa (No 3D) */}
-      <ArchitecturalHero />
+      {/* 1. HERO SECTION — Modern Architectural Villa (Connected to CMS) */}
+      <ArchitecturalHero content={heroSection} />
 
       {/* 2. INTERIOR ROOM SHOWCASE — Living Room & Kitchen with Collection Popups */}
       <InteriorRoomShowcase />
