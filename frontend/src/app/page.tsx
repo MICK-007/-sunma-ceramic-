@@ -9,17 +9,15 @@ import { BrandFeaturesBar } from '@/components/home/BrandFeaturesBar';
 import { CmsSectionRenderer } from '@/components/cms/CmsSectionRenderer';
 
 export default function HomePage() {
-  const [cmsSections, setCmsSections] = useState<any[] | null>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = localStorage.getItem('sunma_cms_home_sections');
-        if (cached) return JSON.parse(cached);
-      } catch (e) {}
-    }
-    return null;
-  });
+  const [cmsSections, setCmsSections] = useState<any[] | null>(null);
 
   useEffect(() => {
+    // Read cache on client mount (SSR-safe)
+    try {
+      const cached = localStorage.getItem('sunma_cms_home_sections');
+      if (cached) setCmsSections(JSON.parse(cached));
+    } catch (e) {}
+
     // Dynamic CMS Data Binding
     api.getPublicCmsPage('home')
       .then(res => {
