@@ -62,9 +62,28 @@ const CATEGORIES: TileCategoryCard[] = [
   },
 ];
 
-export const TileCategoriesGrid: React.FC = () => {
+export interface TileCategoriesGridProps {
+  content?: any;
+}
+
+export const TileCategoriesGrid: React.FC<TileCategoriesGridProps> = ({ content }) => {
   const { language } = useLanguage();
   const isThai = language === 'TH';
+
+  let settings = content?.settings || {};
+  if (typeof settings === 'string') {
+    try {
+      settings = JSON.parse(settings);
+    } catch (e) {
+      settings = {};
+    }
+  }
+
+  const cardTitleColor = settings.cardTitleColor || '#FFFFFF';
+  const cardTitleHoverColor = settings.cardTitleHoverColor || '#D4AF37';
+  const cardTextColor = settings.cardTextColor || 'rgba(255, 255, 255, 0.7)';
+  const cardLinkColor = settings.cardLinkColor || '#D4AF37';
+
   const [categoriesList, setCategoriesList] = React.useState<TileCategoryCard[]>(CATEGORIES);
 
   React.useEffect(() => {
@@ -115,6 +134,12 @@ export const TileCategoriesGrid: React.FC = () => {
               key={cat.id}
               href={cat.href}
               className="luxury-card group rounded-[2px] overflow-hidden relative aspect-[3/4] flex flex-col justify-end p-6 border border-border-subtle hover:border-gold transition-all duration-500"
+              style={{
+                '--card-title-color': cardTitleColor,
+                '--card-title-hover': cardTitleHoverColor,
+                '--card-text-color': cardTextColor,
+                '--card-link-color': cardLinkColor,
+              } as React.CSSProperties}
             >
               {/* Background Full-Height Image with opacity treatment */}
               <Image
@@ -130,15 +155,15 @@ export const TileCategoriesGrid: React.FC = () => {
 
               {/* Bottom Content Container */}
               <div className="relative z-10 space-y-1.5 text-left">
-                <h3 className="font-heading text-xl font-normal text-white group-hover:text-gold transition-colors">
+                <h3 className="font-heading text-xl font-normal text-[var(--card-title-color)] group-hover:text-[var(--card-title-hover)] transition-colors">
                   {isThai ? cat.nameTh : cat.nameEn}
                 </h3>
 
-                <p className="text-[11.5px] text-white/70 line-clamp-2 font-light leading-relaxed">
+                <p className="text-[11.5px] text-[var(--card-text-color)] line-clamp-2 font-light leading-relaxed">
                   {isThai ? cat.descTh : cat.descEn}
                 </p>
 
-                <span className="text-[10px] font-semibold text-gold uppercase tracking-[0.2em] inline-flex items-center gap-1 pt-2 group-hover:translate-x-1 transition-transform">
+                <span className="text-[10px] font-semibold text-[var(--card-link-color)] uppercase tracking-[0.2em] inline-flex items-center gap-1 pt-2 group-hover:translate-x-1 transition-transform">
                   <span>{isThai ? 'สำรวจคอลเลกชัน' : 'Explore Series'}</span>
                   <ArrowRight className="w-3 h-3" />
                 </span>

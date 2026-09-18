@@ -990,6 +990,274 @@ export default function AdminCmsStudioPage() {
                 </div>
               )}
 
+              {/* COLLECTION_GRID Section-Specific Color Customization */}
+              {editingSection.section_type === 'COLLECTION_GRID' && (
+                <div className="space-y-4 pt-4 border-t border-border-subtle text-xs">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-bold text-gold uppercase tracking-wider flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4" /> ปรับแต่งสีหัวข้อและการ์ด (Card Typography & Colors)
+                      </h4>
+                      <p className="text-[11px] text-txt-muted mt-0.5">
+                        กำหนดสีข้อความหัวข้อ สีตอนเอาเมาส์วาง (Hover) และสีคำบรรยายของการ์ดคอลเลกชัน
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-bg-secondary/40 p-4 border border-border-subtle rounded-[2px]">
+                    {/* 1. Card Title Color */}
+                    <div className="space-y-1.5">
+                      <label className="block text-txt-main font-semibold uppercase tracking-wider text-[11px]">
+                        สีหัวข้อการ์ดปกติ (Title Color)
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={editingSection.settings?.cardTitleColor || '#FFFFFF'}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, cardTitleColor: e.target.value },
+                            }))
+                          }
+                          className="w-8 h-8 rounded-[2px] border border-border-subtle cursor-pointer p-0.5 bg-white"
+                        />
+                        <input
+                          type="text"
+                          value={editingSection.settings?.cardTitleColor || '#FFFFFF'}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, cardTitleColor: e.target.value },
+                            }))
+                          }
+                          className="flex-1 bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-xs text-txt-main font-mono"
+                          placeholder="#FFFFFF"
+                        />
+                      </div>
+                      {/* Presets */}
+                      <div className="flex items-center gap-1.5 pt-1">
+                        {[
+                          { label: 'ขาว', hex: '#FFFFFF' },
+                          { label: 'ออฟไวท์', hex: '#F5F5F0' },
+                          { label: 'ทอง', hex: '#D4AF37' },
+                          { label: 'ดำ', hex: '#111827' },
+                        ].map(p => (
+                          <button
+                            key={p.hex}
+                            type="button"
+                            onClick={() =>
+                              setEditingSection((prev: any) => ({
+                                ...prev,
+                                settings: { ...prev.settings, cardTitleColor: p.hex },
+                              }))
+                            }
+                            className="px-1.5 py-0.5 text-[10px] rounded-[2px] border border-border-subtle bg-white hover:border-gold transition-colors"
+                          >
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 2. Card Title Hover Color */}
+                    <div className="space-y-1.5">
+                      <label className="block text-gold font-semibold uppercase tracking-wider text-[11px]">
+                        สีหัวข้อตอนเอาเมาส์ชี้ (Hover Color)
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={editingSection.settings?.cardTitleHoverColor || '#D4AF37'}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, cardTitleHoverColor: e.target.value },
+                            }))
+                          }
+                          className="w-8 h-8 rounded-[2px] border border-border-subtle cursor-pointer p-0.5 bg-white"
+                        />
+                        <input
+                          type="text"
+                          value={editingSection.settings?.cardTitleHoverColor || '#D4AF37'}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, cardTitleHoverColor: e.target.value },
+                            }))
+                          }
+                          className="flex-1 bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-xs text-txt-main font-mono"
+                          placeholder="#D4AF37"
+                        />
+                      </div>
+                      {/* Presets */}
+                      <div className="flex items-center gap-1.5 pt-1">
+                        {[
+                          { label: 'ทองคลาสสิก', hex: '#D4AF37' },
+                          { label: 'ทองสว่าง', hex: '#F6E05E' },
+                          { label: 'อำพัน', hex: '#F59E0B' },
+                          { label: 'ขาว', hex: '#FFFFFF' },
+                        ].map(p => (
+                          <button
+                            key={p.hex}
+                            type="button"
+                            onClick={() =>
+                              setEditingSection((prev: any) => ({
+                                ...prev,
+                                settings: { ...prev.settings, cardTitleHoverColor: p.hex },
+                              }))
+                            }
+                            className="px-1.5 py-0.5 text-[10px] rounded-[2px] border border-border-subtle bg-white hover:border-gold transition-colors"
+                          >
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 3. Description Text Color */}
+                    <div className="space-y-1.5">
+                      <label className="block text-txt-muted font-semibold uppercase tracking-wider text-[11px]">
+                        สีตัวอักษรคำบรรยาย (Description Color)
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={editingSection.settings?.cardTextColor?.startsWith('#') ? editingSection.settings.cardTextColor : '#CCCCCC'}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, cardTextColor: e.target.value },
+                            }))
+                          }
+                          className="w-8 h-8 rounded-[2px] border border-border-subtle cursor-pointer p-0.5 bg-white"
+                        />
+                        <input
+                          type="text"
+                          value={editingSection.settings?.cardTextColor || 'rgba(255, 255, 255, 0.7)'}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, cardTextColor: e.target.value },
+                            }))
+                          }
+                          className="flex-1 bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-xs text-txt-main font-mono"
+                          placeholder="#CCCCCC หรือ rgba(...)"
+                        />
+                      </div>
+                      {/* Presets */}
+                      <div className="flex items-center gap-1.5 pt-1">
+                        {[
+                          { label: 'เทาอ่อน', hex: '#CCCCCC' },
+                          { label: 'ขาวนุ่ม', hex: 'rgba(255, 255, 255, 0.85)' },
+                          { label: 'ควันบุหรี่', hex: '#9CA3AF' },
+                        ].map(p => (
+                          <button
+                            key={p.label}
+                            type="button"
+                            onClick={() =>
+                              setEditingSection((prev: any) => ({
+                                ...prev,
+                                settings: { ...prev.settings, cardTextColor: p.hex },
+                              }))
+                            }
+                            className="px-1.5 py-0.5 text-[10px] rounded-[2px] border border-border-subtle bg-white hover:border-gold transition-colors"
+                          >
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 4. Link & Accent Color */}
+                    <div className="space-y-1.5">
+                      <label className="block text-gold font-semibold uppercase tracking-wider text-[11px]">
+                        สีลิงก์สำรวจ (Explore Link Color)
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={editingSection.settings?.cardLinkColor || '#D4AF37'}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, cardLinkColor: e.target.value },
+                            }))
+                          }
+                          className="w-8 h-8 rounded-[2px] border border-border-subtle cursor-pointer p-0.5 bg-white"
+                        />
+                        <input
+                          type="text"
+                          value={editingSection.settings?.cardLinkColor || '#D4AF37'}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, cardLinkColor: e.target.value },
+                            }))
+                          }
+                          className="flex-1 bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-xs text-txt-main font-mono"
+                          placeholder="#D4AF37"
+                        />
+                      </div>
+                      {/* Presets */}
+                      <div className="flex items-center gap-1.5 pt-1">
+                        {[
+                          { label: 'ทอง', hex: '#D4AF37' },
+                          { label: 'ขาว', hex: '#FFFFFF' },
+                          { label: 'บรอนซ์', hex: '#CD7F32' },
+                        ].map(p => (
+                          <button
+                            key={p.hex}
+                            type="button"
+                            onClick={() =>
+                              setEditingSection((prev: any) => ({
+                                ...prev,
+                                settings: { ...prev.settings, cardLinkColor: p.hex },
+                              }))
+                            }
+                            className="px-1.5 py-0.5 text-[10px] rounded-[2px] border border-border-subtle bg-white hover:border-gold transition-colors"
+                          >
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Live Preview Box */}
+                  <div className="p-3 bg-neutral-900 rounded-[2px] flex flex-wrap items-center justify-between gap-3 border border-neutral-800">
+                    <span className="text-[11px] text-neutral-400">ตัวอย่างการแสดงผลบนการ์ดจริง (Live Preview):</span>
+                    <div className="flex items-center gap-4 text-xs">
+                      <span
+                        style={{ color: editingSection.settings?.cardTitleColor || '#FFFFFF' }}
+                        className="font-heading font-medium text-sm"
+                      >
+                        Calacatta Imperiale
+                      </span>
+                      <span className="text-neutral-500 text-[10px]">→ ชี้เมาส์:</span>
+                      <span
+                        style={{ color: editingSection.settings?.cardTitleHoverColor || '#D4AF37' }}
+                        className="font-heading font-medium text-sm"
+                      >
+                        Calacatta Imperiale
+                      </span>
+                      <span
+                        style={{ color: editingSection.settings?.cardTextColor || 'rgba(255, 255, 255, 0.7)' }}
+                        className="text-[11px] italic"
+                      >
+                        คำบรรยายเนื้อหา
+                      </span>
+                      <span
+                        style={{ color: editingSection.settings?.cardLinkColor || '#D4AF37' }}
+                        className="text-[10px] font-bold uppercase tracking-wider"
+                      >
+                        Explore Series →
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Section Items Manager */}
               {['COLLECTION_GRID', 'BRAND_GRID', 'WHY_CHOOSE'].includes(editingSection.section_type) && (
                 <div className="space-y-4 pt-4 border-t border-border-subtle">

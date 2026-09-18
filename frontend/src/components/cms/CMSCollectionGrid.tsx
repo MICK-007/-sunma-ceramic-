@@ -91,6 +91,11 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
     return defaultDesc;
   };
 
+  const cardTitleColor = settings.cardTitleColor || '#FFFFFF';
+  const cardTitleHoverColor = settings.cardTitleHoverColor || '#D4AF37';
+  const cardTextColor = settings.cardTextColor || 'rgba(255, 255, 255, 0.7)';
+  const cardLinkColor = settings.cardLinkColor || '#D4AF37';
+
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="text-center max-w-2xl mx-auto mb-14 space-y-2.5">
@@ -126,19 +131,25 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
               key={col.id}
               href={href}
               className="luxury-card group rounded-[2px] overflow-hidden relative aspect-[3/4] flex flex-col justify-end p-6 border border-border-subtle hover:border-gold transition-all"
+              style={{
+                '--card-title-color': meta.titleColor || cardTitleColor,
+                '--card-title-hover': meta.titleHoverColor || cardTitleHoverColor,
+                '--card-text-color': meta.textColor || cardTextColor,
+                '--card-link-color': meta.linkColor || cardLinkColor,
+              } as React.CSSProperties}
             >
               <CollectionImage src={imageSrc} alt={displayTitle} />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
               <div className="relative z-10 space-y-1.5 text-left">
-                <h3 className="font-heading text-xl font-normal text-white group-hover:text-gold transition-colors">
+                <h3 className="font-heading text-xl font-normal text-[var(--card-title-color)] group-hover:text-[var(--card-title-hover)] transition-colors">
                   {displayTitle}
                 </h3>
                 {displayDesc && (
-                  <p className="text-[11.5px] text-white/70 line-clamp-2 font-light leading-relaxed">
+                  <p className="text-[11.5px] text-[var(--card-text-color)] line-clamp-2 font-light leading-relaxed">
                     {displayDesc}
                   </p>
                 )}
-                <span className="text-[10px] font-semibold text-gold uppercase tracking-[0.2em] inline-flex items-center gap-1 pt-2">
+                <span className="text-[10px] font-semibold text-[var(--card-link-color)] uppercase tracking-[0.2em] inline-flex items-center gap-1 pt-2 group-hover:translate-x-1 transition-transform">
                   <span>{isThai ? 'สำรวจคอลเลกชัน' : 'Explore Series'}</span>
                   <ArrowRight className="w-3 h-3" />
                 </span>

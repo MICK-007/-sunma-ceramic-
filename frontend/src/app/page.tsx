@@ -41,6 +41,11 @@ export default function HomePage() {
     s => s && s.is_enabled !== false && (s.section_type === 'WHY_CHOOSE' || s.section_key === 'why_choose')
   );
 
+  // Find collections section from CMS if published
+  const collectionsSection = (cmsSections || []).find(
+    s => s && s.is_enabled !== false && (s.section_type === 'COLLECTION_GRID' || s.section_key === 'collections')
+  );
+
   // Filter out any published sections that might augment the page (e.g. B2B services, Brand partners)
   const additionalCmsSections = (cmsSections || []).filter(
     s => s && s.is_enabled !== false && s.section_type !== 'HERO' && s.section_type !== 'WHY_CHOOSE' && s.section_key !== 'hero' && s.section_key !== 'why_choose'
@@ -54,8 +59,8 @@ export default function HomePage() {
       {/* 2. INTERIOR ROOM SHOWCASE — Living Room & Kitchen with Collection Popups */}
       <InteriorRoomShowcase />
 
-      {/* 3. CATEGORIES SECTION — 5-Column Minimalist Tile Grid */}
-      <TileCategoriesGrid />
+      {/* 3. CATEGORIES SECTION — 5-Column Minimalist Tile Grid (Connected to CMS color settings) */}
+      <TileCategoriesGrid content={collectionsSection} />
 
       {/* 4. FEATURES SECTION — Why Choose SUNMA Ceramic (Connected to CMS) */}
       <BrandFeaturesBar content={whyChooseSection} />
