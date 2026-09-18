@@ -35,7 +35,15 @@ import {
   X,
   Upload,
   Loader2,
+  RotateCcw,
 } from 'lucide-react';
+
+const DEFAULT_CARD_COLORS = {
+  cardTitleColor: '#FFFFFF',
+  cardTitleHoverColor: '#AF8C64',
+  cardTextColor: '#CCCCCC',
+  cardLinkColor: '#AF8C64',
+};
 
 export default function AdminCmsStudioPage() {
   const { t, language } = useLanguage();
@@ -1007,6 +1015,27 @@ export default function AdminCmsStudioPage() {
                           : 'Customize title color, hover state, description text, and link accents for collection cards.'}
                       </p>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setEditingSection((prev: any) => ({
+                          ...prev,
+                          settings: {
+                            ...prev.settings,
+                            cardTitleColor: DEFAULT_CARD_COLORS.cardTitleColor,
+                            cardTitleHoverColor: DEFAULT_CARD_COLORS.cardTitleHoverColor,
+                            cardTextColor: DEFAULT_CARD_COLORS.cardTextColor,
+                            cardLinkColor: DEFAULT_CARD_COLORS.cardLinkColor,
+                          },
+                        }))
+                      }
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-txt-muted hover:text-gold border border-border-subtle hover:border-gold rounded-[2px] bg-white transition-colors shadow-sm"
+                      title={isThai ? 'รีเซ็ตกลับเป็นสีเดิม' : 'Reset to original default colors'}
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span>{isThai ? 'คืนค่าสีเดิม' : 'Reset Defaults'}</span>
+                    </button>
                   </div>
 
                   <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] divide-y divide-border-subtle overflow-hidden">
@@ -1022,16 +1051,16 @@ export default function AdminCmsStudioPage() {
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
                         <span className="font-mono text-xs font-semibold text-txt-muted group-hover:text-gold transition-colors uppercase">
-                          {editingSection.settings?.cardTitleColor || '#FFFFFF'}
+                          {editingSection.settings?.cardTitleColor || DEFAULT_CARD_COLORS.cardTitleColor}
                         </span>
                         <div className="relative w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-border-subtle group-hover:ring-gold transition-all overflow-hidden flex items-center justify-center shrink-0">
                           <div
                             className="w-full h-full rounded-full"
-                            style={{ backgroundColor: editingSection.settings?.cardTitleColor || '#FFFFFF' }}
+                            style={{ backgroundColor: editingSection.settings?.cardTitleColor || DEFAULT_CARD_COLORS.cardTitleColor }}
                           />
                           <input
                             type="color"
-                            value={editingSection.settings?.cardTitleColor || '#FFFFFF'}
+                            value={editingSection.settings?.cardTitleColor || DEFAULT_CARD_COLORS.cardTitleColor}
                             onChange={e =>
                               setEditingSection((prev: any) => ({
                                 ...prev,
@@ -1056,16 +1085,16 @@ export default function AdminCmsStudioPage() {
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
                         <span className="font-mono text-xs font-semibold text-txt-muted group-hover:text-gold transition-colors uppercase">
-                          {editingSection.settings?.cardTitleHoverColor || '#D4AF37'}
+                          {editingSection.settings?.cardTitleHoverColor || DEFAULT_CARD_COLORS.cardTitleHoverColor}
                         </span>
                         <div className="relative w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-border-subtle group-hover:ring-gold transition-all overflow-hidden flex items-center justify-center shrink-0">
                           <div
                             className="w-full h-full rounded-full"
-                            style={{ backgroundColor: editingSection.settings?.cardTitleHoverColor || '#D4AF37' }}
+                            style={{ backgroundColor: editingSection.settings?.cardTitleHoverColor || DEFAULT_CARD_COLORS.cardTitleHoverColor }}
                           />
                           <input
                             type="color"
-                            value={editingSection.settings?.cardTitleHoverColor || '#D4AF37'}
+                            value={editingSection.settings?.cardTitleHoverColor || DEFAULT_CARD_COLORS.cardTitleHoverColor}
                             onChange={e =>
                               setEditingSection((prev: any) => ({
                                 ...prev,
@@ -1092,7 +1121,7 @@ export default function AdminCmsStudioPage() {
                         <span className="font-mono text-xs font-semibold text-txt-muted group-hover:text-gold transition-colors uppercase">
                           {editingSection.settings?.cardTextColor?.startsWith('#')
                             ? editingSection.settings.cardTextColor
-                            : (editingSection.settings?.cardTextColor || '#CCCCCC')}
+                            : (editingSection.settings?.cardTextColor || DEFAULT_CARD_COLORS.cardTextColor)}
                         </span>
                         <div className="relative w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-border-subtle group-hover:ring-gold transition-all overflow-hidden flex items-center justify-center shrink-0">
                           <div
@@ -1100,7 +1129,7 @@ export default function AdminCmsStudioPage() {
                             style={{
                               backgroundColor: editingSection.settings?.cardTextColor?.startsWith('#')
                                 ? editingSection.settings.cardTextColor
-                                : '#CCCCCC'
+                                : DEFAULT_CARD_COLORS.cardTextColor
                             }}
                           />
                           <input
@@ -1108,7 +1137,7 @@ export default function AdminCmsStudioPage() {
                             value={
                               editingSection.settings?.cardTextColor?.startsWith('#')
                                 ? editingSection.settings.cardTextColor
-                                : '#CCCCCC'
+                                : DEFAULT_CARD_COLORS.cardTextColor
                             }
                             onChange={e =>
                               setEditingSection((prev: any) => ({
@@ -1134,16 +1163,16 @@ export default function AdminCmsStudioPage() {
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
                         <span className="font-mono text-xs font-semibold text-txt-muted group-hover:text-gold transition-colors uppercase">
-                          {editingSection.settings?.cardLinkColor || '#D4AF37'}
+                          {editingSection.settings?.cardLinkColor || DEFAULT_CARD_COLORS.cardLinkColor}
                         </span>
                         <div className="relative w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-border-subtle group-hover:ring-gold transition-all overflow-hidden flex items-center justify-center shrink-0">
                           <div
                             className="w-full h-full rounded-full"
-                            style={{ backgroundColor: editingSection.settings?.cardLinkColor || '#D4AF37' }}
+                            style={{ backgroundColor: editingSection.settings?.cardLinkColor || DEFAULT_CARD_COLORS.cardLinkColor }}
                           />
                           <input
                             type="color"
-                            value={editingSection.settings?.cardLinkColor || '#D4AF37'}
+                            value={editingSection.settings?.cardLinkColor || DEFAULT_CARD_COLORS.cardLinkColor}
                             onChange={e =>
                               setEditingSection((prev: any) => ({
                                 ...prev,
@@ -1164,7 +1193,7 @@ export default function AdminCmsStudioPage() {
                     </span>
                     <div className="flex items-center gap-4 text-xs">
                       <span
-                        style={{ color: editingSection.settings?.cardTitleColor || '#FFFFFF' }}
+                        style={{ color: editingSection.settings?.cardTitleColor || DEFAULT_CARD_COLORS.cardTitleColor }}
                         className="font-heading font-medium text-sm"
                       >
                         Calacatta Imperiale
@@ -1173,19 +1202,19 @@ export default function AdminCmsStudioPage() {
                         {isThai ? '→ ชี้เมาส์:' : '→ Hover:'}
                       </span>
                       <span
-                        style={{ color: editingSection.settings?.cardTitleHoverColor || '#D4AF37' }}
+                        style={{ color: editingSection.settings?.cardTitleHoverColor || DEFAULT_CARD_COLORS.cardTitleHoverColor }}
                         className="font-heading font-medium text-sm"
                       >
                         Calacatta Imperiale
                       </span>
                       <span
-                        style={{ color: editingSection.settings?.cardTextColor || 'rgba(255, 255, 255, 0.7)' }}
+                        style={{ color: editingSection.settings?.cardTextColor || DEFAULT_CARD_COLORS.cardTextColor }}
                         className="text-[11px] italic"
                       >
                         {isThai ? 'คำบรรยายเนื้อหา' : 'Collection Description'}
                       </span>
                       <span
-                        style={{ color: editingSection.settings?.cardLinkColor || '#D4AF37' }}
+                        style={{ color: editingSection.settings?.cardLinkColor || DEFAULT_CARD_COLORS.cardLinkColor }}
                         className="text-[10px] font-bold uppercase tracking-wider"
                       >
                         Explore Series →

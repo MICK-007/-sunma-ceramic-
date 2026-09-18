@@ -92,9 +92,9 @@ export const CMSCollectionGrid: React.FC<CMSCollectionGridProps> = ({ content })
   };
 
   const cardTitleColor = settings.cardTitleColor || '#FFFFFF';
-  const cardTitleHoverColor = settings.cardTitleHoverColor || '#D4AF37';
+  const cardTitleHoverColor = settings.cardTitleHoverColor || '#AF8C64';
   const cardTextColor = settings.cardTextColor || 'rgba(255, 255, 255, 0.7)';
-  const cardLinkColor = settings.cardLinkColor || '#D4AF37';
+  const cardLinkColor = settings.cardLinkColor || '#AF8C64';
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
