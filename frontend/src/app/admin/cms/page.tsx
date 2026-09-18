@@ -38,7 +38,8 @@ import {
 } from 'lucide-react';
 
 export default function AdminCmsStudioPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isThai = language === 'TH';
   const [activeSlug, setActiveSlug] = useState<string>('home');
   const [pageData, setPageData] = useState<any>(null);
   const [sections, setSections] = useState<any[]>([]);
@@ -120,7 +121,7 @@ export default function AdminCmsStudioPage() {
           mediaId: res.data.id,
           customImageUrl: resolveMediaUrl(res.data.url),
         }));
-        setSuccessMessage('รูปภาพอัปโหลดและถูกเลือกเรียบร้อยแล้ว');
+        setSuccessMessage(isThai ? 'รูปภาพอัปโหลดและถูกเลือกเรียบร้อยแล้ว' : 'Image uploaded and selected successfully.');
       } else {
         setErrorMessage(res.message || 'Failed to upload image.');
       }
@@ -721,7 +722,7 @@ export default function AdminCmsStudioPage() {
 
                   <div>
                     <label className="block text-gold font-medium uppercase tracking-wider mb-1">
-                      หัวข้อภาษาไทย (Title TH) 🇹🇭
+                      {isThai ? 'หัวข้อภาษาไทย (Title TH) 🇹🇭' : 'Title in Thai (TH) 🇹🇭'}
                     </label>
                     <input
                       type="text"
@@ -731,7 +732,7 @@ export default function AdminCmsStudioPage() {
                         settings: { ...prev.settings, titleTh: e.target.value }
                       }))}
                       className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                      placeholder="เช่น ยกระดับ พื้นที่การใช้ชีวิต"
+                      placeholder={isThai ? 'เช่น ยกระดับ พื้นที่การใช้ชีวิต' : 'e.g. Thai Title translation'}
                     />
                   </div>
                 </div>
@@ -746,13 +747,13 @@ export default function AdminCmsStudioPage() {
                       value={editingSection.subtitle || ''}
                       onChange={e => setEditingSection((prev: any) => ({ ...prev, subtitle: e.target.value }))}
                       className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                      placeholder="e.g. Timeless beauty, durable quality..."
+                      placeholder={isThai ? 'เช่น ARCHITECTURAL SERIES' : 'e.g. ARCHITECTURAL SERIES'}
                     />
                   </div>
 
                   <div>
                     <label className="block text-gold font-medium uppercase tracking-wider mb-1">
-                      คำบรรยายภาษาไทย (Subtitle TH) 🇹🇭
+                      {isThai ? 'คำบรรยายภาษาไทย (Subtitle TH) 🇹🇭' : 'Subtitle in Thai (TH) 🇹🇭'}
                     </label>
                     <input
                       type="text"
@@ -762,7 +763,7 @@ export default function AdminCmsStudioPage() {
                         settings: { ...prev.settings, subtitleTh: e.target.value }
                       }))}
                       className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                      placeholder="เช่น ความงดงามเหนือกาลเวลา คุณภาพทนทาน..."
+                      placeholder={isThai ? 'เช่น ความงดงามเหนือกาลเวลา คุณภาพทนทาน...' : 'e.g. Thai Subtitle translation'}
                     />
                   </div>
                 </div>
@@ -793,7 +794,7 @@ export default function AdminCmsStudioPage() {
                     </div>
                     <div>
                       <label className="block text-gold font-medium uppercase tracking-wider mb-1">
-                        Eyebrow ภาษาไทย (TH) 🇹🇭
+                        {isThai ? 'Eyebrow ภาษาไทย (TH) 🇹🇭' : 'Eyebrow in Thai (TH) 🇹🇭'}
                       </label>
                       <input
                         type="text"
@@ -805,7 +806,7 @@ export default function AdminCmsStudioPage() {
                           }))
                         }
                         className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                        placeholder="เช่น กระเบื้องพอร์ซเลนระดับพรีเมียม"
+                        placeholder={isThai ? 'เช่น กระเบื้องพอร์ซเลนระดับพรีเมียม' : 'e.g. Premium porcelain tiles'}
                       />
                     </div>
                   </div>
@@ -857,7 +858,9 @@ export default function AdminCmsStudioPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">ปุ่มภาษาไทย (TH) 🇹🇭</label>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'ปุ่มภาษาไทย (TH) 🇹🇭' : 'Button 1 Label in Thai (TH) 🇹🇭'}
+                      </label>
                       <input
                         type="text"
                         value={editingSection.settings?.btn1LabelTh || ''}
@@ -868,7 +871,7 @@ export default function AdminCmsStudioPage() {
                           }))
                         }
                         className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                        placeholder="สำรวจคอลเลกชัน"
+                        placeholder={isThai ? 'สำรวจคอลเลกชัน' : 'e.g. Explore Collection'}
                       />
                     </div>
                     <div>
@@ -894,13 +897,13 @@ export default function AdminCmsStudioPage() {
               {editingSection.section_type === 'B2B_CTA' && (
                 <div className="space-y-4 pt-4 border-t border-border-subtle text-xs">
                   <h4 className="font-bold text-gold uppercase tracking-wider">
-                    ตั้งค่าเนื้อหาและปุ่มบริการโครงการ B2B (B2B CTA Settings)
+                    {isThai ? 'ตั้งค่าเนื้อหาและปุ่มบริการโครงการ B2B (B2B CTA Settings)' : 'B2B Project CTA Content & Action Button Settings'}
                   </h4>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
-                        รายละเอียด / เนื้อหาโครงการ (Description EN) 🇬🇧
+                        {isThai ? 'รายละเอียด / เนื้อหาโครงการ (Description EN) 🇬🇧' : 'Project Details / Description (EN) 🇬🇧'}
                       </label>
                       <textarea
                         rows={3}
@@ -917,7 +920,7 @@ export default function AdminCmsStudioPage() {
                     </div>
                     <div>
                       <label className="block text-gold font-medium uppercase tracking-wider mb-1">
-                        รายละเอียด / เนื้อหาโครงการภาษาไทย (Description TH) 🇹🇭
+                        {isThai ? 'รายละเอียด / เนื้อหาโครงการภาษาไทย (Description TH) 🇹🇭' : 'Project Details / Description in Thai (TH) 🇹🇭'}
                       </label>
                       <textarea
                         rows={3}
@@ -929,7 +932,7 @@ export default function AdminCmsStudioPage() {
                           }))
                         }
                         className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                        placeholder="ราคาส่งพิเศษสำหรับโครงการ บริการตัดแผ่นสแลปตามแบบ ชุดตัวอย่างกระเบื้อง..."
+                        placeholder={isThai ? 'ราคาส่งพิเศษสำหรับโครงการ บริการตัดแผ่นสแลปตามแบบ ชุดตัวอย่างกระเบื้อง...' : 'e.g. Special wholesale rates, custom slab cutting...'}
                       />
                     </div>
                   </div>
@@ -937,7 +940,7 @@ export default function AdminCmsStudioPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
-                        ข้อความบนปุ่ม (Button Label EN) 🇬🇧
+                        {isThai ? 'ข้อความบนปุ่ม (Button Label EN) 🇬🇧' : 'Button Label (EN) 🇬🇧'}
                       </label>
                       <input
                         type="text"
@@ -954,7 +957,7 @@ export default function AdminCmsStudioPage() {
                     </div>
                     <div>
                       <label className="block text-gold font-medium uppercase tracking-wider mb-1">
-                        ข้อความบนปุ่มภาษาไทย (Button Label TH) 🇹🇭
+                        {isThai ? 'ข้อความบนปุ่มภาษาไทย (Button Label TH) 🇹🇭' : 'Button Label in Thai (TH) 🇹🇭'}
                       </label>
                       <input
                         type="text"
@@ -966,12 +969,12 @@ export default function AdminCmsStudioPage() {
                           }))
                         }
                         className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                        placeholder="ขอใบเสนอราคาโครงการ"
+                        placeholder={isThai ? 'ขอใบเสนอราคาโครงการ' : 'e.g. Request Project Quote'}
                       />
                     </div>
                     <div>
                       <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
-                        ลิงก์ปลายทาง (Button URL)
+                        {isThai ? 'ลิงก์ปลายทาง (Button URL)' : 'Destination Link (Button URL)'}
                       </label>
                       <input
                         type="text"
@@ -996,237 +999,169 @@ export default function AdminCmsStudioPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-bold text-gold uppercase tracking-wider flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4" /> ปรับแต่งสีหัวข้อและการ์ด (Card Typography & Colors)
+                        <Sparkles className="w-4 h-4" /> {isThai ? 'ปรับแต่งสีหัวข้อและการ์ด (Card Typography & Colors)' : 'Card Typography & Colors'}
                       </h4>
                       <p className="text-[11px] text-txt-muted mt-0.5">
-                        กำหนดสีข้อความหัวข้อ สีตอนเอาเมาส์วาง (Hover) และสีคำบรรยายของการ์ดคอลเลกชัน
+                        {isThai
+                          ? 'กำหนดสีข้อความหัวข้อ สีตอนเอาเมาส์วาง (Hover) และสีคำบรรยายของการ์ดคอลเลกชัน'
+                          : 'Customize title color, hover state, description text, and link accents for collection cards.'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-bg-secondary/40 p-4 border border-border-subtle rounded-[2px]">
+                  <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] divide-y divide-border-subtle overflow-hidden">
                     {/* 1. Card Title Color */}
-                    <div className="space-y-1.5">
-                      <label className="block text-txt-main font-semibold uppercase tracking-wider text-[11px]">
-                        สีหัวข้อการ์ดปกติ (Title Color)
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={editingSection.settings?.cardTitleColor || '#FFFFFF'}
-                          onChange={e =>
-                            setEditingSection((prev: any) => ({
-                              ...prev,
-                              settings: { ...prev.settings, cardTitleColor: e.target.value },
-                            }))
-                          }
-                          className="w-8 h-8 rounded-[2px] border border-border-subtle cursor-pointer p-0.5 bg-white"
-                        />
-                        <input
-                          type="text"
-                          value={editingSection.settings?.cardTitleColor || '#FFFFFF'}
-                          onChange={e =>
-                            setEditingSection((prev: any) => ({
-                              ...prev,
-                              settings: { ...prev.settings, cardTitleColor: e.target.value },
-                            }))
-                          }
-                          className="flex-1 bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-xs text-txt-main font-mono"
-                          placeholder="#FFFFFF"
-                        />
+                    <label className="flex items-center justify-between p-3.5 hover:bg-gold/5 cursor-pointer transition-colors group">
+                      <div>
+                        <span className="block text-txt-main font-semibold uppercase tracking-wider text-[11px] group-hover:text-gold transition-colors">
+                          {isThai ? 'สีหัวข้อการ์ดปกติ' : 'Card Title Color (Default)'}
+                        </span>
+                        <span className="text-[10px] text-txt-muted">
+                          {isThai ? 'สีข้อความหัวข้อหลักของการ์ดในมุมมองปกติ' : 'Main title text color under normal view'}
+                        </span>
                       </div>
-                      {/* Presets */}
-                      <div className="flex items-center gap-1.5 pt-1">
-                        {[
-                          { label: 'ขาว', hex: '#FFFFFF' },
-                          { label: 'ออฟไวท์', hex: '#F5F5F0' },
-                          { label: 'ทอง', hex: '#D4AF37' },
-                          { label: 'ดำ', hex: '#111827' },
-                        ].map(p => (
-                          <button
-                            key={p.hex}
-                            type="button"
-                            onClick={() =>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="font-mono text-xs font-semibold text-txt-muted group-hover:text-gold transition-colors uppercase">
+                          {editingSection.settings?.cardTitleColor || '#FFFFFF'}
+                        </span>
+                        <div className="relative w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-border-subtle group-hover:ring-gold transition-all overflow-hidden flex items-center justify-center shrink-0">
+                          <div
+                            className="w-full h-full rounded-full"
+                            style={{ backgroundColor: editingSection.settings?.cardTitleColor || '#FFFFFF' }}
+                          />
+                          <input
+                            type="color"
+                            value={editingSection.settings?.cardTitleColor || '#FFFFFF'}
+                            onChange={e =>
                               setEditingSection((prev: any) => ({
                                 ...prev,
-                                settings: { ...prev.settings, cardTitleColor: p.hex },
+                                settings: { ...prev.settings, cardTitleColor: e.target.value },
                               }))
                             }
-                            className="px-1.5 py-0.5 text-[10px] rounded-[2px] border border-border-subtle bg-white hover:border-gold transition-colors"
-                          >
-                            {p.label}
-                          </button>
-                        ))}
+                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full scale-150"
+                          />
+                        </div>
                       </div>
-                    </div>
+                    </label>
 
                     {/* 2. Card Title Hover Color */}
-                    <div className="space-y-1.5">
-                      <label className="block text-gold font-semibold uppercase tracking-wider text-[11px]">
-                        สีหัวข้อตอนเอาเมาส์ชี้ (Hover Color)
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={editingSection.settings?.cardTitleHoverColor || '#D4AF37'}
-                          onChange={e =>
-                            setEditingSection((prev: any) => ({
-                              ...prev,
-                              settings: { ...prev.settings, cardTitleHoverColor: e.target.value },
-                            }))
-                          }
-                          className="w-8 h-8 rounded-[2px] border border-border-subtle cursor-pointer p-0.5 bg-white"
-                        />
-                        <input
-                          type="text"
-                          value={editingSection.settings?.cardTitleHoverColor || '#D4AF37'}
-                          onChange={e =>
-                            setEditingSection((prev: any) => ({
-                              ...prev,
-                              settings: { ...prev.settings, cardTitleHoverColor: e.target.value },
-                            }))
-                          }
-                          className="flex-1 bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-xs text-txt-main font-mono"
-                          placeholder="#D4AF37"
-                        />
+                    <label className="flex items-center justify-between p-3.5 hover:bg-gold/5 cursor-pointer transition-colors group">
+                      <div>
+                        <span className="block text-gold font-semibold uppercase tracking-wider text-[11px]">
+                          {isThai ? 'สีหัวข้อตอนเอาเมาส์ชี้' : 'Card Title Hover Color'}
+                        </span>
+                        <span className="text-[10px] text-txt-muted">
+                          {isThai ? 'สีข้อความหัวข้อจะเปลี่ยนเป็นสีนี้เมื่อผู้ใช้นำเมาส์ไปชี้' : 'Title text switches to this accent when hovered'}
+                        </span>
                       </div>
-                      {/* Presets */}
-                      <div className="flex items-center gap-1.5 pt-1">
-                        {[
-                          { label: 'ทองคลาสสิก', hex: '#D4AF37' },
-                          { label: 'ทองสว่าง', hex: '#F6E05E' },
-                          { label: 'อำพัน', hex: '#F59E0B' },
-                          { label: 'ขาว', hex: '#FFFFFF' },
-                        ].map(p => (
-                          <button
-                            key={p.hex}
-                            type="button"
-                            onClick={() =>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="font-mono text-xs font-semibold text-txt-muted group-hover:text-gold transition-colors uppercase">
+                          {editingSection.settings?.cardTitleHoverColor || '#D4AF37'}
+                        </span>
+                        <div className="relative w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-border-subtle group-hover:ring-gold transition-all overflow-hidden flex items-center justify-center shrink-0">
+                          <div
+                            className="w-full h-full rounded-full"
+                            style={{ backgroundColor: editingSection.settings?.cardTitleHoverColor || '#D4AF37' }}
+                          />
+                          <input
+                            type="color"
+                            value={editingSection.settings?.cardTitleHoverColor || '#D4AF37'}
+                            onChange={e =>
                               setEditingSection((prev: any) => ({
                                 ...prev,
-                                settings: { ...prev.settings, cardTitleHoverColor: p.hex },
+                                settings: { ...prev.settings, cardTitleHoverColor: e.target.value },
                               }))
                             }
-                            className="px-1.5 py-0.5 text-[10px] rounded-[2px] border border-border-subtle bg-white hover:border-gold transition-colors"
-                          >
-                            {p.label}
-                          </button>
-                        ))}
+                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full scale-150"
+                          />
+                        </div>
                       </div>
-                    </div>
+                    </label>
 
                     {/* 3. Description Text Color */}
-                    <div className="space-y-1.5">
-                      <label className="block text-txt-muted font-semibold uppercase tracking-wider text-[11px]">
-                        สีตัวอักษรคำบรรยาย (Description Color)
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={editingSection.settings?.cardTextColor?.startsWith('#') ? editingSection.settings.cardTextColor : '#CCCCCC'}
-                          onChange={e =>
-                            setEditingSection((prev: any) => ({
-                              ...prev,
-                              settings: { ...prev.settings, cardTextColor: e.target.value },
-                            }))
-                          }
-                          className="w-8 h-8 rounded-[2px] border border-border-subtle cursor-pointer p-0.5 bg-white"
-                        />
-                        <input
-                          type="text"
-                          value={editingSection.settings?.cardTextColor || 'rgba(255, 255, 255, 0.7)'}
-                          onChange={e =>
-                            setEditingSection((prev: any) => ({
-                              ...prev,
-                              settings: { ...prev.settings, cardTextColor: e.target.value },
-                            }))
-                          }
-                          className="flex-1 bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-xs text-txt-main font-mono"
-                          placeholder="#CCCCCC หรือ rgba(...)"
-                        />
+                    <label className="flex items-center justify-between p-3.5 hover:bg-gold/5 cursor-pointer transition-colors group">
+                      <div>
+                        <span className="block text-txt-muted font-semibold uppercase tracking-wider text-[11px] group-hover:text-txt-main transition-colors">
+                          {isThai ? 'สีตัวอักษรคำบรรยาย' : 'Description Text Color'}
+                        </span>
+                        <span className="text-[10px] text-txt-muted">
+                          {isThai ? 'สีข้อความคำบรรยายรายละเอียดสินค้าหรือการ์ด' : 'Secondary description text color on the card'}
+                        </span>
                       </div>
-                      {/* Presets */}
-                      <div className="flex items-center gap-1.5 pt-1">
-                        {[
-                          { label: 'เทาอ่อน', hex: '#CCCCCC' },
-                          { label: 'ขาวนุ่ม', hex: 'rgba(255, 255, 255, 0.85)' },
-                          { label: 'ควันบุหรี่', hex: '#9CA3AF' },
-                        ].map(p => (
-                          <button
-                            key={p.label}
-                            type="button"
-                            onClick={() =>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="font-mono text-xs font-semibold text-txt-muted group-hover:text-gold transition-colors uppercase">
+                          {editingSection.settings?.cardTextColor?.startsWith('#')
+                            ? editingSection.settings.cardTextColor
+                            : (editingSection.settings?.cardTextColor || '#CCCCCC')}
+                        </span>
+                        <div className="relative w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-border-subtle group-hover:ring-gold transition-all overflow-hidden flex items-center justify-center shrink-0">
+                          <div
+                            className="w-full h-full rounded-full"
+                            style={{
+                              backgroundColor: editingSection.settings?.cardTextColor?.startsWith('#')
+                                ? editingSection.settings.cardTextColor
+                                : '#CCCCCC'
+                            }}
+                          />
+                          <input
+                            type="color"
+                            value={
+                              editingSection.settings?.cardTextColor?.startsWith('#')
+                                ? editingSection.settings.cardTextColor
+                                : '#CCCCCC'
+                            }
+                            onChange={e =>
                               setEditingSection((prev: any) => ({
                                 ...prev,
-                                settings: { ...prev.settings, cardTextColor: p.hex },
+                                settings: { ...prev.settings, cardTextColor: e.target.value },
                               }))
                             }
-                            className="px-1.5 py-0.5 text-[10px] rounded-[2px] border border-border-subtle bg-white hover:border-gold transition-colors"
-                          >
-                            {p.label}
-                          </button>
-                        ))}
+                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full scale-150"
+                          />
+                        </div>
                       </div>
-                    </div>
+                    </label>
 
                     {/* 4. Link & Accent Color */}
-                    <div className="space-y-1.5">
-                      <label className="block text-gold font-semibold uppercase tracking-wider text-[11px]">
-                        สีลิงก์สำรวจ (Explore Link Color)
-                      </label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={editingSection.settings?.cardLinkColor || '#D4AF37'}
-                          onChange={e =>
-                            setEditingSection((prev: any) => ({
-                              ...prev,
-                              settings: { ...prev.settings, cardLinkColor: e.target.value },
-                            }))
-                          }
-                          className="w-8 h-8 rounded-[2px] border border-border-subtle cursor-pointer p-0.5 bg-white"
-                        />
-                        <input
-                          type="text"
-                          value={editingSection.settings?.cardLinkColor || '#D4AF37'}
-                          onChange={e =>
-                            setEditingSection((prev: any) => ({
-                              ...prev,
-                              settings: { ...prev.settings, cardLinkColor: e.target.value },
-                            }))
-                          }
-                          className="flex-1 bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-xs text-txt-main font-mono"
-                          placeholder="#D4AF37"
-                        />
+                    <label className="flex items-center justify-between p-3.5 hover:bg-gold/5 cursor-pointer transition-colors group">
+                      <div>
+                        <span className="block text-gold font-semibold uppercase tracking-wider text-[11px]">
+                          {isThai ? 'สีลิงก์สำรวจและปุ่ม' : 'Explore Link & Accent Color'}
+                        </span>
+                        <span className="text-[10px] text-txt-muted">
+                          {isThai ? 'สีข้อความลิงก์สำรวจ (Explore Series) และลูกศร' : 'Color for the Explore Series action link and arrow'}
+                        </span>
                       </div>
-                      {/* Presets */}
-                      <div className="flex items-center gap-1.5 pt-1">
-                        {[
-                          { label: 'ทอง', hex: '#D4AF37' },
-                          { label: 'ขาว', hex: '#FFFFFF' },
-                          { label: 'บรอนซ์', hex: '#CD7F32' },
-                        ].map(p => (
-                          <button
-                            key={p.hex}
-                            type="button"
-                            onClick={() =>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className="font-mono text-xs font-semibold text-txt-muted group-hover:text-gold transition-colors uppercase">
+                          {editingSection.settings?.cardLinkColor || '#D4AF37'}
+                        </span>
+                        <div className="relative w-8 h-8 rounded-full border-2 border-white shadow-md ring-1 ring-border-subtle group-hover:ring-gold transition-all overflow-hidden flex items-center justify-center shrink-0">
+                          <div
+                            className="w-full h-full rounded-full"
+                            style={{ backgroundColor: editingSection.settings?.cardLinkColor || '#D4AF37' }}
+                          />
+                          <input
+                            type="color"
+                            value={editingSection.settings?.cardLinkColor || '#D4AF37'}
+                            onChange={e =>
                               setEditingSection((prev: any) => ({
                                 ...prev,
-                                settings: { ...prev.settings, cardLinkColor: p.hex },
+                                settings: { ...prev.settings, cardLinkColor: e.target.value },
                               }))
                             }
-                            className="px-1.5 py-0.5 text-[10px] rounded-[2px] border border-border-subtle bg-white hover:border-gold transition-colors"
-                          >
-                            {p.label}
-                          </button>
-                        ))}
+                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full scale-150"
+                          />
+                        </div>
                       </div>
-                    </div>
+                    </label>
                   </div>
 
                   {/* Live Preview Box */}
                   <div className="p-3 bg-neutral-900 rounded-[2px] flex flex-wrap items-center justify-between gap-3 border border-neutral-800">
-                    <span className="text-[11px] text-neutral-400">ตัวอย่างการแสดงผลบนการ์ดจริง (Live Preview):</span>
+                    <span className="text-[11px] text-neutral-400">
+                      {isThai ? 'ตัวอย่างการแสดงผลบนการ์ดจริง (Live Preview):' : 'Card Live Preview:'}
+                    </span>
                     <div className="flex items-center gap-4 text-xs">
                       <span
                         style={{ color: editingSection.settings?.cardTitleColor || '#FFFFFF' }}
@@ -1234,7 +1169,9 @@ export default function AdminCmsStudioPage() {
                       >
                         Calacatta Imperiale
                       </span>
-                      <span className="text-neutral-500 text-[10px]">→ ชี้เมาส์:</span>
+                      <span className="text-neutral-500 text-[10px]">
+                        {isThai ? '→ ชี้เมาส์:' : '→ Hover:'}
+                      </span>
                       <span
                         style={{ color: editingSection.settings?.cardTitleHoverColor || '#D4AF37' }}
                         className="font-heading font-medium text-sm"
@@ -1245,7 +1182,7 @@ export default function AdminCmsStudioPage() {
                         style={{ color: editingSection.settings?.cardTextColor || 'rgba(255, 255, 255, 0.7)' }}
                         className="text-[11px] italic"
                       >
-                        คำบรรยายเนื้อหา
+                        {isThai ? 'คำบรรยายเนื้อหา' : 'Collection Description'}
                       </span>
                       <span
                         style={{ color: editingSection.settings?.cardLinkColor || '#D4AF37' }}
@@ -1335,7 +1272,7 @@ export default function AdminCmsStudioPage() {
                 <div>
                   <label className="block text-txt-muted font-medium uppercase mb-1">
                     {editingSection?.section_type === 'BRAND_GRID'
-                      ? 'ชื่อแบรนด์ (Brand Name EN) 🇬🇧'
+                      ? (isThai ? 'ชื่อแบรนด์ (Brand Name EN) 🇬🇧' : 'Brand Name (EN) 🇬🇧')
                       : `${t.cms.itemTitleLabel} (EN) 🇬🇧`}
                   </label>
                   <input
@@ -1355,8 +1292,8 @@ export default function AdminCmsStudioPage() {
                 <div>
                   <label className="block text-gold font-medium uppercase mb-1">
                     {editingSection?.section_type === 'BRAND_GRID'
-                      ? 'ชื่อแบรนด์ภาษาไทย (Brand Name TH) 🇹🇭'
-                      : 'หัวข้อภาษาไทย (Title TH) 🇹🇭'}
+                      ? (isThai ? 'ชื่อแบรนด์ภาษาไทย (Brand Name TH) 🇹🇭' : 'Brand Name in Thai (TH) 🇹🇭')
+                      : (isThai ? 'หัวข้อภาษาไทย (Title TH) 🇹🇭' : 'Title in Thai (TH) 🇹🇭')}
                   </label>
                   <input
                     type="text"
@@ -1365,8 +1302,8 @@ export default function AdminCmsStudioPage() {
                     className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
                     placeholder={
                       editingSection?.section_type === 'BRAND_GRID'
-                        ? 'เช่น ซันม่า เซรามิก'
-                        : 'ใส่หัวข้อภาษาไทย...'
+                        ? (isThai ? 'เช่น ซันม่า เซรามิก' : 'e.g. Thai Brand Name')
+                        : (isThai ? 'ใส่หัวข้อภาษาไทย...' : 'Enter Thai title...')
                     }
                   />
                 </div>
@@ -1389,14 +1326,14 @@ export default function AdminCmsStudioPage() {
 
                 <div>
                   <label className="block text-gold font-medium uppercase mb-1">
-                    คำบรรยายภาษาไทย (Description TH) 🇹🇭
+                    {isThai ? 'คำบรรยายภาษาไทย (Description TH) 🇹🇭' : 'Description in Thai (TH) 🇹🇭'}
                   </label>
                   <textarea
                     rows={2}
                     value={itemForm.descriptionTh}
                     onChange={e => setItemForm(prev => ({ ...prev, descriptionTh: e.target.value }))}
                     className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                    placeholder="ใส่คำบรรยายภาษาไทย..."
+                    placeholder={isThai ? 'ใส่คำบรรยายภาษาไทย...' : 'Enter Thai description...'}
                   />
                 </div>
               </div>
@@ -1407,33 +1344,33 @@ export default function AdminCmsStudioPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-txt-muted font-medium uppercase mb-1">
-                        ประเทศแหล่งกำเนิด (Origin Country EN) 🇬🇧
+                        {isThai ? 'ประเทศแหล่งกำเนิด (Origin Country EN) 🇬🇧' : 'Origin Country (EN) 🇬🇧'}
                       </label>
                       <input
                         type="text"
                         value={itemForm.badgeTag}
                         onChange={e => setItemForm(prev => ({ ...prev, badgeTag: e.target.value }))}
                         className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
-                        placeholder="เช่น ITALY, SPAIN, JAPAN, THAILAND"
+                        placeholder={isThai ? 'เช่น ITALY, SPAIN, JAPAN, THAILAND' : 'e.g. ITALY, SPAIN, JAPAN, THAILAND'}
                       />
                       <span className="text-[10px] text-txt-muted mt-0.5 block">
-                        แสดงผลเป็น: Origin: {itemForm.badgeTag || 'ITALY'}
+                        {isThai ? 'แสดงผลเป็น: ' : 'Displays as: '}Origin: {itemForm.badgeTag || 'ITALY'}
                       </span>
                     </div>
 
                     <div>
                       <label className="block text-gold font-medium uppercase mb-1">
-                        ประเทศแหล่งกำเนิดภาษาไทย (Origin Country TH) 🇹🇭
+                        {isThai ? 'ประเทศแหล่งกำเนิดภาษาไทย (Origin Country TH) 🇹🇭' : 'Origin Country in Thai (TH) 🇹🇭'}
                       </label>
                       <input
                         type="text"
                         value={itemForm.badgeTagTh}
                         onChange={e => setItemForm(prev => ({ ...prev, badgeTagTh: e.target.value }))}
                         className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
-                        placeholder="เช่น อิตาลี, สเปน, ญี่ปุ่น, ประเทศไทย"
+                        placeholder={isThai ? 'เช่น อิตาลี, สเปน, ญี่ปุ่น, ประเทศไทย' : 'e.g. Italy, Spain, Japan, Thailand'}
                       />
                       <span className="text-[10px] text-gold/80 mt-0.5 block">
-                        แสดงผลเป็น: แหล่งกำเนิด: {itemForm.badgeTagTh || 'อิตาลี'}
+                        {isThai ? 'แสดงผลเป็น: ' : 'Displays as: '}{isThai ? 'แหล่งกำเนิด: ' : 'Origin: '}{itemForm.badgeTagTh || (isThai ? 'อิตาลี' : 'Italy')}
                       </span>
                     </div>
                   </div>
@@ -1462,7 +1399,7 @@ export default function AdminCmsStudioPage() {
               {['BRAND_GRID', 'COLLECTION_GRID'].includes(editingSection?.section_type) && (
                 <div>
                   <label className="block text-txt-muted font-medium uppercase mb-1">
-                    {t.cms.itemLinkUrlLabel || 'ลิงก์เป้าหมายเมื่อคลิก (Link URL)'}
+                    {t.cms.itemLinkUrlLabel || (isThai ? 'ลิงก์เป้าหมายเมื่อคลิก (Link URL)' : 'Destination Link URL')}
                   </label>
                   <input
                     type="text"
@@ -1498,7 +1435,7 @@ export default function AdminCmsStudioPage() {
                         {uploadingItemImage && (
                           <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center text-gold text-[10px] gap-1">
                             <Loader2 className="w-5 h-5 animate-spin" />
-                            <span>อัปโหลด...</span>
+                            <span>{isThai ? 'อัปโหลด...' : 'Uploading...'}</span>
                           </div>
                         )}
                       </div>
@@ -1522,7 +1459,7 @@ export default function AdminCmsStudioPage() {
                             className="text-xs rounded-[2px]"
                           >
                             <Upload className="w-3.5 h-3.5 mr-1" />
-                            {uploadingItemImage ? 'กำลังอัปโหลด...' : 'อัปโหลดจากเครื่อง'}
+                            {uploadingItemImage ? (isThai ? 'กำลังอัปโหลด...' : 'Uploading...') : (isThai ? 'อัปโหลดจากเครื่อง' : 'Upload from Device')}
                           </Button>
 
                           <Button
@@ -1536,7 +1473,7 @@ export default function AdminCmsStudioPage() {
                             className="text-xs rounded-[2px]"
                           >
                             <ImageIcon className="w-3.5 h-3.5 mr-1" />
-                            {t.cms.chooseMediaButton || 'เลือกจากคลังสื่อ'}
+                            {t.cms.chooseMediaButton || (isThai ? 'เลือกจากคลังสื่อ' : 'Choose Media')}
                           </Button>
 
                           {itemForm.customImageUrl && (
@@ -1548,7 +1485,7 @@ export default function AdminCmsStudioPage() {
                               className="text-xs rounded-[2px] text-red-500 hover:text-red-600 hover:bg-red-950/10"
                             >
                               <Trash2 className="w-3.5 h-3.5 mr-1" />
-                              ล้างรูปภาพ
+                              {isThai ? 'ล้างรูปภาพ' : 'Remove Image'}
                             </Button>
                           )}
                         </div>
@@ -1559,7 +1496,7 @@ export default function AdminCmsStudioPage() {
                           value={itemForm.customImageUrl}
                           onChange={e => setItemForm(prev => ({ ...prev, customImageUrl: e.target.value, mediaId: '' }))}
                           className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-xs text-txt-main focus:outline-none focus:border-gold truncate"
-                          placeholder={t.cms.itemImagePlaceholder || 'หรือใส่ URL รูปภาพ...'}
+                          placeholder={t.cms.itemImagePlaceholder || (isThai ? 'หรือใส่ URL รูปภาพ...' : 'Or enter image URL...')}
                         />
                       </div>
                     </div>
