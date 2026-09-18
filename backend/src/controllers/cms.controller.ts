@@ -253,14 +253,23 @@ export async function updateAdminCmsSection(req: AuthenticatedRequest, res: Resp
       return res.status(404).json({ success: false, message: 'Section not found.' });
     }
 
-    const existingSettings = typeof existing[0].settings === 'object' && existing[0].settings !== null
-      ? existing[0].settings
-      : {};
+    let existingSettings = existing[0].settings;
+    if (typeof existingSettings === 'string') {
+      try { existingSettings = JSON.parse(existingSettings); } catch(e) { existingSettings = {}; }
+    }
+    if (!existingSettings || typeof existingSettings !== 'object') existingSettings = {};
+
     const inputSettings = typeof updates.settings === 'object' && updates.settings !== null
       ? updates.settings
       : {};
 
     const mergedSettings = { ...existingSettings, ...inputSettings };
+    if (existingSettings.living || inputSettings.living) {
+      mergedSettings.living = { ...(existingSettings.living || {}), ...(inputSettings.living || {}) };
+    }
+    if (existingSettings.kitchen || inputSettings.kitchen) {
+      mergedSettings.kitchen = { ...(existingSettings.kitchen || {}), ...(inputSettings.kitchen || {}) };
+    }
 
     const updated = await sql`
       UPDATE cms_sections

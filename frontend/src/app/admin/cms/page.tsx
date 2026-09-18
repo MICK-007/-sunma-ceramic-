@@ -45,6 +45,51 @@ const DEFAULT_CARD_COLORS = {
   cardLinkColor: '#AF8C64',
 };
 
+const DEFAULT_ROOM_SHOWCASE: Record<'living' | 'kitchen', any> = {
+  living: {
+    eyebrow: 'LIVING ROOM',
+    eyebrowTh: 'ห้องรับแขก',
+    title: 'Modern Elegance in Every Detail',
+    titleTh: 'ความสง่างามร่วมสมัยในทุกรายละเอียด',
+    description: 'Premium porcelain tiles that bring natural beauty and timeless style to your living space.',
+    descriptionTh: 'กระเบื้องพอร์ซเลนเกรดพรีเมียมที่นำความงามของธรรมชาติและความประณีตมาสู่พื้นที่อยู่อาศัยของคุณ',
+    buttonLabel: 'Discover More',
+    buttonLabelTh: 'ค้นพบเพิ่มเติม',
+    buttonUrl: '/shop?room=living-room',
+    bgImage: '/images/rooms/living room.png',
+    specBadge: 'Featured Collection',
+    specBadgeTh: 'คอลเลกชันแนะนำ',
+    specTitle: 'Calacatta Oro Polished Slab',
+    specTitleTh: 'Calacatta Oro Polished',
+    specType: 'Porcelain Tile (Polished)',
+    specTypeTh: 'กระเบื้องพอร์ซเลน (ผิวเงา)',
+    specSize: '60 × 120 cm',
+    specImage: '/images/tiles/calacatta-marble.jpeg',
+    specUrl: '/products/calacatta-oro-polished-slab',
+  },
+  kitchen: {
+    eyebrow: 'KITCHEN',
+    eyebrowTh: 'ห้องครัว',
+    title: 'Where Function Meets Beauty',
+    titleTh: 'เมื่อฟังก์ชันผสานความงดงามสมบูรณ์แบบ',
+    description: 'Beautiful tiles for your kitchen, creating a space that inspires everyday moments.',
+    descriptionTh: 'กระเบื้องพอร์ซเลนและสแลปหินอ่อนสำหรับห้องครัว ทนความร้อน รอยขีดข่วน และคราบมัน สร้างแรงบันดาลใจให้ทุกช่วงเวลา',
+    buttonLabel: 'Explore Collection',
+    buttonLabelTh: 'สำรวจคอลเลกชัน',
+    buttonUrl: '/shop?room=kitchen',
+    bgImage: '/images/rooms/kitchen room.png',
+    specBadge: 'Island Slab Spec',
+    specBadgeTh: 'สเปกกระเบื้องไอแลนด์',
+    specTitle: 'Sandstone Beige Porcelain Slab',
+    specTitleTh: 'Sandstone Beige Slab',
+    specType: 'Porcelain Slab (Matt)',
+    specTypeTh: 'กระเบื้องพอร์ซเลนแผ่นใหญ่ (ผิวแมตต์)',
+    specSize: '60 × 120 cm',
+    specImage: '/images/tiles/sandstone-beige.jpeg',
+    specUrl: '/products/walnut-heritage-chevron-slab',
+  },
+};
+
 export default function AdminCmsStudioPage() {
   const { t, language } = useLanguage();
   const isThai = language === 'TH';
@@ -99,7 +144,74 @@ export default function AdminCmsStudioPage() {
 
   // Media Library Modal
   const [isMediaOpen, setIsMediaOpen] = useState<boolean>(false);
-  const [mediaTargetField, setMediaTargetField] = useState<'section_hero' | 'item'>('item');
+  const [mediaTargetField, setMediaTargetField] = useState<string>('item');
+
+  // Room Showcase Customizer State
+  const [activeRoomTab, setActiveRoomTab] = useState<'living' | 'kitchen'>('living');
+  const roomFileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingRoomImage, setUploadingRoomImage] = useState<boolean>(false);
+  const [roomUploadTarget, setRoomUploadTarget] = useState<{ room: 'living' | 'kitchen'; field: 'bgImage' | 'specImage' }>({
+    room: 'living',
+    field: 'bgImage',
+  });
+
+  const updateRoomField = (room: 'living' | 'kitchen', field: string, value: any) => {
+    setEditingSection((prev: any) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        [room]: {
+          ...(prev.settings?.[room] || {}),
+          [field]: value,
+        },
+      },
+    }));
+  };
+
+  const resetRoomSettings = (room: 'living' | 'kitchen') => {
+    setEditingSection((prev: any) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        [room]: { ...DEFAULT_ROOM_SHOWCASE[room] },
+      },
+    }));
+  };
+
+  const handleRoomImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('File size exceeds maximum limit of 5MB.');
+      return;
+    }
+
+    setUploadingRoomImage(true);
+    setErrorMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('altText', `${roomUploadTarget.room} ${roomUploadTarget.field}`);
+
+      const res = await api.uploadAdminMediaBinary(formData);
+      if (res.success && res.data) {
+        const url = resolveMediaUrl(res.data.url);
+        updateRoomField(roomUploadTarget.room, roomUploadTarget.field, url);
+        setSuccessMessage(isThai ? 'อัปโหลดรูปภาพสำเร็จ' : 'Image uploaded successfully.');
+      } else {
+        setErrorMessage(res.message || 'Failed to upload image.');
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Error uploading image.');
+    } finally {
+      setUploadingRoomImage(false);
+      if (roomFileInputRef.current) {
+        roomFileInputRef.current.value = '';
+      }
+    }
+  };
 
   // Direct Item Image Upload from Device
   const itemFileInputRef = useRef<HTMLInputElement>(null);
@@ -534,6 +646,14 @@ export default function AdminCmsStudioPage() {
           bgImage: resolveMediaUrl(media.url),
         },
       }));
+    } else if (mediaTargetField === 'room_living_bg' && editingSection) {
+      updateRoomField('living', 'bgImage', resolveMediaUrl(media.url));
+    } else if (mediaTargetField === 'room_living_spec' && editingSection) {
+      updateRoomField('living', 'specImage', resolveMediaUrl(media.url));
+    } else if (mediaTargetField === 'room_kitchen_bg' && editingSection) {
+      updateRoomField('kitchen', 'bgImage', resolveMediaUrl(media.url));
+    } else if (mediaTargetField === 'room_kitchen_spec' && editingSection) {
+      updateRoomField('kitchen', 'specImage', resolveMediaUrl(media.url));
     } else {
       setItemForm(prev => ({
         ...prev,
@@ -645,7 +765,11 @@ export default function AdminCmsStudioPage() {
                       <span className="text-[10px] font-mono text-txt-muted w-4">{idx + 1}</span>
                       <div className="truncate">
                         <span className="text-xs font-bold text-txt-main block truncate">
-                          {sec.title || sec.section_key}
+                          {sec.section_key === 'room_showcase' || sec.section_type === 'ROOM_SHOWCASE'
+                            ? (isThai ? 'โชว์เคสห้องรับแขก & ห้องครัว (Room Showcase)' : 'Interior Room Showcase')
+                            : sec.section_key === 'collections' || sec.section_type === 'COLLECTION_GRID'
+                            ? (isThai ? 'คอลเลกชันกระเบื้องที่คัดสรร (Tile Collections)' : 'Curated Tile Collections')
+                            : (sec.title || sec.section_key)}
                         </span>
                         <span className="text-[9px] text-txt-muted uppercase tracking-wider">
                           {t.cms.sectionType} {sec.section_type}
@@ -901,6 +1025,472 @@ export default function AdminCmsStudioPage() {
                 </div>
               )}
 
+              {/* ROOM_SHOWCASE Section-Specific Settings (Living Room & Kitchen) */}
+              {editingSection.section_type === 'ROOM_SHOWCASE' && (
+                <div className="space-y-6 pt-4 border-t border-border-subtle text-xs">
+                  {/* Header with Title & Reset Button */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-bold text-gold uppercase tracking-wider flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4" /> {isThai ? 'จัดการโชว์เคสห้องรับแขก & ห้องครัว (Interior Room Showcase)' : 'Interior Room Showcase Customizer'}
+                      </h4>
+                      <p className="text-[11px] text-txt-muted mt-0.5">
+                        {isThai
+                          ? 'ปรับแต่งภาพพื้นหลัง หัวข้อ คำบรรยาย ปุ่ม และการ์ดป๊อปอัปสเปกกระเบื้องสำหรับห้องรับแขกและห้องครัว'
+                          : 'Customize room imagery, narratives, buttons, and floating tile spec cards for both rooms.'}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => resetRoomSettings(activeRoomTab)}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-txt-muted hover:text-gold border border-border-subtle hover:border-gold rounded-[2px] bg-white transition-colors shadow-sm"
+                      title={isThai ? 'รีเซ็ตห้องนี้เป็นค่าเดิม' : 'Reset this room to defaults'}
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span>{isThai ? `คืนค่าเดิม (${activeRoomTab === 'living' ? 'ห้องรับแขก' : 'ห้องครัว'})` : 'Reset Defaults'}</span>
+                    </button>
+                  </div>
+
+                  {/* Hidden file input for room image uploads */}
+                  <input
+                    type="file"
+                    ref={roomFileInputRef}
+                    onChange={handleRoomImageUpload}
+                    accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                    className="hidden"
+                  />
+
+                  {/* Room Switcher Tabs */}
+                  <div className="flex border-b border-border-subtle gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveRoomTab('living')}
+                      className={`pb-2.5 px-4 font-bold text-xs uppercase tracking-wider border-b-2 transition-colors flex items-center gap-2 ${
+                        activeRoomTab === 'living'
+                          ? 'border-gold text-gold'
+                          : 'border-transparent text-txt-muted hover:text-txt-main'
+                      }`}
+                    >
+                      <span>🛋️</span>
+                      <span>{isThai ? '1. ห้องรับแขก (Living Room)' : '1. Living Room'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveRoomTab('kitchen')}
+                      className={`pb-2.5 px-4 font-bold text-xs uppercase tracking-wider border-b-2 transition-colors flex items-center gap-2 ${
+                        activeRoomTab === 'kitchen'
+                          ? 'border-gold text-gold'
+                          : 'border-transparent text-txt-muted hover:text-txt-main'
+                      }`}
+                    >
+                      <span>🍳</span>
+                      <span>{isThai ? '2. ห้องครัว (Kitchen)' : '2. Kitchen'}</span>
+                    </button>
+                  </div>
+
+                  {/* Active Room Form Content */}
+                  {(() => {
+                    const currentRoomData = {
+                      ...(DEFAULT_ROOM_SHOWCASE[activeRoomTab] || {}),
+                      ...(editingSection.settings?.[activeRoomTab] && typeof editingSection.settings[activeRoomTab] === 'object'
+                        ? editingSection.settings[activeRoomTab]
+                        : {}),
+                    };
+
+                    return (
+                      <div className="space-y-6">
+                        {/* PART 1: Room Background & Narrative */}
+                        <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-4 space-y-4">
+                          <h5 className="font-bold text-txt-main uppercase tracking-wider text-[11px] flex items-center gap-1.5 pb-2 border-b border-border-subtle">
+                            <span>🖼️</span> {isThai ? '1. ภาพพื้นหลังและข้อความแนะนำห้อง (Room Background & Narrative)' : '1. Room Background & Narrative'}
+                          </h5>
+
+                          {/* Background Image Uploader */}
+                          <div>
+                            <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                              {isThai ? 'ภาพพื้นหลังขนาดใหญ่ (Background Interior Image)' : 'Background Interior Image'}
+                            </label>
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                              {/* Preview Thumbnail */}
+                              <div className="relative w-28 h-20 rounded-[2px] overflow-hidden border border-border-subtle bg-neutral-900 shrink-0 flex items-center justify-center">
+                                {currentRoomData.bgImage ? (
+                                  <img
+                                    src={resolveMediaUrl(currentRoomData.bgImage)}
+                                    alt="Room BG"
+                                    onError={(e) => {
+                                      (e.currentTarget as HTMLImageElement).src =
+                                        activeRoomTab === 'living'
+                                          ? '/images/rooms/living room.png'
+                                          : '/images/rooms/kitchen room.png';
+                                    }}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <ImageIcon className="w-8 h-8 text-neutral-600" />
+                                )}
+                                {uploadingRoomImage && roomUploadTarget.room === activeRoomTab && roomUploadTarget.field === 'bgImage' && (
+                                  <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-gold text-[10px] gap-1">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>{isThai ? 'อัปโหลด...' : 'Uploading...'}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="flex-1 w-full space-y-2">
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    value={currentRoomData.bgImage || ''}
+                                    onChange={e => updateRoomField(activeRoomTab, 'bgImage', e.target.value)}
+                                    className="flex-1 bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold font-mono text-[11px]"
+                                    placeholder={activeRoomTab === 'living' ? '/images/rooms/living room.png' : '/images/rooms/kitchen room.png'}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="rounded-[2px] shrink-0"
+                                    onClick={() => {
+                                      setMediaTargetField(activeRoomTab === 'living' ? 'room_living_bg' : 'room_kitchen_bg');
+                                      setIsMediaOpen(true);
+                                    }}
+                                  >
+                                    <ImageIcon className="w-3.5 h-3.5 mr-1" /> {t.cms.chooseMediaButton}
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="rounded-[2px] shrink-0"
+                                    onClick={() => {
+                                      setRoomUploadTarget({ room: activeRoomTab, field: 'bgImage' });
+                                      roomFileInputRef.current?.click();
+                                    }}
+                                  >
+                                    <Upload className="w-3.5 h-3.5 mr-1" /> {isThai ? 'อัปโหลด' : 'Upload'}
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Eyebrow / Kicker */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                                Eyebrow / Kicker (EN) 🇬🇧
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.eyebrow || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'eyebrow', e.target.value)}
+                                className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                                placeholder={activeRoomTab === 'living' ? 'LIVING ROOM' : 'KITCHEN'}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                                Eyebrow ภาษาไทย (TH) 🇹🇭
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.eyebrowTh || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'eyebrowTh', e.target.value)}
+                                className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                                placeholder={activeRoomTab === 'living' ? 'ห้องรับแขก' : 'ห้องครัว'}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Heading Title */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                                Room Title (EN) 🇬🇧
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.title || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'title', e.target.value)}
+                                className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold font-semibold"
+                                placeholder={activeRoomTab === 'living' ? 'Modern Elegance in Every Detail' : 'Where Function Meets Beauty'}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                                {isThai ? 'ชื่อหัวข้อห้องภาษาไทย (TH) 🇹🇭' : 'Room Title in Thai (TH) 🇹🇭'}
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.titleTh || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'titleTh', e.target.value)}
+                                className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold font-semibold"
+                                placeholder={activeRoomTab === 'living' ? 'ความสง่างามร่วมสมัยในทุกรายละเอียด' : 'เมื่อฟังก์ชันผสานความงดงามสมบูรณ์แบบ'}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Description Body */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                                Description (EN) 🇬🇧
+                              </label>
+                              <textarea
+                                rows={2}
+                                value={currentRoomData.description || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'description', e.target.value)}
+                                className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                                placeholder="Premium porcelain tiles that bring natural beauty..."
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                                {isThai ? 'คำบรรยายภาษาไทย (TH) 🇹🇭' : 'Description in Thai (TH) 🇹🇭'}
+                              </label>
+                              <textarea
+                                rows={2}
+                                value={currentRoomData.descriptionTh || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'descriptionTh', e.target.value)}
+                                className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                                placeholder={isThai ? 'กระเบื้องพอร์ซเลนเกรดพรีเมียมที่นำความงามของธรรมชาติ...' : 'Thai description...'}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Button Label & URL */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                                Button Label (EN) 🇬🇧
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.buttonLabel || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'buttonLabel', e.target.value)}
+                                className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                                placeholder={activeRoomTab === 'living' ? 'Discover More' : 'Explore Collection'}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                                {isThai ? 'ข้อความบนปุ่ม (TH) 🇹🇭' : 'Button Label in Thai (TH) 🇹🇭'}
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.buttonLabelTh || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'buttonLabelTh', e.target.value)}
+                                className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                                placeholder={activeRoomTab === 'living' ? 'ค้นพบเพิ่มเติม' : 'สำรวจคอลเลกชัน'}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                                Button Destination URL
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.buttonUrl || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'buttonUrl', e.target.value)}
+                                className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                                placeholder={activeRoomTab === 'living' ? '/shop?room=living-room' : '/shop?room=kitchen'}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* PART 2: Floating Spec Card Customization */}
+                        <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-4 space-y-4">
+                          <h5 className="font-bold text-gold uppercase tracking-wider text-[11px] flex items-center gap-1.5 pb-2 border-b border-border-subtle">
+                            <span>🏷️</span> {isThai ? '2. การ์ดป๊อปอัปสเปกกระเบื้องตัวอย่าง (Floating Spec Card)' : '2. Floating Spec Card Details'}
+                          </h5>
+
+                          {/* Spec Swatch Image Uploader */}
+                          <div>
+                            <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                              {isThai ? 'ภาพตัวอย่างเนื้อกระเบื้อง (Spec Tile Swatch Image)' : 'Spec Tile Swatch Image'}
+                            </label>
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                              {/* Swatch Preview Thumbnail */}
+                              <div className="relative w-16 h-20 rounded-[2px] overflow-hidden border border-border-subtle bg-white shrink-0 flex items-center justify-center">
+                                {currentRoomData.specImage ? (
+                                  <img
+                                    src={resolveMediaUrl(currentRoomData.specImage)}
+                                    alt="Spec Swatch"
+                                    onError={(e) => {
+                                      (e.currentTarget as HTMLImageElement).src =
+                                        activeRoomTab === 'living'
+                                          ? '/images/tiles/calacatta-marble.jpeg'
+                                          : '/images/tiles/sandstone-beige.jpeg';
+                                    }}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <ImageIcon className="w-6 h-6 text-stone/40" />
+                                )}
+                                {uploadingRoomImage && roomUploadTarget.room === activeRoomTab && roomUploadTarget.field === 'specImage' && (
+                                  <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-gold text-[10px] gap-1">
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>...</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="flex-1 w-full space-y-2">
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    value={currentRoomData.specImage || ''}
+                                    onChange={e => updateRoomField(activeRoomTab, 'specImage', e.target.value)}
+                                    className="flex-1 bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold font-mono text-[11px]"
+                                    placeholder={activeRoomTab === 'living' ? '/images/tiles/calacatta-marble.jpeg' : '/images/tiles/sandstone-beige.jpeg'}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="rounded-[2px] shrink-0"
+                                    onClick={() => {
+                                      setMediaTargetField(activeRoomTab === 'living' ? 'room_living_spec' : 'room_kitchen_spec');
+                                      setIsMediaOpen(true);
+                                    }}
+                                  >
+                                    <ImageIcon className="w-3.5 h-3.5 mr-1" /> {t.cms.chooseMediaButton}
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="rounded-[2px] shrink-0"
+                                    onClick={() => {
+                                      setRoomUploadTarget({ room: activeRoomTab, field: 'specImage' });
+                                      roomFileInputRef.current?.click();
+                                    }}
+                                  >
+                                    <Upload className="w-3.5 h-3.5 mr-1" /> {isThai ? 'อัปโหลด' : 'Upload'}
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Spec Badge & Product Name */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                                Spec Badge (EN) 🇬🇧
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.specBadge || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'specBadge', e.target.value)}
+                                className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                                placeholder={activeRoomTab === 'living' ? 'Featured Collection' : 'Island Slab Spec'}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                                {isThai ? 'ป้ายหัวการ์ดสเปก (TH) 🇹🇭' : 'Spec Badge in Thai (TH) 🇹🇭'}
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.specBadgeTh || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'specBadgeTh', e.target.value)}
+                                className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                                placeholder={activeRoomTab === 'living' ? 'คอลเลกชันแนะนำ' : 'สเปกกระเบื้องไอแลนด์'}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Spec Product Title */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                                Product Name / Spec Title (EN) 🇬🇧
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.specTitle || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'specTitle', e.target.value)}
+                                className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold font-semibold"
+                                placeholder={activeRoomTab === 'living' ? 'Calacatta Oro Polished Slab' : 'Sandstone Beige Porcelain Slab'}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                                {isThai ? 'ชื่อสินค้า/สเปกภาษาไทย (TH) 🇹🇭' : 'Spec Title in Thai (TH) 🇹🇭'}
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.specTitleTh || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'specTitleTh', e.target.value)}
+                                className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold font-semibold"
+                                placeholder={activeRoomTab === 'living' ? 'Calacatta Oro Polished' : 'Sandstone Beige Slab'}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Spec Material Type & Dimensions */}
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                                Material Type (EN) 🇬🇧
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.specType || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'specType', e.target.value)}
+                                className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                                placeholder={activeRoomTab === 'living' ? 'Porcelain Tile (Polished)' : 'Porcelain Slab (Matt)'}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                                {isThai ? 'ประเภทวัสดุ/พื้นผิว (TH) 🇹🇭' : 'Material Type in Thai (TH) 🇹🇭'}
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.specTypeTh || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'specTypeTh', e.target.value)}
+                                className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                                placeholder={activeRoomTab === 'living' ? 'กระเบื้องพอร์ซเลน (ผิวเงา)' : 'กระเบื้องพอร์ซเลนแผ่นใหญ่ (ผิวแมตต์)'}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                                Dimensions / Size
+                              </label>
+                              <input
+                                type="text"
+                                value={currentRoomData.specSize || ''}
+                                onChange={e => updateRoomField(activeRoomTab, 'specSize', e.target.value)}
+                                className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold font-mono"
+                                placeholder="60 × 120 cm"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Spec Detail Link URL */}
+                          <div>
+                            <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                              {isThai ? 'ลิงก์ไปยังหน้ารายละเอียดสินค้า (Product Page URL)' : 'Product Page Link URL'}
+                            </label>
+                            <input
+                              type="text"
+                              value={currentRoomData.specUrl || ''}
+                              onChange={e => updateRoomField(activeRoomTab, 'specUrl', e.target.value)}
+                              className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold font-mono text-[11px]"
+                              placeholder={activeRoomTab === 'living' ? '/products/calacatta-oro-polished-slab' : '/products/walnut-heritage-chevron-slab'}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
               {/* B2B_CTA Section-Specific Settings */}
               {editingSection.section_type === 'B2B_CTA' && (
                 <div className="space-y-4 pt-4 border-t border-border-subtle text-xs">
@@ -1004,6 +1594,44 @@ export default function AdminCmsStudioPage() {
               {/* COLLECTION_GRID Section-Specific Color Customization */}
               {editingSection.section_type === 'COLLECTION_GRID' && (
                 <div className="space-y-4 pt-4 border-t border-border-subtle text-xs">
+                  {/* Eyebrow / Kicker */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-3 border-b border-border-subtle">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        Eyebrow / Kicker (EN) 🇬🇧
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.eyebrow || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, eyebrow: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="e.g. ARCHITECTURAL SERIES"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'Eyebrow ภาษาไทย (TH) 🇹🇭' : 'Eyebrow in Thai (TH) 🇹🇭'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.eyebrowTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, eyebrowTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder={isThai ? 'เช่น ซีรีส์กระเบื้องสถาปัตยกรรม' : 'e.g. Architectural Series'}
+                      />
+                    </div>
+                  </div>
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-bold text-gold uppercase tracking-wider flex items-center gap-1.5">

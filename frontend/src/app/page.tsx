@@ -36,6 +36,11 @@ export default function HomePage() {
     s => s && s.is_enabled !== false && (s.section_type === 'HERO' || s.section_key === 'hero')
   );
 
+  // Find room showcase section from CMS if published
+  const roomShowcaseSection = (cmsSections || []).find(
+    s => s && s.is_enabled !== false && (s.section_type === 'ROOM_SHOWCASE' || s.section_key === 'room_showcase')
+  );
+
   // Find why_choose section from CMS if published
   const whyChooseSection = (cmsSections || []).find(
     s => s && s.is_enabled !== false && (s.section_type === 'WHY_CHOOSE' || s.section_key === 'why_choose')
@@ -46,9 +51,13 @@ export default function HomePage() {
     s => s && s.is_enabled !== false && (s.section_type === 'COLLECTION_GRID' || s.section_key === 'collections')
   );
 
-  // Filter out any published sections that might augment the page (e.g. B2B services, Brand partners)
+  // Filter out any published sections that are already explicitly rendered in the bespoke layout
   const additionalCmsSections = (cmsSections || []).filter(
-    s => s && s.is_enabled !== false && s.section_type !== 'HERO' && s.section_type !== 'WHY_CHOOSE' && s.section_key !== 'hero' && s.section_key !== 'why_choose'
+    s => s && s.is_enabled !== false && 
+      s.section_type !== 'HERO' && s.section_key !== 'hero' &&
+      s.section_type !== 'ROOM_SHOWCASE' && s.section_key !== 'room_showcase' &&
+      s.section_type !== 'COLLECTION_GRID' && s.section_key !== 'collections' &&
+      s.section_type !== 'WHY_CHOOSE' && s.section_key !== 'why_choose'
   );
 
   return (
@@ -56,10 +65,10 @@ export default function HomePage() {
       {/* 1. HERO SECTION — Modern Architectural Villa (Connected to CMS) */}
       <ArchitecturalHero content={heroSection} />
 
-      {/* 2. INTERIOR ROOM SHOWCASE — Living Room & Kitchen with Collection Popups */}
-      <InteriorRoomShowcase />
+      {/* 2. INTERIOR ROOM SHOWCASE — Living Room & Kitchen with Collection Popups (Connected to CMS) */}
+      <InteriorRoomShowcase content={roomShowcaseSection} />
 
-      {/* 3. CATEGORIES SECTION — 5-Column Minimalist Tile Grid (Connected to CMS color settings) */}
+      {/* 3. CATEGORIES SECTION — Curated Tile Collections (Connected to CMS) */}
       <TileCategoriesGrid content={collectionsSection} />
 
       {/* 4. FEATURES SECTION — Why Choose SUNMA Ceramic (Connected to CMS) */}

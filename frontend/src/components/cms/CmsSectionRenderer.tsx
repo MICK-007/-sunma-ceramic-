@@ -1,5 +1,6 @@
 import React from 'react';
 import { CMSHero } from './CMSHero';
+import { InteriorRoomShowcase } from '../home/InteriorRoomShowcase';
 import { CMSCollectionGrid } from './CMSCollectionGrid';
 import { CMSFeaturedProducts } from './CMSFeaturedProducts';
 import { CMSBrandGrid } from './CMSBrandGrid';
@@ -25,6 +26,7 @@ export interface CmsSectionRendererProps {
 
 const SECTION_COMPONENTS: Record<string, React.ComponentType<{ content: any }>> = {
   HERO: CMSHero,
+  ROOM_SHOWCASE: InteriorRoomShowcase,
   COLLECTION_GRID: CMSCollectionGrid,
   FEATURED_PRODUCTS: CMSFeaturedProducts,
   BRAND_GRID: CMSBrandGrid,

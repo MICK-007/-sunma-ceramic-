@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { resolveMediaUrl } from '@/lib/media';
 
 import { api } from '@/services/api';
 
@@ -70,6 +71,10 @@ export const TileCategoriesGrid: React.FC<TileCategoriesGridProps> = ({ content 
   const { language } = useLanguage();
   const isThai = language === 'TH';
 
+  if (content && content.is_enabled === false) {
+    return null;
+  }
+
   let settings = content?.settings || {};
   if (typeof settings === 'string') {
     try {
@@ -80,13 +85,46 @@ export const TileCategoriesGrid: React.FC<TileCategoriesGridProps> = ({ content 
   }
 
   const cardTitleColor = settings.cardTitleColor || '#FFFFFF';
-  const cardTitleHoverColor = settings.cardTitleHoverColor || '#D4AF37';
-  const cardTextColor = settings.cardTextColor || 'rgba(255, 255, 255, 0.7)';
-  const cardLinkColor = settings.cardLinkColor || '#D4AF37';
+  const cardTitleHoverColor = settings.cardTitleHoverColor || '#AF8C64';
+  const cardTextColor = settings.cardTextColor || '#CCCCCC';
+  const cardLinkColor = settings.cardLinkColor || '#AF8C64';
 
   const [categoriesList, setCategoriesList] = React.useState<TileCategoryCard[]>(CATEGORIES);
 
+  const cmsItems: TileCategoryCard[] | null = React.useMemo(() => {
+    if (!content?.items || !Array.isArray(content.items) || content.items.length === 0) {
+      return null;
+    }
+    return content.items
+      .filter((it: any) => it.is_enabled !== false)
+      .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      .map((it: any) => {
+        let meta = it.metadata;
+        if (typeof meta === 'string') {
+          try {
+            meta = JSON.parse(meta);
+          } catch (e) {
+            meta = {};
+          }
+        }
+        meta = meta || {};
+
+        return {
+          id: String(it.id),
+          slug: it.link_url ? it.link_url.replace(/.*category=/, '') : '',
+          nameEn: it.title || '',
+          nameTh: meta.titleTh || it.title || '',
+          descEn: it.description || '',
+          descTh: meta.descriptionTh || it.description || '',
+          image: resolveMediaUrl(it.custom_image_url) || '/images/rooms/living room.png',
+          href: it.link_url || '/shop',
+        };
+      });
+  }, [content?.items]);
+
   React.useEffect(() => {
+    if (cmsItems && cmsItems.length > 0) return;
+
     api.getCategories()
       .then((res) => {
         if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
@@ -112,7 +150,9 @@ export const TileCategoriesGrid: React.FC<TileCategoriesGridProps> = ({ content 
         }
       })
       .catch(() => {});
-  }, []);
+  }, [cmsItems]);
+
+  const displayedList = cmsItems && cmsItems.length > 0 ? cmsItems : categoriesList;
 
   return (
     <section className="w-full bg-[#FAF9F6] py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-t border-border-subtle">
@@ -120,16 +160,20 @@ export const TileCategoriesGrid: React.FC<TileCategoriesGridProps> = ({ content 
         {/* Header matching Image 2 */}
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-2.5">
           <span className="text-[11px] uppercase font-semibold tracking-[0.3em] text-gold block">
-            {isThai ? 'ซีรีส์กระเบื้องสถาปัตยกรรม' : 'ARCHITECTURAL SERIES'}
+            {isThai
+              ? (settings.eyebrowTh || content?.subtitle || 'ซีรีส์กระเบื้องสถาปัตยกรรม')
+              : (settings.eyebrow || content?.subtitle || 'ARCHITECTURAL SERIES')}
           </span>
           <h2 className="font-heading text-3xl sm:text-4xl font-normal text-txt-main">
-            {isThai ? 'คอลเลกชันกระเบื้องที่คัดสรร' : 'Curated Tile Collections'}
+            {isThai
+              ? (settings.titleTh || content?.title || 'คอลเลกชันกระเบื้องที่คัดสรร')
+              : (content?.title || 'Curated Tile Collections')}
           </h2>
         </div>
 
         {/* 4-Column Tall Portrait Cards matching Image 2 (aspect-[3/4] with gap-6 sm:gap-8) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
-          {categoriesList.map((cat) => (
+          {displayedList.map((cat) => (
             <Link
               key={cat.id}
               href={cat.href}
