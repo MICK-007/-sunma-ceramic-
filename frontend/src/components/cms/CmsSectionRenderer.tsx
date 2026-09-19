@@ -7,6 +7,9 @@ import { CMSBrandGrid } from './CMSBrandGrid';
 import { CMSWhyChoose } from './CMSWhyChoose';
 import { CMSB2BCTA } from './CMSB2BCTA';
 import { CMSFooter } from './CMSFooter';
+import { CMSAboutHero } from './CMSAboutHero';
+import { CMSAboutPillars } from './CMSAboutPillars';
+import { CMSContactInfo } from './CMSContactInfo';
 
 export interface CmsSectionData {
   id: string;
@@ -33,6 +36,9 @@ const SECTION_COMPONENTS: Record<string, React.ComponentType<{ content: any }>> 
   WHY_CHOOSE: CMSWhyChoose,
   B2B_CTA: CMSB2BCTA,
   FOOTER: CMSFooter,
+  ABOUT_HERO: CMSAboutHero,
+  ABOUT_PILLARS: CMSAboutPillars,
+  CONTACT_INFO: CMSContactInfo,
 };
 
 export const CmsSectionRenderer: React.FC<CmsSectionRendererProps> = ({ sections }) => {

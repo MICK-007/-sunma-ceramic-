@@ -255,6 +255,48 @@ export default function AdminCmsStudioPage() {
     }
   };
 
+  // Direct About Hero Image Upload
+  const aboutHeroFileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingAboutHeroImage, setUploadingAboutHeroImage] = useState<boolean>(false);
+
+  const handleAboutHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('File size exceeds maximum limit of 5MB.');
+      return;
+    }
+
+    setUploadingAboutHeroImage(true);
+    setErrorMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('altText', 'About Showroom Hero Image');
+
+      const res = await api.uploadAdminMediaBinary(formData);
+      if (res.success && res.data) {
+        const url = resolveMediaUrl(res.data.url);
+        setEditingSection((prev: any) => ({
+          ...prev,
+          settings: { ...(prev?.settings || {}), bgImage: url },
+        }));
+        setSuccessMessage(isThai ? 'อัปโหลดรูปภาพโชว์รูมสำเร็จ' : 'Showroom image uploaded successfully.');
+      } else {
+        setErrorMessage(res.message || 'Failed to upload image.');
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Error uploading image.');
+    } finally {
+      setUploadingAboutHeroImage(false);
+      if (aboutHeroFileInputRef.current) {
+        aboutHeroFileInputRef.current.value = '';
+      }
+    }
+  };
+
   useEffect(() => {
     fetchDraftPage(activeSlug);
   }, [activeSlug]);
@@ -279,9 +321,7 @@ export default function AdminCmsStudioPage() {
         });
         setPageData(res.data.page);
         setSections(normalizedSections);
-        if (normalizedSections.length > 0 && !editingSection) {
-          setEditingSection(normalizedSections[0]);
-        }
+        setEditingSection(normalizedSections[0] || null);
       } else {
         setErrorMessage(res?.message || `Failed to load CMS draft for '${slug}'`);
       }
@@ -638,7 +678,7 @@ export default function AdminCmsStudioPage() {
 
   // 6. Media Library Selection Handler
   const handleMediaSelect = (media: CmsMediaItem) => {
-    if (mediaTargetField === 'section_hero' && editingSection) {
+    if ((mediaTargetField === 'section_hero' || mediaTargetField === 'about_hero_image') && editingSection) {
       setEditingSection((prev: any) => ({
         ...prev,
         settings: {
@@ -705,10 +745,15 @@ export default function AdminCmsStudioPage() {
         <div className="flex items-center gap-3">
           <select
             value={activeSlug}
-            onChange={e => setActiveSlug(e.target.value)}
+            onChange={e => {
+              setActiveSlug(e.target.value);
+              setEditingSection(null);
+            }}
             className="bg-white border border-border-subtle text-txt-main text-xs font-bold px-3 py-2 rounded-[2px] focus:outline-none focus:border-gold"
           >
             <option value="home">{t.cms.homePageOption}</option>
+            <option value="about">{t.cms.aboutPageOption}</option>
+            <option value="contact">{t.cms.contactPageOption}</option>
             <option value="footer">{t.cms.footerOption}</option>
           </select>
 
@@ -769,6 +814,12 @@ export default function AdminCmsStudioPage() {
                             ? (isThai ? 'โชว์เคสห้องรับแขก & ห้องครัว (Room Showcase)' : 'Interior Room Showcase')
                             : sec.section_key === 'collections' || sec.section_type === 'COLLECTION_GRID'
                             ? (isThai ? 'คอลเลกชันกระเบื้องที่คัดสรร (Tile Collections)' : 'Curated Tile Collections')
+                            : sec.section_key === 'about_hero' || sec.section_type === 'ABOUT_HERO'
+                            ? (isThai ? 'ฮีโร่และข้อมูลสตูดิโอ (About Hero)' : 'About Hero & Atelier Overview')
+                            : sec.section_key === 'about_pillars' || sec.section_type === 'ABOUT_PILLARS'
+                            ? (isThai ? 'จุดเด่นและบริการ (Core Pillars)' : 'Core Capabilities & Pillars')
+                            : sec.section_key === 'contact_info' || sec.section_type === 'CONTACT_INFO'
+                            ? (isThai ? 'ข้อมูลติดต่อและโชว์รูม (Contact & Showroom)' : 'Contact & Showroom Info')
                             : (sec.title || sec.section_key)}
                         </span>
                         <span className="text-[9px] text-txt-muted uppercase tracking-wider">
@@ -1852,8 +1903,476 @@ export default function AdminCmsStudioPage() {
                 </div>
               )}
 
+              {/* ABOUT_HERO Section-Specific Settings */}
+              {editingSection.section_type === 'ABOUT_HERO' && (
+                <div className="space-y-4 pt-4 border-t border-border-subtle text-xs">
+                  <h4 className="font-bold text-gold uppercase tracking-wider">
+                    {isThai ? 'การตั้งค่าแบนเนอร์และข้อมูลสตูดิโอ (About Hero & Atelier Settings)' : 'About Hero & Atelier Settings'}
+                  </h4>
+
+                  {/* Hidden file input for About Hero image upload */}
+                  <input
+                    type="file"
+                    ref={aboutHeroFileInputRef}
+                    onChange={handleAboutHeroImageUpload}
+                    accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                    className="hidden"
+                  />
+
+                  {/* Eyebrow EN & TH */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        Eyebrow / Kicker (EN) 🇬🇧
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.eyebrow || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, eyebrow: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="THE ARCHITECTURAL ATELIER"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'Eyebrow ภาษาไทย (TH) 🇹🇭' : 'Eyebrow in Thai (TH) 🇹🇭'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.eyebrowTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, eyebrowTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="สตูดิโอสถาปัตยกรรมและแผ่นหินพอร์ซเลน"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Story Narrative Description EN & TH */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'เนื้อหาเรื่องราวสตูดิโอ (Description EN) 🇬🇧' : 'Atelier Story Narrative (EN) 🇬🇧'}
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={editingSection.settings?.description || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, description: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="SUNMA CERAMIC is a premium architectural ceramic atelier..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'เนื้อหาเรื่องราวสตูดิโอภาษาไทย (Description TH) 🇹🇭' : 'Atelier Story Narrative in Thai (TH) 🇹🇭'}
+                      </label>
+                      <textarea
+                        rows={4}
+                        value={editingSection.settings?.descriptionTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, descriptionTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="SUNMA CERAMIC คือสตูดิโอนำเข้าและจัดจำหน่ายกระเบื้องแผ่นพอร์ซเลน..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Hero Showroom Image with preview, choose media, and direct upload */}
+                  <div>
+                    <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                      {isThai ? 'รูปภาพโชว์รูม / แบนเนอร์ (Showroom Hero Image)' : 'Showroom Hero Image'}
+                    </label>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <div className="relative w-36 h-20 rounded-[2px] overflow-hidden border border-border-subtle bg-white shrink-0 flex items-center justify-center">
+                        {editingSection.settings?.bgImage ? (
+                          <img
+                            src={resolveMediaUrl(editingSection.settings.bgImage)}
+                            alt="About Hero"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <ImageIcon className="w-6 h-6 text-stone/40" />
+                        )}
+                        {uploadingAboutHeroImage && (
+                          <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-gold text-[10px] gap-1">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>...</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 w-full space-y-2">
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={editingSection.settings?.bgImage || ''}
+                            onChange={e =>
+                              setEditingSection((prev: any) => ({
+                                ...prev,
+                                settings: { ...prev.settings, bgImage: e.target.value },
+                              }))
+                            }
+                            className="flex-1 bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold font-mono text-[11px]"
+                            placeholder="https://images.unsplash.com/..."
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="rounded-[2px] shrink-0"
+                            onClick={() => {
+                              setMediaTargetField('about_hero_image');
+                              setIsMediaOpen(true);
+                            }}
+                          >
+                            <ImageIcon className="w-3.5 h-3.5 mr-1" /> {t.cms.chooseMediaButton}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={uploadingAboutHeroImage}
+                            className="rounded-[2px] shrink-0"
+                            onClick={() => aboutHeroFileInputRef.current?.click()}
+                          >
+                            <Upload className="w-3.5 h-3.5 mr-1" /> {isThai ? 'อัปโหลด' : 'Upload'}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* CONTACT_INFO Section-Specific Settings */}
+              {editingSection.section_type === 'CONTACT_INFO' && (
+                <div className="space-y-4 pt-4 border-t border-border-subtle text-xs">
+                  <h4 className="font-bold text-gold uppercase tracking-wider">
+                    {isThai ? 'การตั้งค่าข้อมูลติดต่อและโชว์รูม (Contact & Showroom Settings)' : 'Contact & Showroom Information Settings'}
+                  </h4>
+
+                  {/* Eyebrow EN & TH */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        Eyebrow / Kicker (EN) 🇬🇧
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.eyebrow || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, eyebrow: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="PROJECT INQUIRY & SHOWROOM"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'Eyebrow ภาษาไทย (TH) 🇹🇭' : 'Eyebrow in Thai (TH) 🇹🇭'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.eyebrowTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, eyebrowTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="ติดต่อสอบถามโครงการและโชว์รูม"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Quotation Form Title EN & TH */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'หัวข้อฟอร์มขอใบเสนอราคา (EN) 🇬🇧' : 'Quotation Form Title (EN) 🇬🇧'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.formTitle || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, formTitle: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Request Project Quotation or Sample Kit"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'หัวข้อฟอร์มขอใบเสนอราคาภาษาไทย (TH) 🇹🇭' : 'Quotation Form Title in Thai (TH) 🇹🇭'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.formTitleTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, formTitleTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="ขอใบเสนอราคาโครงการ หรือชุดตัวอย่างกระเบื้อง"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Showroom Box Title EN & TH */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'หัวข้อกล่องโชว์รูม (EN) 🇬🇧' : 'Showroom Card Title (EN) 🇬🇧'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.showroomTitle || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, showroomTitle: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Bangkok Flagship Atelier"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'หัวข้อกล่องโชว์รูมภาษาไทย (TH) 🇹🇭' : 'Showroom Card Title in Thai (TH) 🇹🇭'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.showroomTitleTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, showroomTitleTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="โชว์รูมและสตูดิโอ กรุงเทพฯ"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Atelier Name EN & TH */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'ชื่อสตูดิโอ / แฟล็กชิป (EN) 🇬🇧' : 'Atelier Name (EN) 🇬🇧'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.atelierName || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, atelierName: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold font-semibold"
+                        placeholder="SUNMA CERAMIC ATELIER"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'ชื่อสตูดิโอภาษาไทย (TH) 🇹🇭' : 'Atelier Name in Thai (TH) 🇹🇭'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.atelierNameTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, atelierNameTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold font-semibold"
+                        placeholder="SUNMA CERAMIC ATELIER"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Address EN & TH */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'ที่อยู่โชว์รูม (Address EN) 🇬🇧' : 'Showroom Address (EN) 🇬🇧'}
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.address || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, address: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="88/12 Sukhumvit 55 Road (Thonglor)..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'ที่อยู่โชว์รูมภาษาไทย (Address TH) 🇹🇭' : 'Showroom Address in Thai (TH) 🇹🇭'}
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.addressTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, addressTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="88/12 ถนนสุขุมวิท 55 (ทองหล่อ)..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Phone Label EN/TH & Phone Number */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'ป้ายหัวข้อโทรศัพท์ (EN) 🇬🇧' : 'Phone Label (EN) 🇬🇧'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.phoneLabel || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, phoneLabel: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Direct Consultations"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'ป้ายโทรศัพท์ภาษาไทย (TH) 🇹🇭' : 'Phone Label in Thai (TH) 🇹🇭'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.phoneLabelTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, phoneLabelTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="ปรึกษางานสเปกโดยตรง"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'หมายเลขโทรศัพท์ (Phone)' : 'Phone Number'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.phone || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, phone: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold font-mono"
+                        placeholder="+66 (0) 2-800-9999 / +66 (0) 81-234-5678"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email Label EN/TH & Email Address */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'ป้ายหัวข้ออีเมล (EN) 🇬🇧' : 'Email Label (EN) 🇬🇧'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.emailLabel || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, emailLabel: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Specification Desk"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'ป้ายอีเมลภาษาไทย (TH) 🇹🇭' : 'Email Label in Thai (TH) 🇹🇭'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.emailLabelTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, emailLabelTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="ฝ่ายประสานงานโครงการ"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'ที่อยู่อีเมล (Email Address)' : 'Email Address'}
+                      </label>
+                      <input
+                        type="email"
+                        value={editingSection.settings?.email || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, email: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold font-mono"
+                        placeholder="project@sunmaceramic.com"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Section Items Manager */}
-              {['COLLECTION_GRID', 'BRAND_GRID', 'WHY_CHOOSE'].includes(editingSection.section_type) && (
+              {['COLLECTION_GRID', 'BRAND_GRID', 'WHY_CHOOSE', 'ABOUT_PILLARS'].includes(editingSection.section_type) && (
                 <div className="space-y-4 pt-4 border-t border-border-subtle">
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold text-gold uppercase tracking-wider text-xs">{t.cms.sectionItemsTitle}</h4>
@@ -2034,8 +2553,8 @@ export default function AdminCmsStudioPage() {
                 </div>
               )}
 
-              {/* WHY_CHOOSE: Icon Selector */}
-              {editingSection?.section_type === 'WHY_CHOOSE' && (
+              {/* WHY_CHOOSE & ABOUT_PILLARS: Icon Selector */}
+              {['WHY_CHOOSE', 'ABOUT_PILLARS'].includes(editingSection?.section_type) && (
                 <div>
                   <label className="block text-txt-muted font-medium uppercase mb-1">{t.cms.itemIconLabel}</label>
                   <select

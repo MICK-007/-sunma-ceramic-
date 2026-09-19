@@ -193,6 +193,8 @@ export const th = {
     studioSubtitle: 'จัดการส่วนการแสดงผล ข้อความ การ์ดสินค้า และสื่อรูปภาพอย่างปลอดภัย ข้อมูลทั้งหมดจะบันทึกเป็น ฉบับร่าง (DRAFT) อัตโนมัติ',
     homePageOption: 'หน้าหลัก (Home Page)',
     footerOption: 'ส่วนท้ายเว็บไซต์ (Global Footer)',
+    aboutPageOption: 'เกี่ยวกับเรา (About Page)',
+    contactPageOption: 'ติดต่อเรา (Contact Page)',
     previewButton: 'ดูตัวอย่างฉบับร่าง (Preview)',
     historyButton: 'ประวัติเวอร์ชัน (History)',
     publishButton: 'เผยแพร่จริง (Publish Live)',

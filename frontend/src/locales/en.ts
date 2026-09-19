@@ -193,6 +193,8 @@ export const en = {
     studioSubtitle: 'Safely manage page layout sections, titles, product cards, and media assets. All changes save to DRAFT automatically.',
     homePageOption: 'Home Page',
     footerOption: 'Global Footer',
+    aboutPageOption: 'About Us Page',
+    contactPageOption: 'Contact Page',
     previewButton: 'Preview Draft',
     historyButton: 'Version History',
     publishButton: 'Publish Live',
