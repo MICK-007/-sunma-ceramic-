@@ -73,16 +73,27 @@ export const CMSAboutHero: React.FC<CMSAboutHeroProps> = ({ content }) => {
         </p>
       </div>
 
-      <div className="relative aspect-[21/9] w-full rounded-[2px] overflow-hidden border border-border-subtle shadow-md">
-        <Image
-          src={imageSrc}
-          alt={title || 'SUNMA Showroom Interior'}
-          fill
-          sizes="(max-width: 1280px) 100vw, 1280px"
-          priority
-          className="object-cover"
+      <div className="relative w-full group">
+        {/* Soft Warm White / Pearl Ivory Ambient Aura Glow backdrop */}
+        <div 
+          className="absolute -inset-2 sm:-inset-4 rounded-xl opacity-75 sm:opacity-85 blur-2xl transition-all duration-700 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at center, rgba(255, 253, 245, 0.9) 0%, rgba(248, 245, 235, 0.6) 45%, rgba(255, 255, 255, 0) 75%)',
+          }}
+          aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-black/25" />
+
+        <div className="relative aspect-[21/9] w-full rounded-[2px] overflow-hidden border border-border-subtle shadow-xl bg-surface">
+          <Image
+            src={imageSrc}
+            alt={title || 'SUNMA Showroom Interior'}
+            fill
+            sizes="(max-width: 1280px) 100vw, 1280px"
+            priority
+            className="object-cover transition-transform duration-700 group-hover:scale-[1.01]"
+          />
+          <div className="absolute inset-0 bg-black/20" />
+        </div>
       </div>
     </div>
   );

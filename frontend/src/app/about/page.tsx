@@ -6,6 +6,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/services/api';
 import { CMSAboutHero } from '@/components/cms/CMSAboutHero';
 import { CMSAboutPillars } from '@/components/cms/CMSAboutPillars';
+import { CMSAboutPrivacy } from '@/components/cms/CMSAboutPrivacy';
 import { CmsSectionRenderer } from '@/components/cms/CmsSectionRenderer';
 
 export default function AboutPage() {
@@ -39,10 +40,15 @@ export default function AboutPage() {
     s => s && s.is_enabled !== false && (s.section_type === 'ABOUT_PILLARS' || s.section_key === 'about_pillars')
   );
 
+  const privacySection = (cmsSections || []).find(
+    s => s && s.is_enabled !== false && (s.section_type === 'ABOUT_PRIVACY' || s.section_key === 'about_privacy')
+  );
+
   const otherSections = (cmsSections || []).filter(
     s => s && s.is_enabled !== false &&
       s.section_type !== 'ABOUT_HERO' && s.section_key !== 'about_hero' &&
-      s.section_type !== 'ABOUT_PILLARS' && s.section_key !== 'about_pillars'
+      s.section_type !== 'ABOUT_PILLARS' && s.section_key !== 'about_pillars' &&
+      s.section_type !== 'ABOUT_PRIVACY' && s.section_key !== 'about_privacy'
   );
 
   return (
@@ -52,6 +58,8 @@ export default function AboutPage() {
       <CMSAboutHero content={heroSection} />
 
       <CMSAboutPillars content={pillarsSection} />
+
+      <CMSAboutPrivacy content={privacySection} />
 
       {otherSections.length > 0 && <CmsSectionRenderer sections={otherSections} />}
     </div>

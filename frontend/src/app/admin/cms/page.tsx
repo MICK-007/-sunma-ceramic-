@@ -259,6 +259,48 @@ export default function AdminCmsStudioPage() {
   const aboutHeroFileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAboutHeroImage, setUploadingAboutHeroImage] = useState<boolean>(false);
 
+    // Direct Footer Logo Upload
+  const footerLogoFileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingFooterLogo, setUploadingFooterLogo] = useState<boolean>(false);
+
+  const handleFooterLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('File size exceeds maximum limit of 5MB.');
+      return;
+    }
+
+    setUploadingFooterLogo(true);
+    setErrorMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('altText', 'Brand Logo');
+
+      const res = await api.uploadAdminMediaBinary(formData);
+      if (res.success && res.data) {
+        const url = resolveMediaUrl(res.data.url);
+        setEditingSection((prev: any) => ({
+          ...prev,
+          settings: { ...(prev?.settings || {}), logoImageUrl: url },
+        }));
+        setSuccessMessage(isThai ? 'อัปโหลดโลโก้สำเร็จ' : 'Logo uploaded successfully.');
+      } else {
+        setErrorMessage(res.message || 'Failed to upload logo.');
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Error uploading logo.');
+    } finally {
+      setUploadingFooterLogo(false);
+      if (footerLogoFileInputRef.current) {
+        footerLogoFileInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleAboutHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -438,6 +480,18 @@ export default function AdminCmsStudioPage() {
           prev.map(s => (s.id === editingSection.id ? updatedSec : s))
         );
         setEditingSection(updatedSec);
+        if (editingSection.section_type === 'FOOTER' || activeSlug === 'footer') {
+          try {
+            const brandingPayload = {
+              logoType: sectionSettings.logoType || 'text',
+              logoImageUrl: sectionSettings.logoImageUrl || '',
+              logoText: sectionSettings.logoText || editingSection.title || 'SUNMA',
+              logoSubtitle: sectionSettings.logoSubtitle || editingSection.subtitle || 'CERAMIC ATELIER',
+            };
+            localStorage.setItem('sunma_cms_branding', JSON.stringify(brandingPayload));
+            window.dispatchEvent(new Event('sunma_branding_updated'));
+          } catch (e) {}
+        }
         setSuccessMessage('Section config saved to DRAFT successfully.');
       } else {
         setErrorMessage(res.message || 'Failed to save section draft.');
@@ -684,6 +738,14 @@ export default function AdminCmsStudioPage() {
         settings: {
           ...prev.settings,
           bgImage: resolveMediaUrl(media.url),
+        },
+      }));
+    } else if (mediaTargetField === 'footer_logo_image' && editingSection) {
+      setEditingSection((prev: any) => ({
+        ...prev,
+        settings: {
+          ...prev.settings,
+          logoImageUrl: resolveMediaUrl(media.url),
         },
       }));
     } else if (mediaTargetField === 'room_living_bg' && editingSection) {

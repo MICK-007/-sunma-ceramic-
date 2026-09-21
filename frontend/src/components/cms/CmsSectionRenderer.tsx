@@ -9,7 +9,9 @@ import { CMSB2BCTA } from './CMSB2BCTA';
 import { CMSFooter } from './CMSFooter';
 import { CMSAboutHero } from './CMSAboutHero';
 import { CMSAboutPillars } from './CMSAboutPillars';
+import { CMSAboutPrivacy } from './CMSAboutPrivacy';
 import { CMSContactInfo } from './CMSContactInfo';
+import { CMSContactTerms } from './CMSContactTerms';
 
 export interface CmsSectionData {
   id: string;
@@ -38,7 +40,9 @@ const SECTION_COMPONENTS: Record<string, React.ComponentType<{ content: any }>> 
   FOOTER: CMSFooter,
   ABOUT_HERO: CMSAboutHero,
   ABOUT_PILLARS: CMSAboutPillars,
+  ABOUT_PRIVACY: CMSAboutPrivacy,
   CONTACT_INFO: CMSContactInfo,
+  CONTACT_TERMS: CMSContactTerms,
 };
 
 export const CmsSectionRenderer: React.FC<CmsSectionRendererProps> = ({ sections }) => {

@@ -5,6 +5,7 @@ import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/services/api';
 import { CMSContactInfo } from '@/components/cms/CMSContactInfo';
+import { CMSContactTerms } from '@/components/cms/CMSContactTerms';
 import { CmsSectionRenderer } from '@/components/cms/CmsSectionRenderer';
 
 export default function ContactPage() {
@@ -34,9 +35,14 @@ export default function ContactPage() {
     s => s && s.is_enabled !== false && (s.section_type === 'CONTACT_INFO' || s.section_key === 'contact_info')
   );
 
+  const termsSection = (cmsSections || []).find(
+    s => s && s.is_enabled !== false && (s.section_type === 'CONTACT_TERMS' || s.section_key === 'contact_terms')
+  );
+
   const otherSections = (cmsSections || []).filter(
     s => s && s.is_enabled !== false &&
-      s.section_type !== 'CONTACT_INFO' && s.section_key !== 'contact_info'
+      s.section_type !== 'CONTACT_INFO' && s.section_key !== 'contact_info' &&
+      s.section_type !== 'CONTACT_TERMS' && s.section_key !== 'contact_terms'
   );
 
   return (
@@ -44,6 +50,8 @@ export default function ContactPage() {
       <Breadcrumb items={[{ label: isThai ? 'ติดต่อเราและขอใบเสนอราคา' : 'Contact & Quotations' }]} />
 
       <CMSContactInfo content={contactSection} />
+
+      <CMSContactTerms content={termsSection} />
 
       {otherSections.length > 0 && <CmsSectionRenderer sections={otherSections} />}
     </div>

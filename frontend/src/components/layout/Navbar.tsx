@@ -2,10 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
+import { api } from '@/services/api';
+import { resolveMediaUrl } from '@/lib/media';
 import { ShoppingBag, Search, User as UserIcon, Menu, X, ShieldAlert } from 'lucide-react';
 
 export const Navbar = () => {
@@ -17,6 +20,17 @@ export const Navbar = () => {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [branding, setBranding] = useState<{
+    logoType: 'text' | 'image';
+    logoImageUrl: string;
+    logoText: string;
+    logoSubtitle: string;
+  }>({
+    logoType: 'text',
+    logoImageUrl: '',
+    logoText: 'SUNMA',
+    logoSubtitle: 'CERAMIC',
+  });
 
   const isHome = pathname === '/';
 
@@ -31,6 +45,50 @@ export const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const loadBranding = () => {
+      try {
+        const cached = localStorage.getItem('sunma_cms_branding');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          setBranding(prev => ({ ...prev, ...parsed }));
+        }
+      } catch (e) {}
+
+      api.getPublicCmsPage('footer')
+        .then(res => {
+          if (res?.success && res?.data?.sections?.[0]?.settings) {
+            let s = res.data.sections[0].settings;
+            if (typeof s === 'string') {
+              try { s = JSON.parse(s); } catch (e) { s = {}; }
+            }
+            const brandData = {
+              logoType: s.logoType || 'text',
+              logoImageUrl: s.logoImageUrl || '',
+              logoText: s.logoText || res.data.sections[0].title || 'SUNMA',
+              logoSubtitle: s.logoSubtitle || res.data.sections[0].subtitle || 'CERAMIC',
+            };
+            setBranding(brandData);
+            try {
+              localStorage.setItem('sunma_cms_branding', JSON.stringify(brandData));
+            } catch (e) {}
+          }
+        })
+        .catch(() => {});
+    };
+
+    loadBranding();
+    window.addEventListener('sunma_branding_updated', loadBranding);
+    return () => window.removeEventListener('sunma_branding_updated', loadBranding);
+  }, []);
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    if (pathname === '/') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const navLinks = [
     { href: '/', label: isThai ? 'หน้าแรก' : 'Home' },
@@ -50,24 +108,42 @@ export const Navbar = () => {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 flex items-center justify-between">
-        {/* Brand Wordmark matching Image 3 */}
-        <Link href="/" className="group flex items-center gap-2 select-none">
-          <div className="flex flex-col">
-            <span
-              className={`font-heading text-xl sm:text-2xl font-normal tracking-[0.3em] uppercase transition-colors ${
-                isTransparent ? 'text-white drop-shadow-md' : 'text-neutral-900'
-              }`}
-            >
-              SUNMA
-            </span>
-            <span
-              className={`text-[8.5px] tracking-[0.45em] font-medium uppercase -mt-1 transition-colors ${
-                isTransparent ? 'text-white/80 drop-shadow-sm' : 'text-neutral-500'
-              }`}
-            >
-              CERAMIC
-            </span>
-          </div>
+        {/* Unified Brand Logo matching Image 3 */}
+        <Link
+          href="/"
+          onClick={handleLogoClick}
+          className="group flex items-center gap-2 select-none cursor-pointer"
+          title={isThai ? 'กลับสู่หน้าแรก (บนสุด)' : 'Return to top'}
+        >
+          {branding.logoType === 'image' && branding.logoImageUrl ? (
+            <div className="relative h-7 sm:h-8 w-32 sm:w-40 flex items-center">
+              <Image
+                src={resolveMediaUrl(branding.logoImageUrl)}
+                alt={branding.logoText || 'SUNMA'}
+                fill
+                sizes="(max-width: 640px) 130px, 160px"
+                className="object-contain object-left"
+                priority
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col">
+              <span
+                className={`font-heading text-xl sm:text-2xl font-normal tracking-[0.3em] uppercase transition-colors ${
+                  isTransparent ? 'text-white drop-shadow-md' : 'text-neutral-900'
+                }`}
+              >
+                {branding.logoText}
+              </span>
+              <span
+                className={`text-[8.5px] tracking-[0.45em] font-medium uppercase -mt-1 transition-colors ${
+                  isTransparent ? 'text-white/80 drop-shadow-sm' : 'text-neutral-500'
+                }`}
+              >
+                {branding.logoSubtitle}
+              </span>
+            </div>
+          )}
         </Link>
 
         {/* Desktop Navigation matching Image 3 */}
