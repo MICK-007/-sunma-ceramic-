@@ -2433,6 +2433,842 @@ export default function AdminCmsStudioPage() {
                 </div>
               )}
 
+              {/* FOOTER Section-Specific Settings */}
+              {editingSection.section_type === 'FOOTER' && (
+                <div className="space-y-6 pt-4 border-t border-border-subtle text-xs">
+                  <div className="flex items-center justify-between pb-2 border-b border-border-subtle">
+                    <h4 className="font-bold text-gold uppercase tracking-wider flex items-center gap-2">
+                      <span>🏷️</span> {isThai ? 'การตั้งค่าโลโก้หลักและส่วนท้ายเว็บไซต์ (Global Logo & Footer)' : 'Unified Brand Logo & Footer Settings'}
+                    </h4>
+                    <span className="text-[10px] text-txt-muted">
+                      {isThai ? 'ส่งผลพร้อมกันทั้ง Navbar ด้านบน และ Footer ด้านล่าง' : 'Applies simultaneously to Top Navbar & Bottom Footer'}
+                    </span>
+                  </div>
+
+                  {/* 1. Logo Mode Switcher */}
+                  <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-4 space-y-4">
+                    <label className="block text-txt-muted font-bold uppercase tracking-wider">
+                      {isThai ? '1. รูปแบบโลโก้แบรนด์หลัก (Brand Logo Type)' : '1. Brand Logo Type'}
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, logoType: 'text' },
+                          }))
+                        }
+                        className={`p-3 rounded-[2px] border text-left flex items-center gap-2.5 transition-all ${
+                          (editingSection.settings?.logoType || 'text') === 'text'
+                            ? 'border-gold bg-gold/10 text-txt-main shadow-sm'
+                            : 'border-border-subtle bg-white text-txt-muted hover:border-gold/40'
+                        }`}
+                      >
+                        <span className="text-base">🔤</span>
+                        <div>
+                          <div className="font-bold">{isThai ? 'โลโก้ตัวอักษร (Wordmark Typography)' : 'Typography Wordmark'}</div>
+                          <div className="text-[10px] text-txt-muted font-light">{isThai ? 'ใช้ฟอนต์สถาปัตยกรรมระดับพรีเมียม' : 'Premium architectural typography'}</div>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, logoType: 'image' },
+                          }))
+                        }
+                        className={`p-3 rounded-[2px] border text-left flex items-center gap-2.5 transition-all ${
+                          editingSection.settings?.logoType === 'image'
+                            ? 'border-gold bg-gold/10 text-txt-main shadow-sm'
+                            : 'border-border-subtle bg-white text-txt-muted hover:border-gold/40'
+                        }`}
+                      >
+                        <span className="text-base">🖼️</span>
+                        <div>
+                          <div className="font-bold">{isThai ? 'โลโก้รูปภาพ (Image Logo)' : 'Image Logo'}</div>
+                          <div className="text-[10px] text-txt-muted font-light">{isThai ? 'อัปโหลดภาพโลโก้แบรนด์ (PNG/SVG/WEBP)' : 'Upload custom logo image'}</div>
+                        </div>
+                      </button>
+                    </div>
+
+                    {/* Image Logo Uploader (Shown when logoType === 'image') */}
+                    {editingSection.settings?.logoType === 'image' && (
+                      <div className="space-y-3 pt-2 border-t border-border-subtle/70">
+                        <label className="block text-gold font-medium uppercase tracking-wider">
+                          {isThai ? 'ไฟล์รูปภาพโลโก้ (Brand Logo Image)' : 'Brand Logo Image File'}
+                        </label>
+                        <input
+                          type="file"
+                          ref={footerLogoFileInputRef}
+                          onChange={handleFooterLogoUpload}
+                          accept="image/jpeg,image/png,image/webp,image/svg+xml,image/avif"
+                          className="hidden"
+                        />
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                          <div className="relative w-36 h-14 rounded-[2px] overflow-hidden border border-border-subtle bg-white shrink-0 flex items-center justify-center p-2">
+                            {editingSection.settings?.logoImageUrl ? (
+                              <img
+                                src={resolveMediaUrl(editingSection.settings.logoImageUrl)}
+                                alt="Brand Logo"
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            ) : (
+                              <span className="text-[10px] text-txt-muted italic">{isThai ? 'ยังไม่มีรูปโลโก้' : 'No image uploaded'}</span>
+                            )}
+                            {uploadingFooterLogo && (
+                              <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-gold text-[10px] gap-1">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>...</span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex-1 w-full space-y-2">
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                value={editingSection.settings?.logoImageUrl || ''}
+                                onChange={e =>
+                                  setEditingSection((prev: any) => ({
+                                    ...prev,
+                                    settings: { ...prev.settings, logoImageUrl: e.target.value },
+                                  }))
+                                }
+                                className="flex-1 bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold font-mono text-[11px]"
+                                placeholder={isThai ? 'ใส่ URL หรืออัปโหลดรูปภาพ' : 'Enter image URL or upload'}
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="rounded-[2px] shrink-0"
+                                onClick={() => {
+                                  setMediaTargetField('footer_logo_image');
+                                  setIsMediaOpen(true);
+                                }}
+                              >
+                                <ImageIcon className="w-3.5 h-3.5 mr-1" /> {t.cms.chooseMediaButton}
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                disabled={uploadingFooterLogo}
+                                className="rounded-[2px] shrink-0"
+                                onClick={() => footerLogoFileInputRef.current?.click()}
+                              >
+                                <Upload className="w-3.5 h-3.5 mr-1" /> {isThai ? 'อัปโหลด' : 'Upload'}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Wordmark Typography Details */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                      <div>
+                        <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                          {isThai ? 'ชื่อแบรนด์หลัก (Brand Name Text)' : 'Brand Name Text'}
+                        </label>
+                        <input
+                          type="text"
+                          value={editingSection.settings?.logoText ?? editingSection.title ?? 'SUNMA'}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              title: e.target.value,
+                              settings: { ...prev.settings, logoText: e.target.value },
+                            }))
+                          }
+                          className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold font-heading tracking-wider"
+                          placeholder="SUNMA"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                          {isThai ? 'คำขยายใต้โลโก้ (Brand Subtitle / Tagline)' : 'Brand Subtitle / Tagline'}
+                        </label>
+                        <input
+                          type="text"
+                          value={editingSection.settings?.logoSubtitle ?? editingSection.subtitle ?? 'CERAMIC ATELIER'}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              subtitle: e.target.value,
+                              settings: { ...prev.settings, logoSubtitle: e.target.value },
+                            }))
+                          }
+                          className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold tracking-widest text-[11px]"
+                          placeholder="CERAMIC ATELIER"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. Showroom Address (Displayed bottom-right of Footer) */}
+                  <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-4 space-y-3">
+                    <label className="block text-gold font-bold uppercase tracking-wider">
+                      {isThai ? '2. ที่อยู่โชว์รูมมุมขวาล่างของฟุตเตอร์ (Showroom Address)' : '2. Showroom Address (Bottom-Right of Footer)'}
+                    </label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                          Address (EN) 🇬🇧
+                        </label>
+                        <input
+                          type="text"
+                          value={editingSection.settings?.address || ''}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, address: e.target.value },
+                            }))
+                          }
+                          className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                          placeholder="88/12 Sukhumvit 55 Road (Thonglor), Klongtan Nua, Vadhana, Bangkok 10110"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                          {isThai ? 'ที่อยู่ภาษาไทย (TH) 🇹🇭' : 'Address in Thai (TH) 🇹🇭'}
+                        </label>
+                        <input
+                          type="text"
+                          value={editingSection.settings?.addressTh || ''}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, addressTh: e.target.value },
+                            }))
+                          }
+                          className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                          placeholder="88/12 ถนนสุขุมวิท 55 (ทองหล่อ) แขวงคลองตันเหนือ เขตวัฒนา กรุงเทพฯ 10110"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Social Media Links */}
+                  <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-4 space-y-4">
+                    <label className="block text-txt-muted font-bold uppercase tracking-wider">
+                      {isThai ? '3. ลิงก์โซเชียลมีเดีย 3 ไอคอนด้านขวา (Social Media URLs)' : '3. Right-Side Social Media Links'}
+                    </label>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                          Instagram URL
+                        </label>
+                        <input
+                          type="text"
+                          value={editingSection.settings?.instagramUrl || ''}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, instagramUrl: e.target.value },
+                            }))
+                          }
+                          className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold font-mono text-[11px]"
+                          placeholder="https://instagram.com/sunma_ceramic"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                          Facebook URL
+                        </label>
+                        <input
+                          type="text"
+                          value={editingSection.settings?.facebookUrl || ''}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, facebookUrl: e.target.value },
+                            }))
+                          }
+                          className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold font-mono text-[11px]"
+                          placeholder="https://facebook.com/sunmaceramic"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                          LINE Official URL
+                        </label>
+                        <input
+                          type="text"
+                          value={editingSection.settings?.lineUrl || ''}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, lineUrl: e.target.value },
+                            }))
+                          }
+                          className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold font-mono text-[11px]"
+                          placeholder="https://line.me/R/ti/p/@sunma"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. Copyright Notice */}
+                  <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-4 space-y-3">
+                    <label className="block text-txt-muted font-bold uppercase tracking-wider">
+                      {isThai ? '4. ข้อความลิขสิทธิ์มุมซ้ายล่าง (Copyright Notice)' : '4. Bottom-Left Copyright Notice'}
+                    </label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                          Copyright (EN) 🇬🇧
+                        </label>
+                        <input
+                          type="text"
+                          value={editingSection.settings?.copyright || ''}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, copyright: e.target.value },
+                            }))
+                          }
+                          className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                          placeholder="© 2026 SUNMA CERAMIC CO., LTD. All rights reserved."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                          Copyright (TH) 🇹🇭
+                        </label>
+                        <input
+                          type="text"
+                          value={editingSection.settings?.copyrightTh || ''}
+                          onChange={e =>
+                            setEditingSection((prev: any) => ({
+                              ...prev,
+                              settings: { ...prev.settings, copyrightTh: e.target.value },
+                            }))
+                          }
+                          className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                          placeholder="© 2026 บริษัท ซันม่า เซรามิก จำกัด สงวนลิขสิทธิ์ทั้งหมด"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ABOUT_PRIVACY Section-Specific Settings */}
+              {editingSection.section_type === 'ABOUT_PRIVACY' && (
+                <div className="space-y-4 pt-4 border-t border-border-subtle text-xs">
+                  <h4 className="font-bold text-gold uppercase tracking-wider">
+                    {isThai ? 'การตั้งค่านโยบายความเป็นส่วนตัว (Privacy Policy Settings)' : 'Privacy Policy & Data Protection Settings'}
+                  </h4>
+
+                  {/* Eyebrow / Badge EN & TH */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        Eyebrow / Badge (EN) 🇬🇧
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.badge || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, badge: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="LEGAL & COMPLIANCE"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'ป้ายหัวข้อภาษาไทย (TH) 🇹🇭' : 'Eyebrow in Thai (TH) 🇹🇭'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.badgeTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, badgeTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="นโยบายและการคุ้มครองข้อมูล"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Intro Text EN & TH */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        Intro Narrative (EN) 🇬🇧
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.intro || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, intro: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="At SUNMA CERAMIC, we uphold the highest international confidentiality standards..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'บทนำภาษาไทย (TH) 🇹🇭' : 'Intro Narrative in Thai (TH) 🇹🇭'}
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.introTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, introTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="ที่ SUNMA CERAMIC เรายึดมั่นในมาตรฐานการรักษาความลับระดับสากลสูงสุด..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Policy 1 */}
+                  <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-3 space-y-2">
+                    <span className="font-bold text-gold text-[11px]">1. Client & Project Confidentiality</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={editingSection.settings?.policy1Title || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, policy1Title: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Title (EN)"
+                      />
+                      <input
+                        type="text"
+                        value={editingSection.settings?.policy1TitleTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, policy1TitleTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="หัวข้อภาษาไทย (TH)"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.policy1Desc || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, policy1Desc: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold text-[11px]"
+                        placeholder="Description (EN)"
+                      />
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.policy1DescTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, policy1DescTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold text-[11px]"
+                        placeholder="คำอธิบายภาษาไทย (TH)"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Policy 2 */}
+                  <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-3 space-y-2">
+                    <span className="font-bold text-gold text-[11px]">2. Material Sourcing & Order Integrity</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={editingSection.settings?.policy2Title || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, policy2Title: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Title (EN)"
+                      />
+                      <input
+                        type="text"
+                        value={editingSection.settings?.policy2TitleTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, policy2TitleTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="หัวข้อภาษาไทย (TH)"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.policy2Desc || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, policy2Desc: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold text-[11px]"
+                        placeholder="Description (EN)"
+                      />
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.policy2DescTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, policy2DescTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold text-[11px]"
+                        placeholder="คำอธิบายภาษาไทย (TH)"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Policy 3 */}
+                  <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-3 space-y-2">
+                    <span className="font-bold text-gold text-[11px]">3. Digital Security & Cookie Governance</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={editingSection.settings?.policy3Title || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, policy3Title: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Title (EN)"
+                      />
+                      <input
+                        type="text"
+                        value={editingSection.settings?.policy3TitleTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, policy3TitleTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="หัวข้อภาษาไทย (TH)"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.policy3Desc || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, policy3Desc: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold text-[11px]"
+                        placeholder="Description (EN)"
+                      />
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.policy3DescTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, policy3DescTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold text-[11px]"
+                        placeholder="คำอธิบายภาษาไทย (TH)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* CONTACT_TERMS Section-Specific Settings */}
+              {editingSection.section_type === 'CONTACT_TERMS' && (
+                <div className="space-y-4 pt-4 border-t border-border-subtle text-xs">
+                  <h4 className="font-bold text-gold uppercase tracking-wider">
+                    {isThai ? 'การตั้งค่าข้อกำหนดและเงื่อนไขสินค้า (Terms of Business Settings)' : 'Terms of Business & Order Conditions Settings'}
+                  </h4>
+
+                  {/* Eyebrow / Badge EN & TH */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        Eyebrow / Badge (EN) 🇬🇧
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.badge || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, badge: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="SPECIFICATION STANDARDS"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'ป้ายหัวข้อภาษาไทย (TH) 🇹🇭' : 'Eyebrow in Thai (TH) 🇹🇭'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingSection.settings?.badgeTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, badgeTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="ข้อกำหนดและมาตรฐานสเปก"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Intro Text EN & TH */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                        Intro Narrative (EN) 🇬🇧
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.intro || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, intro: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="To ensure seamless coordination between architectural design intent..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gold font-medium uppercase tracking-wider mb-1">
+                        {isThai ? 'บทนำภาษาไทย (TH) 🇹🇭' : 'Intro Narrative in Thai (TH) 🇹🇭'}
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.introTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, introTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="เพื่อให้การประสานงานระหว่างงานสเปกสถาปัตยกรรม..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Term 1 */}
+                  <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-3 space-y-2">
+                    <span className="font-bold text-gold text-[11px]">1. Bespoke Manufacturing & European Lead Time</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={editingSection.settings?.term1Title || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, term1Title: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Title (EN)"
+                      />
+                      <input
+                        type="text"
+                        value={editingSection.settings?.term1TitleTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, term1TitleTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="หัวข้อภาษาไทย (TH)"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.term1Desc || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, term1Desc: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold text-[11px]"
+                        placeholder="Description (EN)"
+                      />
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.term1DescTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, term1DescTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold text-[11px]"
+                        placeholder="คำอธิบายภาษาไทย (TH)"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Term 2 */}
+                  <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-3 space-y-2">
+                    <span className="font-bold text-gold text-[11px]">2. Quality Warranties & EN 14411 Standards</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={editingSection.settings?.term2Title || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, term2Title: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Title (EN)"
+                      />
+                      <input
+                        type="text"
+                        value={editingSection.settings?.term2TitleTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, term2TitleTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="หัวข้อภาษาไทย (TH)"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.term2Desc || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, term2Desc: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold text-[11px]"
+                        placeholder="Description (EN)"
+                      />
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.term2DescTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, term2DescTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold text-[11px]"
+                        placeholder="คำอธิบายภาษาไทย (TH)"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Term 3 */}
+                  <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-3 space-y-2">
+                    <span className="font-bold text-gold text-[11px]">3. Sample Kits & Job-Site Pallet Logistics</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={editingSection.settings?.term3Title || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, term3Title: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="Title (EN)"
+                      />
+                      <input
+                        type="text"
+                        value={editingSection.settings?.term3TitleTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, term3TitleTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                        placeholder="หัวข้อภาษาไทย (TH)"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.term3Desc || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, term3Desc: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-border-subtle rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold text-[11px]"
+                        placeholder="Description (EN)"
+                      />
+                      <textarea
+                        rows={2}
+                        value={editingSection.settings?.term3DescTh || ''}
+                        onChange={e =>
+                          setEditingSection((prev: any) => ({
+                            ...prev,
+                            settings: { ...prev.settings, term3DescTh: e.target.value },
+                          }))
+                        }
+                        className="w-full bg-white border border-gold/40 rounded-[2px] px-2.5 py-1.5 text-txt-main focus:outline-none focus:border-gold text-[11px]"
+                        placeholder="คำอธิบายภาษาไทย (TH)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Section Items Manager */}
               {['COLLECTION_GRID', 'BRAND_GRID', 'WHY_CHOOSE', 'ABOUT_PILLARS'].includes(editingSection.section_type) && (
                 <div className="space-y-4 pt-4 border-t border-border-subtle">
