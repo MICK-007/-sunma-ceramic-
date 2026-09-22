@@ -4,9 +4,11 @@ import { config } from '../config';
 
 const ALLOWED_ORIGINS = [
   'https://sunma-ceramic.vercel.app',
+  'https://www.tilestudio15.com',
+  'https://tilestudio15.com',
   'http://localhost:3000',
   config.frontendUrl,
-].map(url => url.toLowerCase().replace(/\/$/, ''));
+].filter(Boolean).map(url => url.toLowerCase().replace(/\/$/, ''));
 
 export function generateCsrfToken(): string {
   return crypto.randomBytes(32).toString('hex');

@@ -10,9 +10,11 @@ const crypto_1 = __importDefault(require("crypto"));
 const config_1 = require("../config");
 const ALLOWED_ORIGINS = [
     'https://sunma-ceramic.vercel.app',
+    'https://www.tilestudio15.com',
+    'https://tilestudio15.com',
     'http://localhost:3000',
     config_1.config.frontendUrl,
-].map(url => url.toLowerCase().replace(/\/$/, ''));
+].filter(Boolean).map(url => url.toLowerCase().replace(/\/$/, ''));
 function generateCsrfToken() {
     return crypto_1.default.randomBytes(32).toString('hex');
 }

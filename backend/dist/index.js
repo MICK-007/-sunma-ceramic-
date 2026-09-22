@@ -40,7 +40,14 @@ app.use((0, helmet_1.default)({
             styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
             fontSrc: ["'self'", 'https://fonts.gstatic.com'],
             imgSrc: ["'self'", 'data:', 'https://images.unsplash.com', 'https://*.supabase.co'],
-            connectSrc: ["'self'", 'https://*.supabase.co', config_1.config.frontendUrl, 'https://sunma-ceramic.vercel.app'],
+            connectSrc: [
+                "'self'",
+                'https://*.supabase.co',
+                config_1.config.frontendUrl,
+                'https://sunma-ceramic.vercel.app',
+                'https://www.tilestudio15.com',
+                'https://tilestudio15.com',
+            ],
         },
     },
 }));
@@ -49,15 +56,17 @@ app.use((0, cookie_parser_1.default)());
 // 3. Strict Explicit CORS Allowlist
 const ALLOWED_ORIGINS = [
     'https://sunma-ceramic.vercel.app',
+    'https://www.tilestudio15.com',
+    'https://tilestudio15.com',
     'http://localhost:3000',
     config_1.config.frontendUrl,
-].map(url => url.toLowerCase().replace(/\/$/, ''));
+].filter(Boolean).map(url => url.toLowerCase().replace(/\/$/, ''));
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {
         if (!origin)
             return callback(null, true);
         const parsedOrigin = origin.toLowerCase().replace(/\/$/, '');
-        if (ALLOWED_ORIGINS.includes(parsedOrigin)) {
+        if (ALLOWED_ORIGINS.includes(parsedOrigin) || /^https:\/\/(www\.)?tilestudio15\.com$/.test(parsedOrigin)) {
             return callback(null, true);
         }
         else {

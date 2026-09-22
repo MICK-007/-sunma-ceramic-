@@ -15,6 +15,7 @@ export function getDbClient() {
       idle_timeout: 5,
       connect_timeout: 10,
       ssl: { rejectUnauthorized: false },
+      prepare: false,
     });
   } catch (err) {
     console.error('Failed to create postgres client:', err);

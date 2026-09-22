@@ -36,7 +36,14 @@ app.use(
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com'],
         imgSrc: ["'self'", 'data:', 'https://images.unsplash.com', 'https://*.supabase.co'],
-        connectSrc: ["'self'", 'https://*.supabase.co', config.frontendUrl, 'https://sunma-ceramic.vercel.app'],
+        connectSrc: [
+          "'self'",
+          'https://*.supabase.co',
+          config.frontendUrl,
+          'https://sunma-ceramic.vercel.app',
+          'https://www.tilestudio15.com',
+          'https://tilestudio15.com',
+        ],
       },
     },
   })
@@ -48,9 +55,11 @@ app.use(cookieParser());
 // 3. Strict Explicit CORS Allowlist
 const ALLOWED_ORIGINS = [
   'https://sunma-ceramic.vercel.app',
+  'https://www.tilestudio15.com',
+  'https://tilestudio15.com',
   'http://localhost:3000',
   config.frontendUrl,
-].map(url => url.toLowerCase().replace(/\/$/, ''));
+].filter(Boolean).map(url => url.toLowerCase().replace(/\/$/, ''));
 
 app.use(
   cors({
@@ -58,7 +67,7 @@ app.use(
       if (!origin) return callback(null, true);
 
       const parsedOrigin = origin.toLowerCase().replace(/\/$/, '');
-      if (ALLOWED_ORIGINS.includes(parsedOrigin)) {
+      if (ALLOWED_ORIGINS.includes(parsedOrigin) || /^https:\/\/(www\.)?tilestudio15\.com$/.test(parsedOrigin)) {
         return callback(null, true);
       } else {
         return callback(new Error(`CORS policy error: Origin ${origin} is not allowed.`));
