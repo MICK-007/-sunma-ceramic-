@@ -6,6 +6,7 @@ const ALLOWED_ORIGINS = [
   'https://sunma-ceramic.vercel.app',
   'https://www.tilestudio15.com',
   'https://tilestudio15.com',
+  'https://api.tilestudio15.com',
   'http://localhost:3000',
   config.frontendUrl,
 ].filter(Boolean).map(url => url.toLowerCase().replace(/\/$/, ''));

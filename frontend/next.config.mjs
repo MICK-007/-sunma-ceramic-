@@ -14,7 +14,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://sunma-ceramic.onrender.com/api/:path*',
+        destination: 'https://api.tilestudio15.com/api/:path*',
       },
     ];
   },
