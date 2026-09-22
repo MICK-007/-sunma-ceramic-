@@ -42,9 +42,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/categories', label: t.admin.navCategories, icon: FolderTree },
     { href: '/admin/orders', label: t.admin.navOrders, icon: ShoppingCart },
     { href: '/admin/customers', label: t.admin.navCustomers, icon: Users },
-    { href: '/admin/inventory', label: t.admin.navInventory, icon: Warehouse },
     { href: '/admin/promotions', label: t.admin.navPromotions, icon: Tag },
   ];
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">

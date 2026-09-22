@@ -3,6 +3,7 @@ import { store } from '../repositories/store';
 import { Product, Category, Brand, OrderStatus, Promotion } from '../types';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { logSecurityEvent } from '../utils/logger';
+import { getDbClient } from '../db';
 
 export const getDashboardStats = (req: Request, res: Response) => {
   const totalSales = store.orders
@@ -12,7 +13,7 @@ export const getDashboardStats = (req: Request, res: Response) => {
   const totalOrders = store.orders.length;
   const totalCustomers = store.users.filter(u => u.role === 'USER').length;
   const totalProducts = store.products.length;
-  const lowStockCount = store.products.filter(p => p.stockPieces < 200).length;
+  const soldOutCount = store.products.filter(p => p.isSoldOut || p.status === 'SOLD_OUT').length;
 
   const recentOrders = store.orders.slice(0, 5);
   const bestSellers = store.products.filter(p => p.featured).slice(0, 4);
@@ -24,7 +25,8 @@ export const getDashboardStats = (req: Request, res: Response) => {
       totalOrders,
       totalCustomers,
       totalProducts,
-      lowStockCount,
+      soldOutCount,
+      lowStockCount: soldOutCount,
       recentOrders,
       bestSellers,
       revenueChart: [
@@ -76,8 +78,8 @@ export const createAdminProduct = (req: Request, res: Response) => {
     categoryName: category?.name || 'General',
     brandId,
     brandName: brand?.name || 'SUNMA Atelier',
-    thumbnail: thumbnail || 'https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=1000&q=80',
-    images: images || ['https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=1000&q=80'],
+    thumbnail: thumbnail || '/images/tiles/calacatta-marble.jpeg',
+    images: images && images.length > 0 ? images : ['/images/tiles/calacatta-marble.jpeg'],
     size: size || '60x60',
     width: width || 60,
     height: height || 60,
@@ -93,9 +95,9 @@ export const createAdminProduct = (req: Request, res: Response) => {
     weightPerBox: Number(weightPerBox) || 30.0,
     pricePerPiece: Number(pricePerPiece),
     pricePerBox: Number(pricePerBox) || Number(pricePerPiece) * (Number(piecesPerBox) || 4),
-    stockPieces: Number(stockPieces) || 100,
     minimumOrderQuantity: 1,
     status: status || 'PUBLISHED',
+    isSoldOut: status === 'SOLD_OUT' || !!req.body.isSoldOut,
     featured: !!featured,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -119,11 +121,26 @@ export const updateAdminProduct = (req: Request, res: Response) => {
     name, nameTh, productCode, slug, description, descriptionTh, shortDescription, shortDescriptionTh,
     categoryId, brandId, thumbnail, images, size, width, height, thickness, material, surface, color,
     pattern, indoorOutdoor, countryOfOrigin, piecesPerBox, coveragePerBox, weightPerBox, pricePerPiece,
-    pricePerBox, stockPieces, status, featured
+    pricePerBox, status, isSoldOut, featured
   } = req.body;
 
   const category = categoryId ? store.categories.find(c => c.id === categoryId) : null;
   const brand = brandId ? store.brands.find(b => b.id === brandId) : null;
+
+  let resolvedStatus = status !== undefined ? status : existing.status;
+  let resolvedSoldOut = isSoldOut !== undefined ? !!isSoldOut : existing.isSoldOut;
+
+  if (isSoldOut === true) {
+    resolvedStatus = 'SOLD_OUT';
+    resolvedSoldOut = true;
+  } else if (isSoldOut === false && resolvedStatus === 'SOLD_OUT') {
+    resolvedStatus = 'PUBLISHED';
+    resolvedSoldOut = false;
+  } else if (status === 'SOLD_OUT') {
+    resolvedSoldOut = true;
+  } else if (status === 'PUBLISHED') {
+    resolvedSoldOut = false;
+  }
 
   const updatedProduct: Product = {
     ...existing,
@@ -156,8 +173,8 @@ export const updateAdminProduct = (req: Request, res: Response) => {
     weightPerBox: weightPerBox !== undefined ? Number(weightPerBox) : existing.weightPerBox,
     pricePerPiece: pricePerPiece !== undefined ? Number(pricePerPiece) : existing.pricePerPiece,
     pricePerBox: pricePerBox !== undefined ? Number(pricePerBox) : existing.pricePerBox,
-    stockPieces: stockPieces !== undefined ? Number(stockPieces) : existing.stockPieces,
-    status: status !== undefined ? status : existing.status,
+    status: resolvedStatus,
+    isSoldOut: resolvedSoldOut,
     featured: featured !== undefined ? !!featured : existing.featured,
     updatedAt: new Date().toISOString(),
   };
@@ -165,6 +182,28 @@ export const updateAdminProduct = (req: Request, res: Response) => {
   store.products[index] = updatedProduct;
   logSecurityEvent('ADMIN_PRODUCT_UPDATE', (req as AuthenticatedRequest).user?.id || null, req, { productId: id });
   return res.json({ success: true, message: 'Product updated successfully.', data: updatedProduct });
+};
+
+export const toggleAdminProductSoldOut = (req: Request, res: Response) => {
+  const { id } = req.params;
+  const index = store.products.findIndex(p => p.id === id);
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Product not found.' });
+  }
+
+  const existing = store.products[index];
+  const newSoldOut = !existing.isSoldOut;
+  existing.isSoldOut = newSoldOut;
+  existing.status = newSoldOut ? 'SOLD_OUT' : 'PUBLISHED';
+  existing.updatedAt = new Date().toISOString();
+  store.products[index] = existing;
+
+  logSecurityEvent('ADMIN_PRODUCT_TOGGLE_SOLDOUT', (req as AuthenticatedRequest).user?.id || null, req, { productId: id, isSoldOut: newSoldOut });
+  return res.json({
+    success: true,
+    message: newSoldOut ? 'สินค้าถูกตั้งเป็น "สินค้าหมด (Sold Out)" แล้ว' : 'สินค้าถูกเปิดขายตามปกติ (Active) แล้ว',
+    data: existing,
+  });
 };
 
 export const deleteAdminProduct = (req: Request, res: Response) => {
@@ -219,18 +258,19 @@ export const getAdminCustomers = (req: Request, res: Response) => {
   return res.json({ success: true, data: customers });
 };
 
-// Admin Inventory
+// Admin Inventory / Catalog Status
 export const getAdminInventory = (req: Request, res: Response) => {
   const inventory = store.products.map(p => ({
     id: p.id,
     productCode: p.productCode,
     name: p.name,
-    stockPieces: p.stockPieces,
-    piecesPerBox: p.piecesPerBox,
-    calculatedBoxes: (p.stockPieces / p.piecesPerBox).toFixed(1),
-    isLowStock: p.stockPieces < 200,
+    nameTh: p.nameTh,
+    size: p.size,
+    isSoldOut: !!p.isSoldOut,
+    status: p.status,
     pricePerPiece: p.pricePerPiece,
     pricePerBox: p.pricePerBox,
+    piecesPerBox: p.piecesPerBox,
   }));
   return res.json({ success: true, data: inventory });
 };
@@ -365,3 +405,229 @@ export const createAdminBrand = (req: Request, res: Response) => {
   store.brands.push(newBrand);
   return res.status(201).json({ success: true, data: newBrand });
 };
+
+// Filter Options Management (Sizes, Surfaces, Materials)
+export const getShopFilters = async (req: Request, res: Response) => {
+  let sizes = store.filterConfig.sizes;
+  let surfaces = store.filterConfig.surfaces;
+  let materials = store.filterConfig.materials;
+
+  const sql = getDbClient();
+  if (sql) {
+    try {
+      const rows = await sql`SELECT settings FROM cms_sections WHERE section_key = 'shop_filters' LIMIT 1`;
+      if (rows && rows.length > 0) {
+        let settings = rows[0].settings;
+        if (typeof settings === 'string') {
+          try { settings = JSON.parse(settings); } catch (e) {}
+        }
+        if (settings && typeof settings === 'object') {
+          if (Array.isArray(settings.sizes)) sizes = settings.sizes;
+          if (Array.isArray(settings.surfaces)) surfaces = settings.surfaces;
+          if (Array.isArray(settings.materials)) materials = settings.materials;
+          store.filterConfig = { sizes, surfaces, materials };
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching shop_filters from db:', e);
+    } finally {
+      await sql.end().catch(() => {});
+    }
+  }
+
+  return res.json({
+    success: true,
+    data: {
+      sizes,
+      surfaces,
+      materials,
+      categories: store.categories,
+      brands: store.brands,
+    },
+  });
+};
+
+export const updateShopFilters = async (req: Request, res: Response) => {
+  const { sizes, surfaces, materials } = req.body;
+
+  if (Array.isArray(sizes)) store.filterConfig.sizes = sizes;
+  if (Array.isArray(surfaces)) store.filterConfig.surfaces = surfaces;
+  if (Array.isArray(materials)) store.filterConfig.materials = materials;
+
+  const sql = getDbClient();
+  if (sql) {
+    try {
+      const settingsPayload = JSON.stringify(store.filterConfig);
+      await sql`
+        UPDATE cms_sections
+        SET settings = ${settingsPayload}::jsonb, updated_at = NOW()
+        WHERE section_key = 'shop_filters'
+      `;
+    } catch (e) {
+      console.error('Error updating shop_filters in db:', e);
+    } finally {
+      await sql.end().catch(() => {});
+    }
+  }
+
+  return res.json({
+    success: true,
+    message: 'Filters updated successfully in database.',
+    data: {
+      ...store.filterConfig,
+      categories: store.categories,
+      brands: store.brands,
+    },
+  });
+};
+
+// Company & Showroom Details Management (Address, Tax ID, Phone, Email)
+export const getCompanySettings = async (req: Request, res: Response) => {
+  const defaults = {
+    companyName: 'TS MATERIAL Co., Ltd.',
+    companyNameTh: 'บริษัท ทีเอส แมททีเรียล จำกัด',
+    taxId: '0105568089913',
+    address: '8/32 Moo 3, Pracha Samran Road, Soi Sap Prasit, Khlong Sip Song, Nong Chok, Bangkok 10530',
+    addressTh: '8/32 ม.3 ถนนประชาสำราญ ซอยทรัพย์ประสิทธิ์ แขวงคลองสิบสอง เขตหนองจอก กทม. 10530',
+    phone: '065-009-3661',
+    email: 'tsmaterial15@gmail.com',
+    businessHours: 'Mon - Sat: 08:30 - 17:30',
+    businessHoursTh: 'จันทร์ - เสาร์: 08:30 - 17:30 น.',
+  };
+
+  const sql = getDbClient();
+  if (sql) {
+    try {
+      const rows = await sql`
+        SELECT section_key, settings FROM cms_sections
+        WHERE section_key IN ('contact_info', 'footer_main')
+      `;
+      let settings: any = {};
+      for (const row of rows) {
+        let s = row.settings;
+        if (typeof s === 'string') {
+          try { s = JSON.parse(s); } catch (e) {}
+        }
+        if (s && typeof s === 'object') {
+          settings = { ...settings, ...s };
+        }
+      }
+
+      return res.json({
+        success: true,
+        data: {
+          companyName: settings.companyName || defaults.companyName,
+          companyNameTh: settings.companyNameTh || defaults.companyNameTh,
+          taxId: settings.taxId || defaults.taxId,
+          address: settings.address || defaults.address,
+          addressTh: settings.addressTh || defaults.addressTh,
+          phone: settings.phone || defaults.phone,
+          email: settings.email || defaults.email,
+          businessHours: settings.businessHours || defaults.businessHours,
+          businessHoursTh: settings.businessHoursTh || defaults.businessHoursTh,
+        },
+      });
+    } catch (e) {
+      console.error('Error fetching company settings:', e);
+    } finally {
+      await sql.end().catch(() => {});
+    }
+  }
+
+  return res.json({ success: true, data: defaults });
+};
+
+export const updateCompanySettings = async (req: Request, res: Response) => {
+  const {
+    companyName,
+    companyNameTh,
+    taxId,
+    address,
+    addressTh,
+    phone,
+    email,
+    businessHours,
+    businessHoursTh,
+  } = req.body;
+
+  const sql = getDbClient();
+  if (!sql) {
+    return res.status(500).json({ success: false, message: 'Database connection unavailable.' });
+  }
+
+  try {
+    // 1. Update contact_info section
+    const contactRows = await sql`SELECT settings FROM cms_sections WHERE section_key = 'contact_info' LIMIT 1`;
+    let currentContactSettings = contactRows[0]?.settings || {};
+    if (typeof currentContactSettings === 'string') {
+      try { currentContactSettings = JSON.parse(currentContactSettings); } catch (e) {}
+    }
+    const updatedContactSettings = {
+      ...currentContactSettings,
+      companyName: companyName ?? currentContactSettings.companyName,
+      companyNameTh: companyNameTh ?? currentContactSettings.companyNameTh,
+      taxId: taxId ?? currentContactSettings.taxId,
+      address: address ?? currentContactSettings.address,
+      addressTh: addressTh ?? currentContactSettings.addressTh,
+      phone: phone ?? currentContactSettings.phone,
+      email: email ?? currentContactSettings.email,
+      businessHours: businessHours ?? currentContactSettings.businessHours,
+      businessHoursTh: businessHoursTh ?? currentContactSettings.businessHoursTh,
+      atelierName: companyName ?? currentContactSettings.atelierName,
+      atelierNameTh: companyNameTh ?? currentContactSettings.atelierNameTh,
+    };
+
+    await sql`
+      UPDATE cms_sections
+      SET settings = ${JSON.stringify(updatedContactSettings)}::jsonb, updated_at = NOW()
+      WHERE section_key = 'contact_info'
+    `;
+
+    // 2. Update footer_main section
+    const footerRows = await sql`SELECT settings FROM cms_sections WHERE section_key = 'footer_main' LIMIT 1`;
+    let currentFooterSettings = footerRows[0]?.settings || {};
+    if (typeof currentFooterSettings === 'string') {
+      try { currentFooterSettings = JSON.parse(currentFooterSettings); } catch (e) {}
+    }
+    const updatedFooterSettings = {
+      ...currentFooterSettings,
+      companyName: companyName ?? currentFooterSettings.companyName,
+      companyNameTh: companyNameTh ?? currentFooterSettings.companyNameTh,
+      taxId: taxId ?? currentFooterSettings.taxId,
+      address: address ?? currentFooterSettings.address,
+      addressTh: addressTh ?? currentFooterSettings.addressTh,
+      phone: phone ?? currentFooterSettings.phone,
+      email: email ?? currentFooterSettings.email,
+      businessHours: businessHours ?? currentFooterSettings.businessHours,
+      businessHoursTh: businessHoursTh ?? currentFooterSettings.businessHoursTh,
+      copyright: `© 2026 ${companyName || 'TS MATERIAL CO., LTD.'}. All rights reserved.`,
+      copyrightTh: `© 2026 ${companyNameTh || 'บริษัท ทีเอส แมททีเรียล จำกัด'} สงวนลิขสิทธิ์ทั้งหมด`,
+    };
+
+    await sql`
+      UPDATE cms_sections
+      SET settings = ${JSON.stringify(updatedFooterSettings)}::jsonb, updated_at = NOW()
+      WHERE section_key = 'footer_main'
+    `;
+
+    await logSecurityEvent('ADMIN_COMPANY_SETTINGS_UPDATE', (req as any).user?.id || null, req, {
+      companyName,
+      taxId,
+      phone,
+      email,
+    });
+
+
+    return res.json({
+      success: true,
+      message: 'Company address and details saved successfully to Supabase database.',
+      data: updatedContactSettings,
+    });
+  } catch (error: any) {
+    console.error('Error updating company settings:', error);
+    return res.status(500).json({ success: false, message: error.message || 'Failed to update company settings.' });
+  } finally {
+    await sql.end().catch(() => {});
+  }
+};
+

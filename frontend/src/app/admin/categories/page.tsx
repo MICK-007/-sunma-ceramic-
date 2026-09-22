@@ -6,7 +6,8 @@ import { api } from '@/services/api';
 import { useLanguage } from '@/context/LanguageContext';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-import { Plus, Edit, Trash2, FolderTree, Upload, Image as ImageIcon, X, Loader2, AlertCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, FolderTree, Upload, Image as ImageIcon, X, Loader2, AlertCircle, Filter, Save, CheckCircle2 } from 'lucide-react';
+
 import { resolveMediaUrl } from '@/lib/media';
 import { MediaLibraryModal, CmsMediaItem } from '@/components/cms/MediaLibraryModal';
 
@@ -34,11 +35,28 @@ export default function AdminCategoriesPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Filter Options State
+  const [activeTab, setActiveTab] = useState<'categories' | 'filters'>('categories');
+  const [sizes, setSizes] = useState<string[]>([]);
+  const [surfaces, setSurfaces] = useState<string[]>([]);
+  const [materials, setMaterials] = useState<string[]>([]);
+  const [newSize, setNewSize] = useState('');
+  const [newSurface, setNewSurface] = useState('');
+  const [newMaterial, setNewMaterial] = useState('');
+  const [savingFilters, setSavingFilters] = useState(false);
+  const [filterSuccess, setFilterSuccess] = useState('');
+
   const loadData = async () => {
     setIsLoading(true);
     const res = await api.getCategories();
     if (res.success && Array.isArray(res.data)) {
       setCategories(res.data);
+    }
+    const filterRes = await api.getShopFilters();
+    if (filterRes.success && filterRes.data) {
+      setSizes(filterRes.data.sizes || ['60x60', '60x120', '30x60', '20x120', '80x80']);
+      setSurfaces(filterRes.data.surfaces || ['Matt', 'Satin', 'Polished', 'Carved', 'Glossy']);
+      setMaterials(filterRes.data.materials || ['Porcelain', 'Ceramic', 'Granito']);
     }
     setIsLoading(false);
   };
@@ -46,6 +64,62 @@ export default function AdminCategoriesPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const handleAddSize = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSize.trim()) return;
+    const val = newSize.trim();
+    if (!sizes.includes(val)) setSizes([...sizes, val]);
+    setNewSize('');
+  };
+
+  const handleRemoveSize = (item: string) => {
+    setSizes(sizes.filter(s => s !== item));
+  };
+
+  const handleAddSurface = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSurface.trim()) return;
+    const val = newSurface.trim();
+    if (!surfaces.includes(val)) setSurfaces([...surfaces, val]);
+    setNewSurface('');
+  };
+
+  const handleRemoveSurface = (item: string) => {
+    setSurfaces(surfaces.filter(s => s !== item));
+  };
+
+  const handleAddMaterial = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMaterial.trim()) return;
+    const val = newMaterial.trim();
+    if (!materials.includes(val)) setMaterials([...materials, val]);
+    setNewMaterial('');
+  };
+
+  const handleRemoveMaterial = (item: string) => {
+    setMaterials(materials.filter(m => m !== item));
+  };
+
+  const handleSaveAllFilters = async () => {
+    setSavingFilters(true);
+    setFilterSuccess('');
+    setErrorMessage('');
+    try {
+      const res = await api.updateShopFilters({ sizes, surfaces, materials });
+      if (res.success) {
+        setFilterSuccess('บันทึกตัวกรองสินค้าลงฐานข้อมูลเรียบร้อยแล้ว!');
+        setTimeout(() => setFilterSuccess(''), 4000);
+      } else {
+        setErrorMessage(res.message || 'เกิดข้อผิดพลาดในการบันทึกตัวกรอง');
+      }
+    } catch (e: any) {
+      setErrorMessage(e.message || 'Error saving filters');
+    } finally {
+      setSavingFilters(false);
+    }
+  };
+
 
   const handleOpenCreate = () => {
     setEditingId(null);
@@ -150,77 +224,305 @@ export default function AdminCategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between border-b border-border-subtle pb-4">
-        <div>
-          <h2 className="font-heading text-xl font-bold text-txt-main flex items-center gap-2">
-            <FolderTree className="w-5 h-5 text-gold" />
-            Category Management ({categories.length})
-          </h2>
-          <p className="text-xs text-txt-muted">Create, update, and manage tile architectural category classifications.</p>
-        </div>
-
-        <Button variant="gold" size="sm" onClick={handleOpenCreate} className="rounded-[2px]">
-          <Plus className="w-4 h-4 mr-1.5" />
-          Add Category
-        </Button>
+      {/* Tab Switcher */}
+      <div className="flex border-b border-border-subtle gap-6">
+        <button
+          onClick={() => setActiveTab('categories')}
+          className={`pb-3 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-2 ${
+            activeTab === 'categories'
+              ? 'border-gold text-gold'
+              : 'border-transparent text-txt-muted hover:text-txt-main'
+          }`}
+        >
+          <FolderTree className="w-4 h-4" />
+          หมวดหมู่สินค้า (Categories - {categories.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('filters')}
+          className={`pb-3 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-2 ${
+            activeTab === 'filters'
+              ? 'border-gold text-gold'
+              : 'border-transparent text-txt-muted hover:text-txt-main'
+          }`}
+        >
+          <Filter className="w-4 h-4" />
+          ตัวกรองสินค้าหน้าร้าน (Shop Filters: Sizes, Surfaces, Materials)
+        </button>
       </div>
 
-      {isLoading ? (
-        <div className="p-12 text-center text-gold">{t.common.loading}</div>
-      ) : (
-        <div className="bg-bg-card border border-border-subtle rounded-[2px] overflow-x-auto shadow-sm">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-bg-secondary/60 border-b border-border-subtle text-txt-muted uppercase font-mono">
-              <tr>
-                <th className="p-3">Category</th>
-                <th className="p-3">Slug</th>
-                <th className="p-3">Description</th>
-                <th className="p-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border-subtle">
-              {categories.map(cat => (
-                <tr key={cat.id} className="hover:bg-bg-secondary/40 transition-colors">
-                  <td className="p-3 flex items-center space-x-3">
-                    <div className="relative w-12 h-12 rounded-[2px] overflow-hidden bg-bg-secondary shrink-0 border border-border-subtle">
-                      <img
-                        src={resolveMediaUrl(cat.image) || '/images/tiles/calacatta-marble.jpeg'}
-                        alt={cat.name}
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = '/images/tiles/calacatta-marble.jpeg';
-                        }}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <span className="font-bold text-txt-main block">{cat.name}</span>
-                      <span className="text-[10px] text-gold">{cat.nameTh}</span>
-                    </div>
-                  </td>
-                  <td className="p-3 font-mono text-txt-muted">{cat.slug}</td>
-                  <td className="p-3 text-txt-muted max-w-xs truncate">{cat.description}</td>
-                  <td className="p-3 text-right space-x-2">
-                    <button
-                      onClick={() => handleOpenEdit(cat)}
-                      className="p-1.5 text-txt-muted hover:text-gold transition-colors"
-                      title="Edit"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(cat.id)}
-                      className="p-1.5 text-txt-muted hover:text-red-500 transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {filterSuccess && (
+        <div className="p-3 bg-emerald-950/20 border border-emerald-500/40 rounded-[2px] text-xs text-emerald-700 flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>{filterSuccess}</span>
         </div>
       )}
+
+      {errorMessage && (
+        <div className="p-3 bg-red-950/20 border border-red-500/40 rounded-[2px] text-xs text-red-600 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
+      {activeTab === 'categories' ? (
+        <>
+          <div className="flex items-center justify-between border-b border-border-subtle pb-4">
+            <div>
+              <h2 className="font-heading text-xl font-bold text-txt-main flex items-center gap-2">
+                <FolderTree className="w-5 h-5 text-gold" />
+                Category Management ({categories.length})
+              </h2>
+              <p className="text-xs text-txt-muted">Create, update, and manage tile architectural category classifications.</p>
+            </div>
+
+            <Button variant="gold" size="sm" onClick={handleOpenCreate} className="rounded-[2px]">
+              <Plus className="w-4 h-4 mr-1.5" />
+              Add Category
+            </Button>
+          </div>
+
+          {isLoading ? (
+            <div className="p-12 text-center text-gold">{t.common.loading}</div>
+          ) : (
+            <div className="bg-bg-card border border-border-subtle rounded-[2px] overflow-x-auto shadow-sm">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-bg-secondary/60 border-b border-border-subtle text-txt-muted uppercase font-mono">
+                  <tr>
+                    <th className="p-3">Category</th>
+                    <th className="p-3">Slug</th>
+                    <th className="p-3">Description</th>
+                    <th className="p-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border-subtle">
+                  {categories.map(cat => (
+                    <tr key={cat.id} className="hover:bg-bg-secondary/40 transition-colors">
+                      <td className="p-3 flex items-center space-x-3">
+                        <div className="relative w-12 h-12 rounded-[2px] overflow-hidden bg-bg-secondary shrink-0 border border-border-subtle">
+                          <img
+                            src={resolveMediaUrl(cat.image) || '/images/tiles/calacatta-marble.jpeg'}
+                            alt={cat.name}
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = '/images/tiles/calacatta-marble.jpeg';
+                            }}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <span className="font-bold text-txt-main block">{cat.name}</span>
+                          <span className="text-[10px] text-gold">{cat.nameTh}</span>
+                        </div>
+                      </td>
+                      <td className="p-3 font-mono text-txt-muted">{cat.slug}</td>
+                      <td className="p-3 text-txt-muted max-w-xs truncate">{cat.description}</td>
+                      <td className="p-3 text-right space-x-2">
+                        <button
+                          onClick={() => handleOpenEdit(cat)}
+                          className="p-1.5 text-txt-muted hover:text-gold transition-colors"
+                          title="Edit"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(cat.id)}
+                          className="p-1.5 text-txt-muted hover:text-red-500 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      ) : (
+        /* Filters Tab: Sizes, Surfaces, Materials */
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border-subtle pb-4 gap-4">
+            <div>
+              <h2 className="font-heading text-xl font-bold text-txt-main flex items-center gap-2">
+                <Filter className="w-5 h-5 text-gold" />
+                การจัดการตัวกรองสินค้าหน้าร้าน (Shop Filter Options)
+              </h2>
+              <p className="text-xs text-txt-muted">
+                กำหนดตัวเลือกขนาด พื้นผิว และวัสดุกระเบื้อง เพื่อนำไปแสดงในแถบตัวกรองหน้า /shop และในแบบฟอร์มเพิ่มสินค้า
+              </p>
+            </div>
+
+            <Button
+              variant="gold"
+              size="sm"
+              disabled={savingFilters}
+              onClick={handleSaveAllFilters}
+              className="rounded-[2px] shadow-sm shrink-0"
+            >
+              <Save className="w-4 h-4 mr-1.5" />
+              {savingFilters ? 'กำลังบันทึกลงฐานข้อมูล...' : 'บันทึกตัวกรองลงฐานข้อมูล (Save)'}
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Card 1: Tile Sizes */}
+            <div className="bg-bg-card border border-border-subtle rounded-[2px] p-5 space-y-4 shadow-sm">
+              <div className="border-b border-border-subtle pb-3">
+                <h3 className="font-heading text-sm font-bold text-txt-main uppercase tracking-wider flex items-center justify-between">
+                  <span>📐 ขนาดกระเบื้อง (Sizes)</span>
+                  <span className="text-[10px] font-mono text-gold bg-gold/10 px-2 py-0.5 rounded-[2px]">{sizes.length} รายการ</span>
+                </h3>
+                <p className="text-[11px] text-txt-muted mt-1">เช่น 60x60, 60x120, 80x80</p>
+              </div>
+
+              {/* Tag Badges */}
+              <div className="flex flex-wrap gap-2 min-h-[90px] p-3 bg-bg-secondary/40 border border-border-subtle rounded-[2px]">
+                {sizes.length === 0 ? (
+                  <span className="text-xs text-txt-muted italic">ยังไม่มีตัวเลือกขนาด</span>
+                ) : (
+                  sizes.map((s) => (
+                    <span
+                      key={s}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[2px] bg-white border border-border-subtle text-xs font-mono font-medium text-txt-main shadow-xs"
+                    >
+                      {s}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSize(s)}
+                        className="text-txt-muted hover:text-red-500 transition-colors"
+                        title={`ลบ ${s}`}
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  ))
+                )}
+              </div>
+
+              {/* Add New Size Form */}
+              <form onSubmit={handleAddSize} className="flex gap-2">
+                <input
+                  type="text"
+                  value={newSize}
+                  onChange={(e) => setNewSize(e.target.value)}
+                  placeholder="เช่น 75x150 หรือ 120x240"
+                  className="flex-1 bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-xs text-txt-main focus:outline-none focus:border-gold font-mono"
+                />
+                <Button type="submit" variant="outline" size="sm" className="rounded-[2px] text-xs shrink-0">
+                  <Plus className="w-3.5 h-3.5 mr-1" /> เพิ่ม
+                </Button>
+              </form>
+            </div>
+
+            {/* Card 2: Surface Finishes */}
+            <div className="bg-bg-card border border-border-subtle rounded-[2px] p-5 space-y-4 shadow-sm">
+              <div className="border-b border-border-subtle pb-3">
+                <h3 className="font-heading text-sm font-bold text-txt-main uppercase tracking-wider flex items-center justify-between">
+                  <span>✨ พื้นผิวกระเบื้อง (Surfaces)</span>
+                  <span className="text-[10px] font-mono text-gold bg-gold/10 px-2 py-0.5 rounded-[2px]">{surfaces.length} รายการ</span>
+                </h3>
+                <p className="text-[11px] text-txt-muted mt-1">เช่น Matt, Polished, Satin, Carved</p>
+              </div>
+
+              {/* Tag Badges */}
+              <div className="flex flex-wrap gap-2 min-h-[90px] p-3 bg-bg-secondary/40 border border-border-subtle rounded-[2px]">
+                {surfaces.length === 0 ? (
+                  <span className="text-xs text-txt-muted italic">ยังไม่มีตัวเลือกพื้นผิว</span>
+                ) : (
+                  surfaces.map((surf) => (
+                    <span
+                      key={surf}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[2px] bg-white border border-border-subtle text-xs font-medium text-txt-main shadow-xs"
+                    >
+                      {surf}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSurface(surf)}
+                        className="text-txt-muted hover:text-red-500 transition-colors"
+                        title={`ลบ ${surf}`}
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  ))
+                )}
+              </div>
+
+              {/* Add New Surface Form */}
+              <form onSubmit={handleAddSurface} className="flex gap-2">
+                <input
+                  type="text"
+                  value={newSurface}
+                  onChange={(e) => setNewSurface(e.target.value)}
+                  placeholder="เช่น Honed หรือ Lappato"
+                  className="flex-1 bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-xs text-txt-main focus:outline-none focus:border-gold"
+                />
+                <Button type="submit" variant="outline" size="sm" className="rounded-[2px] text-xs shrink-0">
+                  <Plus className="w-3.5 h-3.5 mr-1" /> เพิ่ม
+                </Button>
+              </form>
+            </div>
+
+            {/* Card 3: Tile Materials */}
+            <div className="bg-bg-card border border-border-subtle rounded-[2px] p-5 space-y-4 shadow-sm">
+              <div className="border-b border-border-subtle pb-3">
+                <h3 className="font-heading text-sm font-bold text-txt-main uppercase tracking-wider flex items-center justify-between">
+                  <span>🧱 วัสดุกระเบื้อง (Materials)</span>
+                  <span className="text-[10px] font-mono text-gold bg-gold/10 px-2 py-0.5 rounded-[2px]">{materials.length} รายการ</span>
+                </h3>
+                <p className="text-[11px] text-txt-muted mt-1">เช่น Porcelain, Ceramic, Granito</p>
+              </div>
+
+              {/* Tag Badges */}
+              <div className="flex flex-wrap gap-2 min-h-[90px] p-3 bg-bg-secondary/40 border border-border-subtle rounded-[2px]">
+                {materials.length === 0 ? (
+                  <span className="text-xs text-txt-muted italic">ยังไม่มีตัวเลือกวัสดุ</span>
+                ) : (
+                  materials.map((m) => (
+                    <span
+                      key={m}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[2px] bg-white border border-border-subtle text-xs font-medium text-txt-main shadow-xs"
+                    >
+                      {m}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveMaterial(m)}
+                        className="text-txt-muted hover:text-red-500 transition-colors"
+                        title={`ลบ ${m}`}
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  ))
+                )}
+              </div>
+
+              {/* Add New Material Form */}
+              <form onSubmit={handleAddMaterial} className="flex gap-2">
+                <input
+                  type="text"
+                  value={newMaterial}
+                  onChange={(e) => setNewMaterial(e.target.value)}
+                  placeholder="เช่น Sintered Stone"
+                  className="flex-1 bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-xs text-txt-main focus:outline-none focus:border-gold"
+                />
+                <Button type="submit" variant="outline" size="sm" className="rounded-[2px] text-xs shrink-0">
+                  <Plus className="w-3.5 h-3.5 mr-1" /> เพิ่ม
+                </Button>
+              </form>
+            </div>
+          </div>
+
+          {/* Tips Callout */}
+          <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-4 text-xs text-txt-muted flex items-start gap-3">
+            <span className="text-gold text-base shrink-0">💡</span>
+            <div>
+              <strong className="text-txt-main font-semibold">ข้อแนะนำ:</strong> เมื่อเพิ่มหรือลบตัวเลือกขนาด พื้นผิว หรือวัสดุแล้ว ให้กดปุ่ม <strong>"บันทึกตัวกรองลงฐานข้อมูล (Save)"</strong> ระบบจะอัปเดตฐานข้อมูล Supabase ทันที และหน้าร้านค้า (/shop) รวมถึงฟอร์มจัดการสินค้าจะแสดงตัวเลือกใหม่โดยอัตโนมัติ
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* Category Modal Form */}
       <Modal

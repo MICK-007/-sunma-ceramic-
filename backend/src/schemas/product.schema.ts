@@ -29,7 +29,8 @@ export const createProductSchema = z.object({
   pricePerPiece: z.number().positive('Price per piece must be greater than 0.'),
   pricePerBox: z.number().positive().optional(),
   stockPieces: z.number().int().min(0, 'Stock pieces cannot be negative.').optional(),
-  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
+  status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED', 'SOLD_OUT']).optional(),
+  isSoldOut: z.boolean().optional(),
   featured: z.boolean().optional(),
 });
 

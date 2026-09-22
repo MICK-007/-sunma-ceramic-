@@ -15,6 +15,8 @@ router.get('/products', admin_controller_1.getAdminProducts);
 router.post('/products', (0, validate_1.validateBody)(product_schema_1.createProductSchema), admin_controller_1.createAdminProduct);
 router.patch('/products/:id', (0, validate_1.validateBody)(product_schema_1.updateProductSchema), admin_controller_1.updateAdminProduct);
 router.put('/products/:id', (0, validate_1.validateBody)(product_schema_1.updateProductSchema), admin_controller_1.updateAdminProduct);
+router.patch('/products/:id/toggle-sold-out', admin_controller_1.toggleAdminProductSoldOut);
+router.post('/products/:id/toggle-sold-out', admin_controller_1.toggleAdminProductSoldOut);
 router.delete('/products/:id', admin_controller_1.deleteAdminProduct);
 router.get('/orders', admin_controller_1.getAdminOrders);
 router.patch('/orders/:id/status', (0, validate_1.validateBody)(order_schema_1.updateOrderStatusSchema), admin_controller_1.updateOrderStatus);
@@ -28,4 +30,9 @@ router.put('/categories/:id', admin_controller_1.updateAdminCategory);
 router.patch('/categories/:id', admin_controller_1.updateAdminCategory);
 router.delete('/categories/:id', admin_controller_1.deleteAdminCategory);
 router.post('/brands', admin_controller_1.createAdminBrand);
+// Filters and Company Settings
+router.get('/filters', admin_controller_1.getShopFilters);
+router.put('/filters', admin_controller_1.updateShopFilters);
+router.get('/company-settings', admin_controller_1.getCompanySettings);
+router.put('/company-settings', admin_controller_1.updateCompanySettings);
 exports.default = router;

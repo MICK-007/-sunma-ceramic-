@@ -46,22 +46,22 @@ export const CMSContactInfo: React.FC<CMSContactInfoProps> = ({ content }) => {
     }
   }
 
-  const defaultEyebrowEn = 'PROJECT INQUIRY & SHOWROOM';
-  const defaultEyebrowTh = 'ติดต่อสอบถามโครงการและโชว์รูม';
-  const defaultTitle = 'Contact SUNMA CERAMIC';
+  const defaultEyebrowEn = 'TS MATERIAL HEADQUARTERS & SHOWROOM';
+  const defaultEyebrowTh = 'สำนักงานใหญ่และโชว์รูม บริษัท ทีเอส แมททีเรียล จำกัด';
+  const defaultTitle = 'Contact TILE STUDIO';
   const defaultFormTitleEn = 'Request Project Quotation or Sample Kit';
   const defaultFormTitleTh = 'ขอใบเสนอราคาโครงการ หรือชุดตัวอย่างกระเบื้อง';
-  const defaultShowroomTitleEn = 'Bangkok Flagship Atelier';
-  const defaultShowroomTitleTh = 'โชว์รูมและสตูดิโอ กรุงเทพฯ';
-  const defaultAtelierName = 'SUNMA CERAMIC ATELIER';
-  const defaultAddressEn = '88/12 Sukhumvit 55 Road (Thonglor), Klongtan Nua, Vadhana, Bangkok 10110';
-  const defaultAddressTh = '88/12 ถนนสุขุมวิท 55 (ทองหล่อ) แขวงคลองตันเหนือ เขตวัฒนา กรุงเทพฯ 10110';
-  const defaultPhoneLabelEn = 'Direct Consultations';
-  const defaultPhoneLabelTh = 'ปรึกษางานสเปกโดยตรง';
-  const defaultPhone = '+66 (0) 2-800-9999 / +66 (0) 81-234-5678';
-  const defaultEmailLabelEn = 'Specification Desk';
+  const defaultShowroomTitleEn = 'Headquarters & Showroom';
+  const defaultShowroomTitleTh = 'สำนักงานใหญ่และโชว์รูม';
+  const defaultAtelierName = 'บริษัท ทีเอส แมททีเรียล จำกัด (TS MATERIAL Co., Ltd.)';
+  const defaultAddressEn = '8/32 Moo 3, Pracha Samran Road, Soi Sap Prasit, Khlong Sip Song, Nong Chok, Bangkok 10530';
+  const defaultAddressTh = '8/32 ม.3 ถนนประชาสำราญ ซอยทรัพย์ประสิทธิ์ แขวงคลองสิบสอง เขตหนองจอก กทม. 10530';
+  const defaultPhoneLabelEn = 'Direct Consultations & Sales';
+  const defaultPhoneLabelTh = 'ปรึกษางานสเปกและฝ่ายขาย';
+  const defaultPhone = '065-009-3661';
+  const defaultEmailLabelEn = 'Specification & Project Desk';
   const defaultEmailLabelTh = 'ฝ่ายประสานงานโครงการ';
-  const defaultEmail = 'project@sunmaceramic.com';
+  const defaultEmail = 'tsmaterial15@gmail.com';
 
   const eyebrow = isThai
     ? settings.eyebrowTh || settings.eyebrow || defaultEyebrowTh
@@ -219,6 +219,9 @@ export const CMSContactInfo: React.FC<CMSContactInfoProps> = ({ content }) => {
                 <MapPin className="w-4 h-4 text-gold shrink-0 mt-0.5" />
                 <div>
                   <span className="font-medium text-txt-main block">{atelierName}</span>
+                  <span className="text-[11px] text-txt-muted block mb-1">
+                    {isThai ? 'เลขประจำตัวผู้เสียภาษี: 0105568089913' : 'Tax ID: 0105568089913'}
+                  </span>
                   <span className="whitespace-pre-line">{address}</span>
                 </div>
               </div>

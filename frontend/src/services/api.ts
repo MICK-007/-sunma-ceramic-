@@ -343,6 +343,12 @@ export const api = {
     });
   },
 
+  async toggleAdminProductSoldOut(id: string) {
+    return safeFetch(`${getApiBaseUrl()}/admin/products/${id}/toggle-sold-out`, {
+      method: 'PATCH',
+    });
+  },
+
   async deleteAdminProduct(id: string) {
     return safeFetch(`${getApiBaseUrl()}/admin/products/${id}`, {
       method: 'DELETE',
@@ -509,7 +515,32 @@ export const api = {
       body: JSON.stringify({ versionNumber }),
     });
   },
+
+  // Shop Filter Options API
+  async getShopFilters() {
+    return safeFetch(`${getApiBaseUrl()}/filters`);
+  },
+
+  async updateShopFilters(data: { sizes: string[]; surfaces: string[]; materials: string[] }) {
+    return safeFetch(`${getApiBaseUrl()}/admin/filters`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Company Address & Settings API (Supabase cms_sections)
+  async getCompanySettings() {
+    return safeFetch(`${getApiBaseUrl()}/admin/company-settings`);
+  },
+
+  async updateCompanySettings(data: any) {
+    return safeFetch(`${getApiBaseUrl()}/admin/company-settings`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
 };
+
 
 
 

@@ -47,7 +47,6 @@ export interface ProductVariant {
   size: string;
   pricePerPiece: number;
   pricePerBox: number;
-  stockPieces: number;
   piecesPerBox: number;
   coveragePerBox: number;
   weightPerBox: number;
@@ -86,9 +85,10 @@ export interface Product {
   weightPerBox: number;
   pricePerPiece: number;
   pricePerBox: number;
-  stockPieces: number;
+  stockPieces?: number;
+  isSoldOut?: boolean;
   minimumOrderQuantity: number;
-  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'SOLD_OUT';
   featured: boolean;
   variants?: ProductVariant[];
   createdAt: string;

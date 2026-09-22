@@ -4,6 +4,7 @@ import {
   getAdminProducts,
   createAdminProduct,
   updateAdminProduct,
+  toggleAdminProductSoldOut,
   deleteAdminProduct,
   getAdminOrders,
   updateOrderStatus,
@@ -16,7 +17,12 @@ import {
   updateAdminCategory,
   deleteAdminCategory,
   createAdminBrand,
+  getShopFilters,
+  updateShopFilters,
+  getCompanySettings,
+  updateCompanySettings,
 } from '../controllers/admin.controller';
+
 import { authenticateUser, requireAdmin } from '../middleware/auth';
 import { validateBody } from '../middleware/validate';
 import { createProductSchema, updateProductSchema } from '../schemas/product.schema';
@@ -34,6 +40,8 @@ router.get('/products', getAdminProducts);
 router.post('/products', validateBody(createProductSchema), createAdminProduct);
 router.patch('/products/:id', validateBody(updateProductSchema), updateAdminProduct);
 router.put('/products/:id', validateBody(updateProductSchema), updateAdminProduct);
+router.patch('/products/:id/toggle-sold-out', toggleAdminProductSoldOut);
+router.post('/products/:id/toggle-sold-out', toggleAdminProductSoldOut);
 router.delete('/products/:id', deleteAdminProduct);
 
 router.get('/orders', getAdminOrders);
@@ -52,4 +60,11 @@ router.patch('/categories/:id', updateAdminCategory);
 router.delete('/categories/:id', deleteAdminCategory);
 router.post('/brands', createAdminBrand);
 
+// Filters and Company Settings
+router.get('/filters', getShopFilters);
+router.put('/filters', updateShopFilters);
+router.get('/company-settings', getCompanySettings);
+router.put('/company-settings', updateCompanySettings);
+
 export default router;
+

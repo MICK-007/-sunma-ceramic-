@@ -28,8 +28,8 @@ export const Navbar = () => {
   }>({
     logoType: 'text',
     logoImageUrl: '',
-    logoText: 'SUNMA',
-    logoSubtitle: 'CERAMIC',
+    logoText: 'TILE STUDIO',
+    logoSubtitle: 'CERAMIC ATELIER',
   });
 
   const isHome = pathname === '/';
@@ -66,8 +66,8 @@ export const Navbar = () => {
             const brandData = {
               logoType: s.logoType || 'text',
               logoImageUrl: s.logoImageUrl || '',
-              logoText: s.logoText || res.data.sections[0].title || 'SUNMA',
-              logoSubtitle: s.logoSubtitle || res.data.sections[0].subtitle || 'CERAMIC',
+              logoText: s.logoText || res.data.sections[0].title || 'TILE STUDIO',
+              logoSubtitle: s.logoSubtitle || res.data.sections[0].subtitle || 'CERAMIC ATELIER',
             };
             setBranding(brandData);
             try {

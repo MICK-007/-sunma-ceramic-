@@ -38,10 +38,10 @@ const addToCart = (req, res) => {
     if (!product) {
         return res.status(404).json({ success: false, message: 'Product not found.' });
     }
-    if (product.stockPieces < quantity) {
+    if (product.isSoldOut || product.status === 'SOLD_OUT') {
         return res.status(400).json({
             success: false,
-            message: `Requested quantity exceeds available stock of ${product.stockPieces} pieces.`,
+            message: 'สินค้าชิ้นนี้ปิดการขายหรือสินค้าหมดแล้ว (Sold Out)',
         });
     }
     let cart = store_1.store.carts.get(userId);
@@ -57,14 +57,7 @@ const addToCart = (req, res) => {
     }
     const existingItemIndex = cart.items.findIndex(item => item.productId === productId && item.variantId === variantId);
     if (existingItemIndex > -1) {
-        const newQty = cart.items[existingItemIndex].quantity + quantity;
-        if (newQty > product.stockPieces) {
-            return res.status(400).json({
-                success: false,
-                message: `Cannot add more pieces. Total in cart would exceed stock (${product.stockPieces} pieces).`,
-            });
-        }
-        cart.items[existingItemIndex].quantity = newQty;
+        cart.items[existingItemIndex].quantity += quantity;
     }
     else {
         const newItem = {
@@ -100,10 +93,10 @@ const updateCartItem = (req, res) => {
         return res.status(404).json({ success: false, message: 'Cart item not found.' });
     }
     const product = store_1.store.products.find(p => p.id === cart.items[itemIndex].productId);
-    if (product && quantity > product.stockPieces) {
+    if (product && (product.isSoldOut || product.status === 'SOLD_OUT')) {
         return res.status(400).json({
             success: false,
-            message: `Requested quantity exceeds available stock (${product.stockPieces} pieces).`,
+            message: 'สินค้าชิ้นนี้ปิดการขายหรือสินค้าหมดแล้ว (Sold Out)',
         });
     }
     if (quantity <= 0) {

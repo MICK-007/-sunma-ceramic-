@@ -65,11 +65,14 @@ export default function ProductDetailPage() {
   }
 
   const isFav = isInWishlist(product.id);
+  const isSoldOut = !!product.isSoldOut || product.status === 'SOLD_OUT';
   const piecesPerBox = product.piecesPerBox || 4;
-  const calculatedBoxes = (quantity / piecesPerBox).toFixed(1);
+  const coveragePerBox = product.coveragePerBox || (product.width && product.height ? (product.width * product.height * piecesPerBox) / 10000 : 1.44);
+  const calculatedBoxes = (quantity / (coveragePerBox || 1.44)).toFixed(1);
   const totalPrice = quantity * product.pricePerPiece;
 
   const handleAddToCart = async () => {
+    if (isSoldOut) return;
     setFeedbackMsg('');
     const res = await addToCart(product.id, quantity, product);
     if (res.success) {
@@ -92,7 +95,7 @@ export default function ProductDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Left Column: Gallery */}
-        <div className="lg:col-span-7 space-y-4">
+        <div className={`lg:col-span-7 space-y-4 ${isSoldOut ? 'grayscale contrast-95 opacity-85' : ''}`}>
           <ProductGallery images={product.images || [product.thumbnail]} productName={product.name} />
         </div>
 
@@ -100,7 +103,7 @@ export default function ProductDetailPage() {
         <div className="lg:col-span-5 space-y-6 text-left">
           <div className="space-y-2.5">
             <div className="flex items-center justify-between text-xs text-txt-muted font-medium uppercase tracking-wider">
-              <span>{product.brandName || 'SUNMA Atelier'}</span>
+              <span>{product.brandName || 'TILE STUDIO Atelier'}</span>
               <span className="font-mono">CODE: {product.productCode}</span>
             </div>
 
@@ -137,6 +140,21 @@ export default function ProductDetailPage() {
             {isThai && product.descriptionTh ? product.descriptionTh : product.description}
           </p>
 
+          {/* Sold Out Notification Banner */}
+          {isSoldOut && (
+            <div className="p-3.5 bg-neutral-900 text-white rounded-[2px] flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                <span className="font-heading text-xs uppercase tracking-wider font-semibold">
+                  {isThai ? 'สินค้านี้ปิดการขาย / สินค้าหมด (SOLD OUT)' : 'CURRENTLY SOLD OUT'}
+                </span>
+              </div>
+              <span className="text-[11px] text-neutral-300">
+                {isThai ? 'ติดต่อเจ้าหน้าที่เพื่อสั่งผลิต' : 'Contact for special orders'}
+              </span>
+            </div>
+          )}
+
           {/* Pricing Box */}
           <div className="bg-bg-card border border-border-subtle p-6 rounded-[2px] space-y-3.5 shadow-xs">
             <div className="flex items-baseline justify-between">
@@ -144,30 +162,21 @@ export default function ProductDetailPage() {
                 <span className="text-3xl font-normal font-heading text-txt-main font-mono">
                   ฿{product.pricePerPiece.toLocaleString()}
                 </span>
-                <span className="text-xs text-txt-muted ml-1">/ {isThai ? 'แผ่น' : 'piece'}</span>
+                <span className="text-xs text-txt-muted ml-1 font-semibold">/ {isThai ? 'ตร.ม.' : 'SQM.'}</span>
               </div>
               <div className="text-right">
                 <span className="text-sm font-semibold text-txt-main font-mono">
                   ฿{product.pricePerBox.toLocaleString()}
                 </span>
-                <span className="text-xs text-txt-muted ml-1">/ {isThai ? 'กล่อง' : 'box'} ({piecesPerBox} {isThai ? 'แผ่น' : 'pcs'})</span>
+                <span className="text-xs text-txt-muted ml-1">/ {isThai ? 'กล่อง' : 'box'} {coveragePerBox ? `(${coveragePerBox} ${isThai ? 'ตร.ม.' : 'sq.m'})` : ''}</span>
               </div>
-            </div>
-
-            <div className="text-xs text-txt-muted border-t border-border-subtle pt-3 flex justify-between">
-              <span>{isThai ? 'สถานะสินค้าคงคลัง:' : 'Inventory Status:'}</span>
-              <span className={`font-semibold ${product.stockPieces > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
-                {product.stockPieces > 0
-                  ? (isThai ? `มีสินค้าพร้อมส่ง ${product.stockPieces} แผ่น` : `${product.stockPieces} pieces in stock`)
-                  : (isThai ? 'สั่งผลิตตามรอบ' : 'Order on request')}
-              </span>
             </div>
           </div>
 
           {/* Quantity Selector */}
           <div className="space-y-2">
             <label className="text-[11px] font-semibold uppercase tracking-wider text-txt-muted block">
-              {t.product.quantity}
+              {isThai ? 'จำนวน (ตร.ม. / Square Meters)' : 'Quantity (SQM)'}
             </label>
             <div className="flex items-center space-x-4">
               <div className="flex items-center border border-border-subtle bg-bg-secondary rounded-[2px] p-1">
@@ -175,6 +184,7 @@ export default function ProductDetailPage() {
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   className="p-2 text-txt-muted hover:text-txt-main"
                   aria-label="Decrease quantity"
+                  disabled={isSoldOut}
                 >
                   <Minus className="w-4 h-4" />
                 </button>
@@ -183,11 +193,13 @@ export default function ProductDetailPage() {
                   value={quantity}
                   onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                   className="w-16 text-center bg-transparent text-xs font-semibold text-txt-main focus:outline-none font-mono"
+                  disabled={isSoldOut}
                 />
                 <button
                   onClick={() => setQuantity(quantity + 1)}
                   className="p-2 text-txt-muted hover:text-txt-main"
                   aria-label="Increase quantity"
+                  disabled={isSoldOut}
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -210,10 +222,17 @@ export default function ProductDetailPage() {
           {/* Primary Action Buttons */}
           <div className="space-y-3 pt-2">
             <div className="flex gap-3">
-              <Button variant="gold" size="lg" className="flex-1 shadow-md" onClick={handleAddToCart}>
-                <ShoppingBag className="w-4 h-4 mr-2" />
-                {t.product.addToCart}
-              </Button>
+              {isSoldOut ? (
+                <Button variant="secondary" size="lg" className="flex-1 opacity-60 cursor-not-allowed bg-neutral-200 text-neutral-600 font-semibold" disabled>
+                  <ShoppingBag className="w-4 h-4 mr-2" />
+                  {isThai ? 'สินค้าหมด (Sold Out)' : 'Sold Out'}
+                </Button>
+              ) : (
+                <Button variant="gold" size="lg" className="flex-1 shadow-md" onClick={handleAddToCart}>
+                  <ShoppingBag className="w-4 h-4 mr-2" />
+                  {t.product.addToCart}
+                </Button>
+              )}
               <button
                 onClick={() => toggleWishlist(product.id)}
                 className={`p-3.5 rounded-[2px] border transition-colors ${

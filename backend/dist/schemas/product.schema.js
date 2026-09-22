@@ -31,7 +31,8 @@ exports.createProductSchema = zod_1.z.object({
     pricePerPiece: zod_1.z.number().positive('Price per piece must be greater than 0.'),
     pricePerBox: zod_1.z.number().positive().optional(),
     stockPieces: zod_1.z.number().int().min(0, 'Stock pieces cannot be negative.').optional(),
-    status: zod_1.z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
+    status: zod_1.z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED', 'SOLD_OUT']).optional(),
+    isSoldOut: zod_1.z.boolean().optional(),
     featured: zod_1.z.boolean().optional(),
 });
 exports.updateProductSchema = exports.createProductSchema.partial();

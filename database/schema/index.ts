@@ -14,7 +14,7 @@ import {
 
 // Enums
 export const userRoleEnum = pgEnum('user_role', ['USER', 'ADMIN']);
-export const productStatusEnum = pgEnum('product_status', ['DRAFT', 'PUBLISHED', 'ARCHIVED']);
+export const productStatusEnum = pgEnum('product_status', ['DRAFT', 'PUBLISHED', 'ARCHIVED', 'SOLD_OUT']);
 export const orderStatusEnum = pgEnum('order_status', ['Pending', 'Confirmed', 'Preparing', 'Cancelled']);
 export const areaTypeEnum = pgEnum('area_type', ['Floor', 'Wall', 'Backsplash']);
 
@@ -113,7 +113,7 @@ export const products = pgTable('products', {
   weightPerBox: numeric('weight_per_box', { precision: 8, scale: 2 }), // in kg
   pricePerPiece: numeric('price_per_piece', { precision: 10, scale: 2 }).notNull(),
   pricePerBox: numeric('price_per_box', { precision: 10, scale: 2 }).notNull(),
-  stockPieces: integer('stock_pieces').default(0).notNull(),
+  isSoldOut: boolean('is_sold_out').default(false).notNull(),
   minimumOrderQuantity: integer('minimum_order_quantity').default(1).notNull(),
   status: productStatusEnum('status').default('PUBLISHED').notNull(),
   featured: boolean('featured').default(false).notNull(),
@@ -138,7 +138,6 @@ export const productVariants = pgTable('product_variants', {
   size: varchar('size', { length: 50 }).notNull(),
   pricePerPiece: numeric('price_per_piece', { precision: 10, scale: 2 }).notNull(),
   pricePerBox: numeric('price_per_box', { precision: 10, scale: 2 }).notNull(),
-  stockPieces: integer('stock_pieces').default(0).notNull(),
   piecesPerBox: integer('pieces_per_box').default(4).notNull(),
   coveragePerBox: numeric('coverage_per_box', { precision: 8, scale: 2 }),
   weightPerBox: numeric('weight_per_box', { precision: 8, scale: 2 }),

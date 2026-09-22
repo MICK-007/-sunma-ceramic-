@@ -28,6 +28,7 @@ const promotion_routes_1 = __importDefault(require("./routes/promotion.routes"))
 const room_routes_1 = __importDefault(require("./routes/room.routes"));
 const admin_routes_1 = __importDefault(require("./routes/admin.routes"));
 const cms_routes_1 = __importDefault(require("./routes/cms.routes"));
+const admin_controller_1 = require("./controllers/admin.controller");
 const app = (0, express_1.default)();
 app.set('trust proxy', 1); // Trust first proxy (Render / Vercel load balancers) so express-rate-limit reads actual client IP
 // 1. Safe Security Headers via Helmet (Explicit Origin Allowlist for Unsplash, Google Fonts, Supabase)
@@ -105,6 +106,7 @@ app.use('/api/promotions', promotion_routes_1.default);
 app.use('/api/rooms', room_routes_1.default);
 app.use('/api/admin', admin_routes_1.default);
 app.use('/api/cms', cms_routes_1.default);
+app.get('/api/filters', admin_controller_1.getShopFilters);
 // Global Error Handler
 app.use(error_1.errorHandler);
 // Start Server

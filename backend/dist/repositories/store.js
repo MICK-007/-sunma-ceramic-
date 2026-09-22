@@ -62,11 +62,11 @@ class StoreRepository {
     brands = [
         {
             id: 'brand-1',
-            name: 'SUNMA Atelier',
-            slug: 'sunma-atelier',
-            description: 'In-house signature collection engineered specifically for luxury private residences.',
+            name: 'TILE STUDIO Atelier',
+            slug: 'tilestudio-atelier',
+            description: 'In-house signature collection engineered specifically for luxury architectural surface projects.',
             country: 'Thailand / Italy',
-            logo: 'SUNMA Atelier',
+            logo: 'TILE STUDIO',
             isActive: true,
         },
         {
@@ -710,5 +710,10 @@ class StoreRepository {
             createdAt: '2026-01-15T00:00:00Z',
         },
     ];
+    filterConfig = {
+        sizes: ['60x60', '60x120', '30x60', '20x120', '80x80', '120x120', '120x240'],
+        surfaces: ['Matt', 'Satin', 'Polished', 'Carved', 'Glossy', 'Lappato', 'Structure'],
+        materials: ['Porcelain', 'Ceramic', 'Granito', 'Sintered Stone'],
+    };
 }
 exports.store = new StoreRepository();

@@ -19,8 +19,10 @@ import promotionRoutes from './routes/promotion.routes';
 import roomRoutes from './routes/room.routes';
 import adminRoutes from './routes/admin.routes';
 import cmsRoutes from './routes/cms.routes';
+import { getShopFilters } from './controllers/admin.controller';
 
 export { apiLimiter, authLimiter, refreshLimiter, orderLimiter };
+
 
 const app = express();
 app.set('trust proxy', 1); // Trust first proxy (Render / Vercel load balancers) so express-rate-limit reads actual client IP
@@ -111,8 +113,10 @@ app.use('/api/promotions', promotionRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/cms', cmsRoutes);
+app.get('/api/filters', getShopFilters);
 
 // Global Error Handler
+
 app.use(errorHandler);
 
 // Start Server

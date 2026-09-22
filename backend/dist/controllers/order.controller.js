@@ -134,21 +134,20 @@ const createOrder = async (req, res) => {
             const orderResult = await sql.begin(async (transaction) => {
                 let subtotal = 0;
                 const processedItems = [];
-                // 1. Atomic Stock Deduction for each sorted product
+                // 1. Validate product availability and fetch accurate price (No stock limit)
                 for (const item of sortedDeduplicatedItems) {
-                    // Atomic conditional update preventing negative stock
-                    const updatedStock = await transaction `
-            UPDATE products
-            SET stock_pieces = stock_pieces - ${item.quantity},
-                updated_at = NOW()
-            WHERE id = ${item.productId}
-              AND stock_pieces >= ${item.quantity}
-            RETURNING id, name, product_code as "productCode", price_per_piece as "pricePerPiece", thumbnail, stock_pieces;
+                    const productRows = await transaction `
+            SELECT id, name, product_code as "productCode", price_per_piece as "pricePerPiece", thumbnail, status, is_sold_out
+            FROM products
+            WHERE id = ${item.productId};
           `;
-                    if (!updatedStock || updatedStock.length === 0) {
-                        throw new Error(`INSUFFICIENT_STOCK:${item.productId}`);
+                    if (!productRows || productRows.length === 0) {
+                        throw new Error(`PRODUCT_NOT_FOUND:${item.productId}`);
                     }
-                    const dbProd = updatedStock[0];
+                    const dbProd = productRows[0];
+                    if (dbProd.status === 'SOLD_OUT' || dbProd.is_sold_out) {
+                        throw new Error(`PRODUCT_SOLD_OUT:${item.productId}`);
+                    }
                     const pricePerPiece = Number(dbProd.pricePerPiece);
                     const itemTotal = pricePerPiece * item.quantity;
                     subtotal += itemTotal;
@@ -253,11 +252,18 @@ const createOrder = async (req, res) => {
         catch (err) {
             if (sql)
                 await sql.end().catch(() => { });
-            if (err.message?.startsWith('INSUFFICIENT_STOCK:')) {
+            if (err.message?.startsWith('PRODUCT_SOLD_OUT:')) {
                 const prodId = err.message.split(':')[1];
                 return res.status(400).json({
                     success: false,
-                    message: `Insufficient stock for product ID ${prodId}. Order placement cancelled.`,
+                    message: `สินค้าชิ้นนี้ปิดการขายหรือสินค้าหมดแล้ว (Product ID: ${prodId}). กรุณาตรวจสอบรายการสินค้าอีกครั้ง`,
+                });
+            }
+            if (err.message?.startsWith('PRODUCT_NOT_FOUND:')) {
+                const prodId = err.message.split(':')[1];
+                return res.status(404).json({
+                    success: false,
+                    message: `ไม่พบข้อมูลสินค้า (Product ID: ${prodId}). กรุณาตรวจสอบรายการสินค้าอีกครั้ง`,
                 });
             }
             if (err.message === 'COUPON_INVALID_OR_EXHAUSTED') {

@@ -51,17 +51,17 @@ export const CMSFooter: React.FC<CMSFooterProps> = ({ content }) => {
 
   const logoType = settings.logoType || 'text';
   const logoImageUrl = settings.logoImageUrl ? resolveMediaUrl(settings.logoImageUrl) : '';
-  const brandName = settings.logoText || content?.title || 'SUNMA';
+  const brandName = settings.logoText || content?.title || 'TILE STUDIO';
   const brandSubtitle = settings.logoSubtitle || content?.subtitle || 'CERAMIC ATELIER';
 
-  const defaultAddressEn = '88/12 Sukhumvit 55 Road (Thonglor), Klongtan Nua, Vadhana, Bangkok 10110';
-  const defaultAddressTh = '88/12 ถนนสุขุมวิท 55 (ทองหล่อ) แขวงคลองตันเหนือ เขตวัฒนา กรุงเทพฯ 10110';
+  const defaultAddressEn = '8/32 Moo 3, Pracha Samran Road, Soi Sap Prasit, Khlong Sip Song, Nong Chok, Bangkok 10530';
+  const defaultAddressTh = '8/32 ม.3 ถนนประชาสำราญ ซอยทรัพย์ประสิทธิ์ แขวงคลองสิบสอง เขตหนองจอก กทม. 10530';
   const address = isThai
     ? settings.addressTh || settings.address || defaultAddressTh
     : settings.address || defaultAddressEn;
 
-  const defaultCopyrightEn = '© 2026 SUNMA CERAMIC CO., LTD. All rights reserved.';
-  const defaultCopyrightTh = '© 2026 บริษัท ซันม่า เซรามิก จำกัด สงวนลิขสิทธิ์ทั้งหมด';
+  const defaultCopyrightEn = '© 2026 TS MATERIAL CO., LTD. All rights reserved.';
+  const defaultCopyrightTh = '© 2026 บริษัท ทีเอส แมททีเรียล จำกัด สงวนลิขสิทธิ์ทั้งหมด';
   const copyright = isThai
     ? settings.copyrightTh || settings.copyright || defaultCopyrightTh
     : settings.copyright || defaultCopyrightEn;

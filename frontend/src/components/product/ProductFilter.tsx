@@ -7,6 +7,9 @@ import { RotateCcw, Filter } from 'lucide-react';
 interface FilterProps {
   categories: Array<{ id: string; slug: string; name: string; nameTh?: string }>;
   brands: Array<{ id: string; slug: string; name: string }>;
+  availableSizes?: string[];
+  availableSurfaces?: string[];
+  availableMaterials?: string[];
   selectedCategory: string;
   setSelectedCategory: (cat: string) => void;
   selectedBrand: string;
@@ -23,6 +26,9 @@ interface FilterProps {
 export const ProductFilter: React.FC<FilterProps> = ({
   categories,
   brands,
+  availableSizes,
+  availableSurfaces,
+  availableMaterials,
   selectedCategory,
   setSelectedCategory,
   selectedBrand,
@@ -38,9 +44,14 @@ export const ProductFilter: React.FC<FilterProps> = ({
   const { language, t } = useLanguage();
   const isThai = language === 'TH';
 
-  const sizes = ['60x60', '60x120', '30x60', '20x120'];
-  const surfaces = ['Matt', 'Satin', 'Polished', 'Carved', 'Glossy'];
-  const materials = ['Porcelain', 'Ceramic'];
+  const defaultSizes = ['60x60', '60x120', '30x60', '20x120', '80x80'];
+  const defaultSurfaces = ['Matt', 'Satin', 'Polished', 'Carved', 'Glossy'];
+  const defaultMaterials = ['Porcelain', 'Ceramic'];
+
+  const sizes = availableSizes && availableSizes.length > 0 ? availableSizes : defaultSizes;
+  const surfaces = availableSurfaces && availableSurfaces.length > 0 ? availableSurfaces : defaultSurfaces;
+  const materials = availableMaterials && availableMaterials.length > 0 ? availableMaterials : defaultMaterials;
+
 
   return (
     <div className="bg-bg-card border border-border-subtle rounded-[2px] p-6 space-y-7 shadow-xs">

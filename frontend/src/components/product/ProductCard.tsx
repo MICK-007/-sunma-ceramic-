@@ -24,8 +24,10 @@ export interface ProductProps {
   pricePerPiece: number;
   pricePerBox: number;
   piecesPerBox: number;
-  coveragePerBox: number;
-  stockPieces: number;
+  coveragePerBox?: number;
+  stockPieces?: number;
+  isSoldOut?: boolean;
+  status?: string;
   featured?: boolean;
 }
 
@@ -36,6 +38,7 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
 
   const isFav = isInWishlist(product.id) || isInWishlist(product.slug);
   const isThai = language === 'TH';
+  const isSoldOut = !!product.isSoldOut || product.status === 'SOLD_OUT';
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -44,7 +47,9 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
   };
 
   return (
-    <div className="luxury-card group rounded-[2px] overflow-hidden flex flex-col justify-between h-full relative bg-bg-card border border-border-subtle hover:border-gold transition-all duration-300">
+    <div className={`luxury-card group rounded-[2px] overflow-hidden flex flex-col justify-between h-full relative bg-bg-card border border-border-subtle hover:border-gold transition-all duration-300 ${
+      isSoldOut ? 'grayscale contrast-95 opacity-80 border-neutral-300' : ''
+    }`}>
       {/* Top Image Container */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-bg-secondary">
         <Image
@@ -53,8 +58,19 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
           fill
           unoptimized
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+          className={`object-cover transition-transform duration-700 ease-out ${
+            isSoldOut ? '' : 'group-hover:scale-105'
+          }`}
         />
+
+        {/* Sold Out Overlay Badge */}
+        {isSoldOut && (
+          <div className="absolute inset-0 bg-neutral-950/40 backdrop-blur-[1.5px] flex items-center justify-center z-25">
+            <span className="px-3 py-1.5 bg-neutral-900/90 text-white font-bold text-[11px] tracking-widest uppercase rounded-[2px] border border-white/20 shadow-md">
+              {isThai ? 'สินค้าหมด / SOLD OUT' : 'SOLD OUT'}
+            </span>
+          </div>
+        )}
 
         {/* Admin Quick Edit Shortcut (Only visible to admin) */}
         {isAdmin && (
@@ -123,33 +139,37 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
           </p>
         </div>
 
-        {/* Pricing & Stock */}
+        {/* Pricing & Availability */}
         <div className="pt-3 border-t border-border-subtle flex items-end justify-between gap-2">
           <div className="min-w-0">
             <div className="flex items-baseline gap-1">
               <span className="text-sm font-semibold text-txt-main font-mono">
                 ฿{product.pricePerPiece.toLocaleString()}
               </span>
-              <span className="text-[10.5px] text-txt-muted whitespace-nowrap">
-                / {isThai ? 'แผ่น' : 'pc'}
+              <span className="text-[10.5px] text-txt-muted whitespace-nowrap font-medium">
+                / {isThai ? 'ตร.ม.' : 'SQM.'}
               </span>
             </div>
             <div className="text-[10.5px] text-txt-muted/80 whitespace-nowrap">
-              ฿{product.pricePerBox.toLocaleString()} / {isThai ? 'กล่อง' : 'box'} ({product.piecesPerBox} {isThai ? 'แผ่น' : 'pcs'})
+              ฿{product.pricePerBox.toLocaleString()} / {isThai ? 'กล่อง' : 'box'} {product.coveragePerBox ? `(${product.coveragePerBox} ${isThai ? 'ตร.ม.' : 'sq.m'})` : ''}
             </div>
           </div>
 
           <div className="text-right flex-shrink-0">
-            <span className={`text-[10px] font-medium block ${product.stockPieces > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
-              {product.stockPieces > 0
-                ? (isThai ? `มีสินค้า ${product.stockPieces} แผ่น` : `${product.stockPieces} in stock`)
-                : (isThai ? 'สั่งผลิตตามรอบ' : 'Order on request')}
-            </span>
+            {isSoldOut ? (
+              <span className="text-[10px] font-semibold text-rose-600 block">
+                {isThai ? 'สินค้าหมด' : 'Sold Out'}
+              </span>
+            ) : (
+              <span className="text-[10px] font-medium text-emerald-600 block">
+                {isThai ? 'พร้อมจำหน่าย' : 'Available'}
+              </span>
+            )}
             <Link
               href={`/products/${product.slug}`}
               className="text-[10px] uppercase font-semibold text-gold hover:underline tracking-wider inline-block mt-0.5"
             >
-              {isThai ? 'ดูรายละเอียด →' : 'Configure →'}
+              {isThai ? 'ดูรายละเอียด →' : 'Details →'}
             </Link>
           </div>
         </div>

@@ -26,6 +26,7 @@ function ShopContent() {
 
   const [categories, setCategories] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
+  const [filterOptions, setFilterOptions] = useState<{ sizes?: string[]; surfaces?: string[]; materials?: string[] }>({});
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -42,7 +43,17 @@ function ShopContent() {
   useEffect(() => {
     api.getCategories().then(res => res.success && setCategories(res.data || []));
     api.getBrands().then(res => res.success && setBrands(res.data || []));
+    api.getShopFilters().then(res => {
+      if (res.success && res.data) {
+        setFilterOptions({
+          sizes: res.data.sizes,
+          surfaces: res.data.surfaces,
+          materials: res.data.materials,
+        });
+      }
+    });
   }, []);
+
 
   useEffect(() => {
     setIsLoading(true);
@@ -153,6 +164,9 @@ function ShopContent() {
           <ProductFilter
             categories={categories}
             brands={brands}
+            availableSizes={filterOptions.sizes}
+            availableSurfaces={filterOptions.surfaces}
+            availableMaterials={filterOptions.materials}
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
             selectedBrand={selectedBrand}
@@ -165,6 +179,7 @@ function ShopContent() {
             setSelectedMaterial={setSelectedMaterial}
             onReset={handleResetFilters}
           />
+
         </div>
 
         {/* Right Products Container */}
