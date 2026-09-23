@@ -52,7 +52,11 @@ export const Navbar = () => {
         const cached = localStorage.getItem('sunma_cms_branding');
         if (cached) {
           const parsed = JSON.parse(cached);
-          setBranding(prev => ({ ...prev, ...parsed }));
+          if (parsed && parsed.logoText && parsed.logoText !== 'SUNMA') {
+            setBranding(prev => ({ ...prev, ...parsed }));
+          } else {
+            localStorage.removeItem('sunma_cms_branding');
+          }
         }
       } catch (e) {}
 
@@ -66,8 +70,8 @@ export const Navbar = () => {
             const brandData = {
               logoType: s.logoType || 'text',
               logoImageUrl: s.logoImageUrl || '',
-              logoText: s.logoText || res.data.sections[0].title || 'TILE STUDIO',
-              logoSubtitle: s.logoSubtitle || res.data.sections[0].subtitle || 'CERAMIC ATELIER',
+              logoText: s.logoText && s.logoText !== 'SUNMA' ? s.logoText : 'TILE STUDIO',
+              logoSubtitle: s.logoSubtitle || 'CERAMIC ATELIER',
             };
             setBranding(brandData);
             try {
@@ -77,6 +81,7 @@ export const Navbar = () => {
         })
         .catch(() => {});
     };
+
 
     loadBranding();
     window.addEventListener('sunma_branding_updated', loadBranding);

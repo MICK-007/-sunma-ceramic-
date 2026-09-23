@@ -36,13 +36,13 @@ export const th = {
   home: {
     featuredTitle: 'สินค้าแผ่นแกรนิตและพอร์ซเลนแนะนำ',
     featuredSubtitle: 'คัดสรรพื้นผิวดีไซน์ระดับสถาปัตยกรรมโมเดิร์น',
-    roomStudioBannerTitle: 'SUNMA Room Studio',
+    roomStudioBannerTitle: 'TILE STUDIO Room Studio',
     roomStudioBannerSubtitle: 'จำลองการปูกระเบื้องจริงบนพื้นที่สถาปัตยกรรมแบบเรียลไทม์ ก่อนตัดสินใจสั่งซื้อ',
     roomStudioButton: 'เปิดใช้งานโปรแกรมจำลอง',
     importedTitle: 'คอลเลกชันนำเข้าจากยุโรป',
     importedSubtitle: 'ส่งตรงจากโรงงานผลิตชั้นนำในประเทศอิตาลีและสเปน',
     brandsTitle: 'แบรนด์สินค้าและพันธมิตรผู้ผลิต',
-    whyTitle: 'ทำไมต้องเลือก SUNMA CERAMIC',
+    whyTitle: 'ทำไมต้องเลือก TILE STUDIO',
     why1Title: 'คุณภาพระดับสถาปัตยกรรม',
     why1Desc: 'อัตราการดูดซึมน้ำต่ำพิเศษ (<0.1%) ทนทานต่อแรงกดทับสูงสุด',
     why2Title: 'ตัวแทนจำหน่ายและผู้นำเข้าตรง',
@@ -97,7 +97,7 @@ export const th = {
     authNoticeCart: 'กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนเพิ่มสินค้าลงในตระกร้า',
   },
   roomStudio: {
-    title: 'SUNMA ROOM STUDIO',
+    title: 'TILE STUDIO ROOM STUDIO',
     subtitle: 'ระบบจำลองการปูกระเบื้องสถาปัตยกรรม',
     selectRoom: '1. เลือกห้องจำลอง',
     selectArea: '2. เลือกโซนพื้นผิวที่ต้องการปู',
@@ -143,7 +143,7 @@ export const th = {
     orderSuccessDesc: 'หมายเลขออเดอร์ของคุณคือ {{orderNumber}} เจ้าหน้าที่จะตรวจสอบสต็อกและดำเนินการจัดส่งโดยเร็ว',
   },
   account: {
-    title: 'บัญชีใช้งาน SUNMA',
+    title: 'บัญชีใช้งาน TILE STUDIO',
     profileTab: 'ข้อมูลส่วนตัว',
     ordersTab: 'ประวัติการสั่งซื้อ',
     wishlistTab: 'รายการโปรด',
@@ -152,7 +152,7 @@ export const th = {
     orderStatus: 'สถานะออเดอร์',
   },
   admin: {
-    title: 'ระบบผู้ดูแลแดชบอร์ดผู้บริหาร SUNMA',
+    title: 'ระบบผู้ดูแลแดชบอร์ดผู้บริหาร TILE STUDIO',
     totalSales: 'ยอดขายรวมทั้งหมด',
     totalOrders: 'จำนวนคำสั่งซื้อ',
     totalCustomers: 'จำนวนสมาชิก',
@@ -189,7 +189,7 @@ export const th = {
     regSuccessNotice: 'ลงทะเบียนสมัครสมาชิกสำเร็จเรียบร้อย! กรุณาเข้าสู่ระบบด้วยชื่อผู้ใช้หรืออีเมลของคุณ',
   },
   cms: {
-    studioTitle: 'ระบบจัดการเนื้อหาเว็บไซต์ SUNMA CERAMIC CMS Studio',
+    studioTitle: 'ระบบจัดการเนื้อหาเว็บไซต์ TILE STUDIO CMS Studio',
     studioSubtitle: 'จัดการส่วนการแสดงผล ข้อความ การ์ดสินค้า และสื่อรูปภาพอย่างปลอดภัย ข้อมูลทั้งหมดจะบันทึกเป็น ฉบับร่าง (DRAFT) อัตโนมัติ',
     homePageOption: 'หน้าหลัก (Home Page)',
     footerOption: 'ส่วนท้ายเว็บไซต์ (Global Footer)',

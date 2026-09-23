@@ -51,20 +51,21 @@ export const CMSFooter: React.FC<CMSFooterProps> = ({ content }) => {
 
   const logoType = settings.logoType || 'text';
   const logoImageUrl = settings.logoImageUrl ? resolveMediaUrl(settings.logoImageUrl) : '';
-  const brandName = settings.logoText || content?.title || 'TILE STUDIO';
-  const brandSubtitle = settings.logoSubtitle || content?.subtitle || 'CERAMIC ATELIER';
+  const brandName = settings.logoText && settings.logoText !== 'SUNMA' ? settings.logoText : 'TILE STUDIO';
+  const brandSubtitle = settings.logoSubtitle || 'CERAMIC ATELIER';
 
   const defaultAddressEn = '8/32 Moo 3, Pracha Samran Road, Soi Sap Prasit, Khlong Sip Song, Nong Chok, Bangkok 10530';
   const defaultAddressTh = '8/32 ม.3 ถนนประชาสำราญ ซอยทรัพย์ประสิทธิ์ แขวงคลองสิบสอง เขตหนองจอก กทม. 10530';
-  const address = isThai
-    ? settings.addressTh || settings.address || defaultAddressTh
-    : settings.address || defaultAddressEn;
+  const rawAddressEn = settings.address && !settings.address.includes('Sukhumvit') ? settings.address : defaultAddressEn;
+  const rawAddressTh = settings.addressTh && !settings.addressTh.includes('สุขุมวิท') ? settings.addressTh : defaultAddressTh;
+  const address = isThai ? rawAddressTh : rawAddressEn;
 
   const defaultCopyrightEn = '© 2026 TS MATERIAL CO., LTD. All rights reserved.';
   const defaultCopyrightTh = '© 2026 บริษัท ทีเอส แมททีเรียล จำกัด สงวนลิขสิทธิ์ทั้งหมด';
-  const copyright = isThai
-    ? settings.copyrightTh || settings.copyright || defaultCopyrightTh
-    : settings.copyright || defaultCopyrightEn;
+  const rawCopyrightEn = settings.copyright && !settings.copyright.includes('SUNMA') ? settings.copyright : defaultCopyrightEn;
+  const rawCopyrightTh = settings.copyrightTh && !settings.copyrightTh.includes('ซันม่า') ? settings.copyrightTh : defaultCopyrightTh;
+  const copyright = isThai ? rawCopyrightTh : rawCopyrightEn;
+
 
   const instagramUrl = settings.instagramUrl || 'https://instagram.com';
   const facebookUrl = settings.facebookUrl || 'https://facebook.com';

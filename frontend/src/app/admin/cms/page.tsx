@@ -485,7 +485,7 @@ export default function AdminCmsStudioPage() {
             const brandingPayload = {
               logoType: sectionSettings.logoType || 'text',
               logoImageUrl: sectionSettings.logoImageUrl || '',
-              logoText: sectionSettings.logoText || editingSection.title || 'SUNMA',
+              logoText: (sectionSettings.logoText && sectionSettings.logoText !== 'SUNMA' ? sectionSettings.logoText : null) || (editingSection.title && editingSection.title !== 'SUNMA' ? editingSection.title : null) || 'TILE STUDIO',
               logoSubtitle: sectionSettings.logoSubtitle || editingSection.subtitle || 'CERAMIC ATELIER',
             };
             localStorage.setItem('sunma_cms_branding', JSON.stringify(brandingPayload));
@@ -2299,7 +2299,7 @@ export default function AdminCmsStudioPage() {
                           }))
                         }
                         className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                        placeholder="88/12 Sukhumvit 55 Road (Thonglor)..."
+                        placeholder="8/32 Moo 3, Pracha Samran Road, Soi Sap Prasit, Khlong Sip Song, Nong Chok, Bangkok 10530"
                       />
                     </div>
                     <div>
@@ -2316,7 +2316,7 @@ export default function AdminCmsStudioPage() {
                           }))
                         }
                         className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                        placeholder="88/12 ถนนสุขุมวิท 55 (ทองหล่อ)..."
+                        placeholder="8/32 ม.3 ถนนประชาสำราญ ซอยทรัพย์ประสิทธิ์ แขวงคลองสิบสอง เขตหนองจอก กทม. 10530"
                       />
                     </div>
                   </div>
@@ -2576,7 +2576,7 @@ export default function AdminCmsStudioPage() {
                         </label>
                         <input
                           type="text"
-                          value={editingSection.settings?.logoText ?? editingSection.title ?? 'SUNMA'}
+                          value={editingSection.settings?.logoText ?? (editingSection.title && editingSection.title !== 'SUNMA' ? editingSection.title : 'TILE STUDIO')}
                           onChange={e =>
                             setEditingSection((prev: any) => ({
                               ...prev,
@@ -2585,7 +2585,7 @@ export default function AdminCmsStudioPage() {
                             }))
                           }
                           className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold font-heading tracking-wider"
-                          placeholder="SUNMA"
+                          placeholder="TILE STUDIO"
                         />
                       </div>
                       <div>
@@ -2629,7 +2629,7 @@ export default function AdminCmsStudioPage() {
                             }))
                           }
                           className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                          placeholder="88/12 Sukhumvit 55 Road (Thonglor), Klongtan Nua, Vadhana, Bangkok 10110"
+                          placeholder="8/32 Moo 3, Pracha Samran Road, Soi Sap Prasit, Khlong Sip Song, Nong Chok, Bangkok 10530"
                         />
                       </div>
                       <div>
@@ -2646,7 +2646,7 @@ export default function AdminCmsStudioPage() {
                             }))
                           }
                           className="w-full bg-white border border-gold/40 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold"
-                          placeholder="88/12 ถนนสุขุมวิท 55 (ทองหล่อ) แขวงคลองตันเหนือ เขตวัฒนา กรุงเทพฯ 10110"
+                          placeholder="8/32 ม.3 ถนนประชาสำราญ ซอยทรัพย์ประสิทธิ์ แขวงคลองสิบสอง เขตหนองจอก กทม. 10530"
                         />
                       </div>
                     </div>

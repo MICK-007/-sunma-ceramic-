@@ -367,53 +367,20 @@ const createAdminBrand = (req, res) => {
 };
 exports.createAdminBrand = createAdminBrand;
 // Filter Options Management (Sizes, Surfaces, Materials)
-const getShopFilters = async (req, res) => {
-    let sizes = store_1.store.filterConfig.sizes;
-    let surfaces = store_1.store.filterConfig.surfaces;
-    let materials = store_1.store.filterConfig.materials;
-    const sql = (0, db_1.getDbClient)();
-    if (sql) {
-        try {
-            const rows = await sql `SELECT settings FROM cms_sections WHERE section_key = 'shop_filters' LIMIT 1`;
-            if (rows && rows.length > 0) {
-                let settings = rows[0].settings;
-                if (typeof settings === 'string') {
-                    try {
-                        settings = JSON.parse(settings);
-                    }
-                    catch (e) { }
-                }
-                if (settings && typeof settings === 'object') {
-                    if (Array.isArray(settings.sizes))
-                        sizes = settings.sizes;
-                    if (Array.isArray(settings.surfaces))
-                        surfaces = settings.surfaces;
-                    if (Array.isArray(settings.materials))
-                        materials = settings.materials;
-                    store_1.store.filterConfig = { sizes, surfaces, materials };
-                }
-            }
-        }
-        catch (e) {
-            console.error('Error fetching shop_filters from db:', e);
-        }
-        finally {
-            await sql.end().catch(() => { });
-        }
-    }
+const getShopFilters = (req, res) => {
     return res.json({
         success: true,
         data: {
-            sizes,
-            surfaces,
-            materials,
+            sizes: store_1.store.filterConfig.sizes,
+            surfaces: store_1.store.filterConfig.surfaces,
+            materials: store_1.store.filterConfig.materials,
             categories: store_1.store.categories,
             brands: store_1.store.brands,
         },
     });
 };
 exports.getShopFilters = getShopFilters;
-const updateShopFilters = async (req, res) => {
+const updateShopFilters = (req, res) => {
     const { sizes, surfaces, materials } = req.body;
     if (Array.isArray(sizes))
         store_1.store.filterConfig.sizes = sizes;
@@ -421,26 +388,9 @@ const updateShopFilters = async (req, res) => {
         store_1.store.filterConfig.surfaces = surfaces;
     if (Array.isArray(materials))
         store_1.store.filterConfig.materials = materials;
-    const sql = (0, db_1.getDbClient)();
-    if (sql) {
-        try {
-            const settingsPayload = JSON.stringify(store_1.store.filterConfig);
-            await sql `
-        UPDATE cms_sections
-        SET settings = ${settingsPayload}::jsonb, updated_at = NOW()
-        WHERE section_key = 'shop_filters'
-      `;
-        }
-        catch (e) {
-            console.error('Error updating shop_filters in db:', e);
-        }
-        finally {
-            await sql.end().catch(() => { });
-        }
-    }
     return res.json({
         success: true,
-        message: 'Filters updated successfully in database.',
+        message: 'Filters updated successfully.',
         data: {
             ...store_1.store.filterConfig,
             categories: store_1.store.categories,

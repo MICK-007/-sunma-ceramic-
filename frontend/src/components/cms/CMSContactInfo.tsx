@@ -63,13 +63,17 @@ export const CMSContactInfo: React.FC<CMSContactInfoProps> = ({ content }) => {
   const defaultEmailLabelTh = 'ฝ่ายประสานงานโครงการ';
   const defaultEmail = 'tsmaterial15@gmail.com';
 
-  const eyebrow = isThai
-    ? settings.eyebrowTh || settings.eyebrow || defaultEyebrowTh
-    : settings.eyebrow || defaultEyebrowEn;
+  const rawEyebrowEn = settings.eyebrow && !settings.eyebrow.includes('SUNMA') ? settings.eyebrow : defaultEyebrowEn;
+  const rawEyebrowTh = settings.eyebrowTh && !settings.eyebrowTh.includes('ซันม่า') ? settings.eyebrowTh : defaultEyebrowTh;
+  const eyebrow = isThai ? rawEyebrowTh : rawEyebrowEn;
 
-  const title = isThai
-    ? settings.titleTh || content?.title || settings.title || defaultTitle
-    : content?.title || settings.title || defaultTitle;
+  const rawTitle = content?.title && !content.title.includes('SUNMA')
+    ? content.title
+    : settings.title && !settings.title.includes('SUNMA')
+    ? settings.title
+    : defaultTitle;
+  const rawTitleTh = settings.titleTh && !settings.titleTh.includes('ซันม่า') ? settings.titleTh : rawTitle;
+  const title = isThai ? rawTitleTh : rawTitle;
 
   const formTitle = isThai
     ? settings.formTitleTh || settings.formTitle || defaultFormTitleTh
@@ -79,13 +83,13 @@ export const CMSContactInfo: React.FC<CMSContactInfoProps> = ({ content }) => {
     ? settings.showroomTitleTh || settings.showroomTitle || defaultShowroomTitleTh
     : settings.showroomTitle || defaultShowroomTitleEn;
 
-  const atelierName = isThai
-    ? settings.atelierNameTh || settings.atelierName || defaultAtelierName
-    : settings.atelierName || defaultAtelierName;
+  const rawAtelierName = settings.atelierName && !settings.atelierName.includes('SUNMA') ? settings.atelierName : defaultAtelierName;
+  const rawAtelierNameTh = settings.atelierNameTh && !settings.atelierNameTh.includes('ซันม่า') ? settings.atelierNameTh : defaultAtelierName;
+  const atelierName = isThai ? rawAtelierNameTh : rawAtelierName;
 
-  const address = isThai
-    ? settings.addressTh || settings.address || defaultAddressTh
-    : settings.address || defaultAddressEn;
+  const rawAddressEn = settings.address && !settings.address.includes('Sukhumvit') ? settings.address : defaultAddressEn;
+  const rawAddressTh = settings.addressTh && !settings.addressTh.includes('สุขุมวิท') ? settings.addressTh : defaultAddressTh;
+  const address = isThai ? rawAddressTh : rawAddressEn;
 
   const phoneLabel = isThai
     ? settings.phoneLabelTh || settings.phoneLabel || defaultPhoneLabelTh

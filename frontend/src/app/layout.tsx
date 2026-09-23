@@ -30,10 +30,11 @@ const notoSansThai = Noto_Sans_Thai({
 });
 
 export const metadata: Metadata = {
-  title: 'SUNMA CERAMIC | Architectural Porcelain Slabs & Luxury Tile Atelier',
-  description: 'Premium architectural ceramic, marble porcelain slabs, and designer surface collections. Distributor, direct importer, and atelier for high-end residential and commercial architectural projects.',
-  keywords: ['ceramic tiles', 'porcelain slabs', 'marble tiles', 'architectural tiles', 'SUNMA CERAMIC', 'Thailand ceramic importer', 'architectural surfaces'],
+  title: 'TILE STUDIO | Architectural Ceramic Atelier - TS MATERIAL',
+  description: 'Premium architectural ceramic, porcelain slabs, and luxury surface collections by TS MATERIAL CO., LTD.',
+  keywords: ['TILE STUDIO', 'TS MATERIAL', 'ceramic tiles', 'porcelain slabs', 'marble tiles', 'architectural tiles', 'Thailand ceramic importer', 'architectural surfaces'],
 };
+
 
 export default function RootLayout({
   children,

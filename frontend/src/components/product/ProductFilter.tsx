@@ -97,26 +97,8 @@ export const ProductFilter: React.FC<FilterProps> = ({
         </div>
       </div>
 
-      {/* Brands Filter */}
-      <div>
-        <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
-          {isThai ? 'แบรนด์และสตูดิโอผู้ผลิต' : 'Brand & Atelier'}
-        </label>
-        <select
-          value={selectedBrand}
-          onChange={e => setSelectedBrand(e.target.value)}
-          className="w-full bg-bg-secondary border border-border-subtle text-xs text-txt-main rounded-[2px] p-2.5 focus:outline-none focus:border-gold"
-        >
-          <option value="">{t.shop.allBrands}</option>
-          {brands.map(b => (
-            <option key={b.id} value={b.slug}>
-              {b.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
       {/* Size Filter */}
+
       <div>
         <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
           {isThai ? 'ขนาดสัดส่วน (ซม.)' : 'Format Dimensions (cm)'}

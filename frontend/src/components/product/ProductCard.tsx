@@ -122,7 +122,7 @@ export const ProductCard: React.FC<{ product: ProductProps }> = ({ product }) =>
       <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
         <div>
           <div className="flex items-center justify-between text-[10px] text-txt-muted font-medium tracking-wider uppercase mb-1">
-            <span>{product.brandName || 'SUNMA'}</span>
+            <span>{product.brandName || 'TILE STUDIO'}</span>
             <span className="font-mono text-txt-muted/70">{product.productCode}</span>
           </div>
 

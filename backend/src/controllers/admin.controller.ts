@@ -407,72 +407,29 @@ export const createAdminBrand = (req: Request, res: Response) => {
 };
 
 // Filter Options Management (Sizes, Surfaces, Materials)
-export const getShopFilters = async (req: Request, res: Response) => {
-  let sizes = store.filterConfig.sizes;
-  let surfaces = store.filterConfig.surfaces;
-  let materials = store.filterConfig.materials;
-
-  const sql = getDbClient();
-  if (sql) {
-    try {
-      const rows = await sql`SELECT settings FROM cms_sections WHERE section_key = 'shop_filters' LIMIT 1`;
-      if (rows && rows.length > 0) {
-        let settings = rows[0].settings;
-        if (typeof settings === 'string') {
-          try { settings = JSON.parse(settings); } catch (e) {}
-        }
-        if (settings && typeof settings === 'object') {
-          if (Array.isArray(settings.sizes)) sizes = settings.sizes;
-          if (Array.isArray(settings.surfaces)) surfaces = settings.surfaces;
-          if (Array.isArray(settings.materials)) materials = settings.materials;
-          store.filterConfig = { sizes, surfaces, materials };
-        }
-      }
-    } catch (e) {
-      console.error('Error fetching shop_filters from db:', e);
-    } finally {
-      await sql.end().catch(() => {});
-    }
-  }
-
+export const getShopFilters = (req: Request, res: Response) => {
   return res.json({
     success: true,
     data: {
-      sizes,
-      surfaces,
-      materials,
+      sizes: store.filterConfig.sizes,
+      surfaces: store.filterConfig.surfaces,
+      materials: store.filterConfig.materials,
       categories: store.categories,
       brands: store.brands,
     },
   });
 };
 
-export const updateShopFilters = async (req: Request, res: Response) => {
+export const updateShopFilters = (req: Request, res: Response) => {
   const { sizes, surfaces, materials } = req.body;
 
   if (Array.isArray(sizes)) store.filterConfig.sizes = sizes;
   if (Array.isArray(surfaces)) store.filterConfig.surfaces = surfaces;
   if (Array.isArray(materials)) store.filterConfig.materials = materials;
 
-  const sql = getDbClient();
-  if (sql) {
-    try {
-      const settingsPayload = JSON.stringify(store.filterConfig);
-      await sql`
-        UPDATE cms_sections
-        SET settings = ${settingsPayload}::jsonb, updated_at = NOW()
-        WHERE section_key = 'shop_filters'
-      `;
-    } catch (e) {
-      console.error('Error updating shop_filters in db:', e);
-    } finally {
-      await sql.end().catch(() => {});
-    }
-  }
-
   return res.json({
     success: true,
-    message: 'Filters updated successfully in database.',
+    message: 'Filters updated successfully.',
     data: {
       ...store.filterConfig,
       categories: store.categories,
@@ -480,6 +437,7 @@ export const updateShopFilters = async (req: Request, res: Response) => {
     },
   });
 };
+
 
 // Company & Showroom Details Management (Address, Tax ID, Phone, Email)
 export const getCompanySettings = async (req: Request, res: Response) => {

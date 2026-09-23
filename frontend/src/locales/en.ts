@@ -36,13 +36,13 @@ export const en = {
   home: {
     featuredTitle: 'Signature Porcelain Slabs',
     featuredSubtitle: 'Hand-selected architectural surfaces for modern living spaces.',
-    roomStudioBannerTitle: 'SUNMA Room Studio',
+    roomStudioBannerTitle: 'TILE STUDIO Room Studio',
     roomStudioBannerSubtitle: 'Simulate high-definition ceramic and tile surfaces live inside predefined architectural rooms before ordering.',
     roomStudioButton: 'Launch Room Studio Visualizer',
     importedTitle: 'Direct European Import Collection',
     importedSubtitle: 'Sourced directly from prestigious manufacturers in Italy & Spain.',
     brandsTitle: 'Represented Brands & Private Labels',
-    whyTitle: 'Why SUNMA CERAMIC',
+    whyTitle: 'Why TILE STUDIO',
     why1Title: 'Architectural Quality',
     why1Desc: 'Extremely low water absorption (<0.1%) with high breaking strength porcelain.',
     why2Title: 'Distributor & Direct Importer',
@@ -97,7 +97,7 @@ export const en = {
     authNoticeCart: 'Please log in or create an account to add products to your cart.',
   },
   roomStudio: {
-    title: 'SUNMA ROOM STUDIO',
+    title: 'TILE STUDIO ROOM STUDIO',
     subtitle: 'Interactive Surface Visualizer',
     selectRoom: '1. Select Architectural Room',
     selectArea: '2. Select Surface Target Area',
@@ -152,7 +152,7 @@ export const en = {
     orderStatus: 'Status',
   },
   admin: {
-    title: 'SUNMA Executive Admin Dashboard',
+    title: 'TILE STUDIO Executive Admin Dashboard',
     totalSales: 'Total Sales Revenue',
     totalOrders: 'Total Orders',
     totalCustomers: 'Registered Customers',
@@ -189,7 +189,7 @@ export const en = {
     regSuccessNotice: 'Registration successful! Please log in with your account credentials.',
   },
   cms: {
-    studioTitle: 'SUNMA CERAMIC CMS Studio Management System',
+    studioTitle: 'TILE STUDIO CMS Studio Management System',
     studioSubtitle: 'Safely manage page layout sections, titles, product cards, and media assets. All changes save to DRAFT automatically.',
     homePageOption: 'Home Page',
     footerOption: 'Global Footer',

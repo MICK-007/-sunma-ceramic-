@@ -127,10 +127,10 @@ export default function CheckoutPage() {
           {completedOrder.paymentMethod === 'Bank Transfer' && (
             <div className="bg-bg-secondary/50 p-4 rounded-[2px] border border-border-subtle text-txt-muted space-y-1 mt-4">
               <span className="text-gold font-bold uppercase tracking-wider text-[10px] block mb-1">
-                {isThai ? 'ข้อมูลบัญชีธนาคารสำหรับโอนเงิน:' : 'SUNMA Bank Account for Transfer:'}
+                {isThai ? 'ข้อมูลบัญชีธนาคารสำหรับโอนเงิน:' : 'TILE STUDIO Bank Account for Transfer:'}
               </span>
               <div>{isThai ? 'ธนาคาร: กสิกรไทย (Kasikornbank / KBank)' : 'Bank: Kasikornbank (KBank)'}</div>
-              <div>{isThai ? 'ชื่อบัญชี: บริษัท ซันม่า เซรามิก จำกัด' : 'Account Name: SUNMA CERAMIC CO., LTD.'}</div>
+              <div>{isThai ? 'ชื่อบัญชี: บริษัท ทีเอส แมททีเรียล จำกัด' : 'Account Name: TS MATERIAL CO., LTD.'}</div>
               <div>{isThai ? 'เลขที่บัญชี: 088-2-99999-1 (สาขาสยามสแควร์)' : 'Account No: 088-2-99999-1 (Siam Square Branch)'}</div>
             </div>
           )}

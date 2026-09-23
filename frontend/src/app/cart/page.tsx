@@ -94,7 +94,7 @@ export default function CartPage() {
 
               <div className="pt-2 text-[10px] text-txt-muted flex items-center justify-center gap-1.5 text-center">
                 <ShieldCheck className="w-3.5 h-3.5 text-gold shrink-0" />
-                <span>{isThai ? 'รับประกันการตรวจสอบคุณภาพมาตรฐาน SUNMA และบริการจัดส่งโดยตรง' : 'Guaranteed SUNMA Factory Inspection & Direct Logistics'}</span>
+                <span>{isThai ? 'รับประกันการตรวจสอบคุณภาพมาตรฐาน TILE STUDIO และบริการจัดส่งโดยตรง' : 'Guaranteed TILE STUDIO Factory Inspection & Direct Logistics'}</span>
               </div>
             </div>
           </div>
