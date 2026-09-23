@@ -12,7 +12,8 @@ import { resolveMediaUrl } from '@/lib/media';
 import { MediaLibraryModal, CmsMediaItem } from '@/components/cms/MediaLibraryModal';
 
 export default function AdminCategoriesPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isThai = language === 'TH';
   const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -235,7 +236,7 @@ export default function AdminCategoriesPage() {
           }`}
         >
           <FolderTree className="w-4 h-4" />
-          หมวดหมู่สินค้า (Categories - {categories.length})
+          {isThai ? `หมวดหมู่สินค้า (${categories.length})` : `Categories (${categories.length})`}
         </button>
         <button
           onClick={() => setActiveTab('filters')}
@@ -246,7 +247,7 @@ export default function AdminCategoriesPage() {
           }`}
         >
           <Filter className="w-4 h-4" />
-          ตัวกรองสินค้าหน้าร้าน (Shop Filters: Sizes, Surfaces, Materials)
+          {isThai ? 'ตัวกรองสินค้าหน้าร้าน (Shop Filters: Sizes, Surfaces, Materials)' : 'Shop Filter Options (Sizes, Surfaces, Materials)'}
         </button>
       </div>
 
@@ -345,10 +346,12 @@ export default function AdminCategoriesPage() {
             <div>
               <h2 className="font-heading text-xl font-bold text-txt-main flex items-center gap-2">
                 <Filter className="w-5 h-5 text-gold" />
-                การจัดการตัวกรองสินค้าหน้าร้าน (Shop Filter Options)
+                {isThai ? 'การจัดการตัวกรองสินค้าหน้าร้าน (Shop Filter Options)' : 'Shop Filter Options Management'}
               </h2>
               <p className="text-xs text-txt-muted">
-                กำหนดตัวเลือกขนาด พื้นผิว และวัสดุกระเบื้อง เพื่อนำไปแสดงในแถบตัวกรองหน้า /shop และในแบบฟอร์มเพิ่มสินค้า
+                {isThai
+                  ? 'กำหนดตัวเลือกขนาด พื้นผิว และวัสดุกระเบื้อง เพื่อนำไปแสดงในแถบตัวกรองหน้า /shop และในแบบฟอร์มเพิ่มสินค้า'
+                  : 'Configure tile sizes, surface finishes, and materials displayed in the /shop catalog filters and product forms.'}
               </p>
             </div>
 
@@ -360,7 +363,9 @@ export default function AdminCategoriesPage() {
               className="rounded-[2px] shadow-sm shrink-0"
             >
               <Save className="w-4 h-4 mr-1.5" />
-              {savingFilters ? 'กำลังบันทึกลงฐานข้อมูล...' : 'บันทึกตัวกรองลงฐานข้อมูล (Save)'}
+              {savingFilters
+                ? (isThai ? 'กำลังบันทึกลงฐานข้อมูล...' : 'Saving to Database...')
+                : (isThai ? 'บันทึกตัวกรองลงฐานข้อมูล (Save)' : 'Save Filter Changes')}
             </Button>
           </div>
 
@@ -369,16 +374,18 @@ export default function AdminCategoriesPage() {
             <div className="bg-bg-card border border-border-subtle rounded-[2px] p-5 space-y-4 shadow-sm">
               <div className="border-b border-border-subtle pb-3">
                 <h3 className="font-heading text-sm font-bold text-txt-main uppercase tracking-wider flex items-center justify-between">
-                  <span>📐 ขนาดกระเบื้อง (Sizes)</span>
-                  <span className="text-[10px] font-mono text-gold bg-gold/10 px-2 py-0.5 rounded-[2px]">{sizes.length} รายการ</span>
+                  <span>📐 {isThai ? 'ขนาดกระเบื้อง (Sizes)' : 'Tile Sizes (Sizes)'}</span>
+                  <span className="text-[10px] font-mono text-gold bg-gold/10 px-2 py-0.5 rounded-[2px]">
+                    {sizes.length} {isThai ? 'รายการ' : 'items'}
+                  </span>
                 </h3>
-                <p className="text-[11px] text-txt-muted mt-1">เช่น 60x60, 60x120, 80x80</p>
+                <p className="text-[11px] text-txt-muted mt-1">{isThai ? 'เช่น 60x60, 60x120, 80x80' : 'e.g. 60x60, 60x120, 80x80'}</p>
               </div>
 
               {/* Tag Badges */}
               <div className="flex flex-wrap gap-2 min-h-[90px] p-3 bg-bg-secondary/40 border border-border-subtle rounded-[2px]">
                 {sizes.length === 0 ? (
-                  <span className="text-xs text-txt-muted italic">ยังไม่มีตัวเลือกขนาด</span>
+                  <span className="text-xs text-txt-muted italic">{isThai ? 'ยังไม่มีตัวเลือกขนาด' : 'No size options yet'}</span>
                 ) : (
                   sizes.map((s) => (
                     <span
@@ -390,7 +397,7 @@ export default function AdminCategoriesPage() {
                         type="button"
                         onClick={() => handleRemoveSize(s)}
                         className="text-txt-muted hover:text-red-500 transition-colors"
-                        title={`ลบ ${s}`}
+                        title={isThai ? `ลบ ${s}` : `Remove ${s}`}
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -405,11 +412,11 @@ export default function AdminCategoriesPage() {
                   type="text"
                   value={newSize}
                   onChange={(e) => setNewSize(e.target.value)}
-                  placeholder="เช่น 75x150 หรือ 120x240"
+                  placeholder={isThai ? 'เช่น 75x150 หรือ 120x240' : 'e.g. 75x150 or 120x240'}
                   className="flex-1 bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-xs text-txt-main focus:outline-none focus:border-gold font-mono"
                 />
                 <Button type="submit" variant="outline" size="sm" className="rounded-[2px] text-xs shrink-0">
-                  <Plus className="w-3.5 h-3.5 mr-1" /> เพิ่ม
+                  <Plus className="w-3.5 h-3.5 mr-1" /> {isThai ? 'เพิ่ม' : 'Add'}
                 </Button>
               </form>
             </div>
@@ -418,16 +425,18 @@ export default function AdminCategoriesPage() {
             <div className="bg-bg-card border border-border-subtle rounded-[2px] p-5 space-y-4 shadow-sm">
               <div className="border-b border-border-subtle pb-3">
                 <h3 className="font-heading text-sm font-bold text-txt-main uppercase tracking-wider flex items-center justify-between">
-                  <span>✨ พื้นผิวกระเบื้อง (Surfaces)</span>
-                  <span className="text-[10px] font-mono text-gold bg-gold/10 px-2 py-0.5 rounded-[2px]">{surfaces.length} รายการ</span>
+                  <span>✨ {isThai ? 'พื้นผิวกระเบื้อง (Surfaces)' : 'Surface Finishes (Surfaces)'}</span>
+                  <span className="text-[10px] font-mono text-gold bg-gold/10 px-2 py-0.5 rounded-[2px]">
+                    {surfaces.length} {isThai ? 'รายการ' : 'items'}
+                  </span>
                 </h3>
-                <p className="text-[11px] text-txt-muted mt-1">เช่น Matt, Polished, Satin, Carved</p>
+                <p className="text-[11px] text-txt-muted mt-1">{isThai ? 'เช่น Matt, Polished, Satin, Carved' : 'e.g. Matt, Polished, Satin, Carved'}</p>
               </div>
 
               {/* Tag Badges */}
               <div className="flex flex-wrap gap-2 min-h-[90px] p-3 bg-bg-secondary/40 border border-border-subtle rounded-[2px]">
                 {surfaces.length === 0 ? (
-                  <span className="text-xs text-txt-muted italic">ยังไม่มีตัวเลือกพื้นผิว</span>
+                  <span className="text-xs text-txt-muted italic">{isThai ? 'ยังไม่มีตัวเลือกพื้นผิว' : 'No surface options yet'}</span>
                 ) : (
                   surfaces.map((surf) => (
                     <span
@@ -439,7 +448,7 @@ export default function AdminCategoriesPage() {
                         type="button"
                         onClick={() => handleRemoveSurface(surf)}
                         className="text-txt-muted hover:text-red-500 transition-colors"
-                        title={`ลบ ${surf}`}
+                        title={isThai ? `ลบ ${surf}` : `Remove ${surf}`}
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -454,11 +463,11 @@ export default function AdminCategoriesPage() {
                   type="text"
                   value={newSurface}
                   onChange={(e) => setNewSurface(e.target.value)}
-                  placeholder="เช่น Honed หรือ Lappato"
+                  placeholder={isThai ? 'เช่น Honed หรือ Lappato' : 'e.g. Honed or Lappato'}
                   className="flex-1 bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-xs text-txt-main focus:outline-none focus:border-gold"
                 />
                 <Button type="submit" variant="outline" size="sm" className="rounded-[2px] text-xs shrink-0">
-                  <Plus className="w-3.5 h-3.5 mr-1" /> เพิ่ม
+                  <Plus className="w-3.5 h-3.5 mr-1" /> {isThai ? 'เพิ่ม' : 'Add'}
                 </Button>
               </form>
             </div>
@@ -467,16 +476,18 @@ export default function AdminCategoriesPage() {
             <div className="bg-bg-card border border-border-subtle rounded-[2px] p-5 space-y-4 shadow-sm">
               <div className="border-b border-border-subtle pb-3">
                 <h3 className="font-heading text-sm font-bold text-txt-main uppercase tracking-wider flex items-center justify-between">
-                  <span>🧱 วัสดุกระเบื้อง (Materials)</span>
-                  <span className="text-[10px] font-mono text-gold bg-gold/10 px-2 py-0.5 rounded-[2px]">{materials.length} รายการ</span>
+                  <span>🧱 {isThai ? 'วัสดุกระเบื้อง (Materials)' : 'Tile Materials (Materials)'}</span>
+                  <span className="text-[10px] font-mono text-gold bg-gold/10 px-2 py-0.5 rounded-[2px]">
+                    {materials.length} {isThai ? 'รายการ' : 'items'}
+                  </span>
                 </h3>
-                <p className="text-[11px] text-txt-muted mt-1">เช่น Porcelain, Ceramic, Granito</p>
+                <p className="text-[11px] text-txt-muted mt-1">{isThai ? 'เช่น Porcelain, Ceramic, Granito' : 'e.g. Porcelain, Ceramic, Granito'}</p>
               </div>
 
               {/* Tag Badges */}
               <div className="flex flex-wrap gap-2 min-h-[90px] p-3 bg-bg-secondary/40 border border-border-subtle rounded-[2px]">
                 {materials.length === 0 ? (
-                  <span className="text-xs text-txt-muted italic">ยังไม่มีตัวเลือกวัสดุ</span>
+                  <span className="text-xs text-txt-muted italic">{isThai ? 'ยังไม่มีตัวเลือกวัสดุ' : 'No material options yet'}</span>
                 ) : (
                   materials.map((m) => (
                     <span
@@ -488,7 +499,7 @@ export default function AdminCategoriesPage() {
                         type="button"
                         onClick={() => handleRemoveMaterial(m)}
                         className="text-txt-muted hover:text-red-500 transition-colors"
-                        title={`ลบ ${m}`}
+                        title={isThai ? `ลบ ${m}` : `Remove ${m}`}
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -503,11 +514,11 @@ export default function AdminCategoriesPage() {
                   type="text"
                   value={newMaterial}
                   onChange={(e) => setNewMaterial(e.target.value)}
-                  placeholder="เช่น Sintered Stone"
+                  placeholder={isThai ? 'เช่น Sintered Stone' : 'e.g. Sintered Stone'}
                   className="flex-1 bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-xs text-txt-main focus:outline-none focus:border-gold"
                 />
                 <Button type="submit" variant="outline" size="sm" className="rounded-[2px] text-xs shrink-0">
-                  <Plus className="w-3.5 h-3.5 mr-1" /> เพิ่ม
+                  <Plus className="w-3.5 h-3.5 mr-1" /> {isThai ? 'เพิ่ม' : 'Add'}
                 </Button>
               </form>
             </div>
@@ -517,7 +528,10 @@ export default function AdminCategoriesPage() {
           <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-4 text-xs text-txt-muted flex items-start gap-3">
             <span className="text-gold text-base shrink-0">💡</span>
             <div>
-              <strong className="text-txt-main font-semibold">ข้อแนะนำ:</strong> เมื่อเพิ่มหรือลบตัวเลือกขนาด พื้นผิว หรือวัสดุแล้ว ให้กดปุ่ม <strong>"บันทึกตัวกรองลงฐานข้อมูล (Save)"</strong> ระบบจะอัปเดตฐานข้อมูล Supabase ทันที และหน้าร้านค้า (/shop) รวมถึงฟอร์มจัดการสินค้าจะแสดงตัวเลือกใหม่โดยอัตโนมัติ
+              <strong className="text-txt-main font-semibold">{isThai ? 'ข้อแนะนำ:' : 'Tip:'}</strong>{' '}
+              {isThai
+                ? 'เมื่อเพิ่มหรือลบตัวเลือกขนาด พื้นผิว หรือวัสดุแล้ว ให้กดปุ่ม "บันทึกตัวกรองลงฐานข้อมูล (Save)" ระบบจะอัปเดตฐานข้อมูล Supabase ทันที และหน้าร้านค้า (/shop) รวมถึงฟอร์มจัดการสินค้าจะแสดงตัวเลือกใหม่โดยอัตโนมัติ'
+                : 'After adding or removing sizes, surfaces, or materials, click "Save Filter Changes". The changes will be updated in the database immediately and reflected across the shop catalog (/shop) and product management forms.'}
             </div>
           </div>
         </div>

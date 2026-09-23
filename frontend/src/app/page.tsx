@@ -76,7 +76,7 @@ export default function HomePage() {
 
       {/* 5. DYNAMIC CMS SECTIONS (B2B Project Partner, Brand Partners, etc.) */}
       {additionalCmsSections.length > 0 && (
-        <div className="w-full space-y-12 pb-12">
+        <div className="w-full space-y-16 sm:space-y-24 pb-16">
           <CmsSectionRenderer sections={additionalCmsSections} />
         </div>
       )}

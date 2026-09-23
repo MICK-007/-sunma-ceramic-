@@ -90,6 +90,7 @@ export interface Product {
   minimumOrderQuantity: number;
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'SOLD_OUT';
   featured: boolean;
+  suitableRooms?: string[];
   variants?: ProductVariant[];
   createdAt: string;
   updatedAt: string;

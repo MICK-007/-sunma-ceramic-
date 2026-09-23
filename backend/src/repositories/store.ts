@@ -158,6 +158,7 @@ class StoreRepository {
       minimumOrderQuantity: 1,
       status: 'PUBLISHED',
       featured: true,
+      suitableRooms: ['living-room', 'commercial'],
       thumbnail: '/images/tiles/calacatta-marble.jpeg',
       images: [
         '/images/tiles/calacatta-marble.jpeg',
@@ -200,6 +201,7 @@ class StoreRepository {
       minimumOrderQuantity: 1,
       status: 'PUBLISHED',
       featured: true,
+      suitableRooms: ['living-room', 'kitchen', 'bathroom'],
       thumbnail: '/images/tiles/charcoal-stone-1.jpeg',
       images: [
         '/images/tiles/charcoal-stone-1.jpeg',
@@ -242,6 +244,7 @@ class StoreRepository {
       minimumOrderQuantity: 1,
       status: 'PUBLISHED',
       featured: true,
+      suitableRooms: ['living-room', 'bathroom', 'bedroom'],
       thumbnail: '/images/tiles/ivory-travertine.jpeg',
       images: [
         '/images/tiles/ivory-travertine.jpeg',
@@ -284,6 +287,7 @@ class StoreRepository {
       minimumOrderQuantity: 1,
       status: 'PUBLISHED',
       featured: true,
+      suitableRooms: ['living-room', 'bedroom', 'outdoor'],
       thumbnail: '/images/tiles/greige-limestone-1.jpeg',
       images: [
         '/images/tiles/greige-limestone-1.jpeg',
@@ -326,6 +330,7 @@ class StoreRepository {
       minimumOrderQuantity: 1,
       status: 'PUBLISHED',
       featured: true,
+      suitableRooms: ['outdoor', 'commercial'],
       thumbnail: '/images/tiles/charcoal-stone-2.jpeg',
       images: [
         '/images/tiles/charcoal-stone-2.jpeg',
@@ -368,6 +373,7 @@ class StoreRepository {
       minimumOrderQuantity: 1,
       status: 'PUBLISHED',
       featured: false,
+      suitableRooms: ['bathroom', 'bedroom'],
       thumbnail: '/images/tiles/greige-limestone-2.jpeg',
       images: [
         '/images/tiles/greige-limestone-2.jpeg',
@@ -408,6 +414,7 @@ class StoreRepository {
       minimumOrderQuantity: 1,
       status: 'PUBLISHED',
       featured: false,
+      suitableRooms: ['kitchen', 'living-room', 'commercial'],
       thumbnail: '/images/tiles/italian-terrazzo.jpeg',
       images: [
         '/images/tiles/italian-terrazzo.jpeg',
@@ -450,6 +457,7 @@ class StoreRepository {
       minimumOrderQuantity: 1,
       status: 'PUBLISHED',
       featured: true,
+      suitableRooms: ['kitchen', 'living-room', 'commercial'],
       thumbnail: '/images/tiles/sandstone-beige.jpeg',
       images: [
         '/images/tiles/sandstone-beige.jpeg',
@@ -490,6 +498,7 @@ class StoreRepository {
       minimumOrderQuantity: 1,
       status: 'PUBLISHED',
       featured: false,
+      suitableRooms: ['bathroom', 'kitchen', 'living-room'],
       thumbnail: '/images/tiles/green-stone.jpeg',
       images: [
         '/images/tiles/green-stone.jpeg',
@@ -532,6 +541,7 @@ class StoreRepository {
       minimumOrderQuantity: 1,
       status: 'PUBLISHED',
       featured: true,
+      suitableRooms: ['bathroom', 'living-room'],
       thumbnail: '/images/tiles/silver-mist-marble.jpeg',
       images: [
         '/images/tiles/silver-mist-marble.jpeg',

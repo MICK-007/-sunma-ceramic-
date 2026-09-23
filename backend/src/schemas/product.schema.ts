@@ -32,6 +32,7 @@ export const createProductSchema = z.object({
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED', 'SOLD_OUT']).optional(),
   isSoldOut: z.boolean().optional(),
   featured: z.boolean().optional(),
+  suitableRooms: z.array(z.string()).optional(),
 });
 
 export const updateProductSchema = createProductSchema.partial();

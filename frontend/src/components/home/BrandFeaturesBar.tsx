@@ -60,9 +60,9 @@ export const BrandFeaturesBar: React.FC<BrandFeaturesBarProps> = ({ content }) =
     }
   }
 
-  const defaultTitleEn = 'Why Choose SUNMA Ceramic';
-  const defaultTitleTh = 'ทำไมต้องเลือก SUNMA Ceramic';
-  const rawTitle = content?.title || defaultTitleEn;
+  const defaultTitleEn = 'Why Choose TILE STUDIO';
+  const defaultTitleTh = 'ทำไมต้องเลือก TILE STUDIO';
+  const rawTitle = content?.title && !content.title.includes('SUNMA') ? content.title : defaultTitleEn;
   const title = isThai
     ? (settings.titleTh || (rawTitle !== defaultTitleEn ? rawTitle : defaultTitleTh))
     : rawTitle;
@@ -110,7 +110,7 @@ export const BrandFeaturesBar: React.FC<BrandFeaturesBarProps> = ({ content }) =
     : null;
 
   return (
-    <section className="w-full bg-[#5D554D] text-white py-16 sm:py-20 px-6 sm:px-10 lg:px-12 border-y border-[#4E4740]">
+    <section className="w-full bg-[#5D554D] text-white pt-20 pb-24 sm:pt-24 sm:pb-32 lg:pt-28 lg:pb-36 px-6 sm:px-10 lg:px-12 border-y border-[#4E4740]">
       <div className="max-w-6xl mx-auto space-y-12">
         {/* Header */}
         <div className="text-center space-y-2 max-w-xl mx-auto">

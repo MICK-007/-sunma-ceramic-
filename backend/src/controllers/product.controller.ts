@@ -17,6 +17,7 @@ export const getProducts = (req: Request, res: Response) => {
     countryOfOrigin,
     sort,
     featured,
+    room,
     page = 1,
     limit = 12,
   } = req.query;
@@ -94,6 +95,19 @@ export const getProducts = (req: Request, res: Response) => {
   // Featured filter
   if (featured === 'true') {
     list = list.filter(p => p.featured);
+  }
+
+  // Room filter (e.g., 'living-room', 'living', 'kitchen', 'bathroom', etc.)
+  if (room && typeof room === 'string' && room.trim() !== '') {
+    const rawRoom = room.toLowerCase().trim();
+    const targetRoom = rawRoom === 'living' ? 'living-room' : rawRoom === 'bath' ? 'bathroom' : rawRoom === 'bed' ? 'bedroom' : rawRoom;
+    list = list.filter(p =>
+      Array.isArray(p.suitableRooms) &&
+      p.suitableRooms.some(r => {
+        const cleanR = r.toLowerCase();
+        return cleanR === targetRoom || cleanR.replace(/[-_\s]/g, '') === targetRoom.replace(/[-_\s]/g, '');
+      })
+    );
   }
 
   // Sorting

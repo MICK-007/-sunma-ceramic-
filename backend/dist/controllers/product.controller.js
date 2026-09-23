@@ -4,7 +4,7 @@ exports.getCollections = exports.getBrands = exports.getCategories = exports.get
 const store_1 = require("../repositories/store");
 const getProducts = (req, res) => {
     let list = [...store_1.store.products].filter(p => p.status === 'PUBLISHED');
-    const { search, category, brand, collection, size, color, surface, material, indoorOutdoor, countryOfOrigin, sort, featured, page = 1, limit = 12, } = req.query;
+    const { search, category, brand, collection, size, color, surface, material, indoorOutdoor, countryOfOrigin, sort, featured, room, page = 1, limit = 12, } = req.query;
     // Search filter (Product code, name, description, color, pattern, size)
     if (search && typeof search === 'string' && search.trim() !== '') {
         const q = search.toLowerCase().trim();
@@ -65,6 +65,16 @@ const getProducts = (req, res) => {
     // Featured filter
     if (featured === 'true') {
         list = list.filter(p => p.featured);
+    }
+    // Room filter (e.g., 'living-room', 'living', 'kitchen', 'bathroom', etc.)
+    if (room && typeof room === 'string' && room.trim() !== '') {
+        const rawRoom = room.toLowerCase().trim();
+        const targetRoom = rawRoom === 'living' ? 'living-room' : rawRoom === 'bath' ? 'bathroom' : rawRoom === 'bed' ? 'bedroom' : rawRoom;
+        list = list.filter(p => Array.isArray(p.suitableRooms) &&
+            p.suitableRooms.some(r => {
+                const cleanR = r.toLowerCase();
+                return cleanR === targetRoom || cleanR.replace(/[-_\s]/g, '') === targetRoom.replace(/[-_\s]/g, '');
+            }));
     }
     // Sorting
     if (sort === 'price_asc') {

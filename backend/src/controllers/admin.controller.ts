@@ -54,7 +54,7 @@ export const createAdminProduct = (req: Request, res: Response) => {
     name, nameTh, productCode, slug, description, descriptionTh, shortDescription, shortDescriptionTh,
     categoryId, brandId, thumbnail, images, size, width, height, thickness, material, surface, color,
     pattern, indoorOutdoor, countryOfOrigin, piecesPerBox, coveragePerBox, weightPerBox, pricePerPiece,
-    pricePerBox, stockPieces, status, featured
+    pricePerBox, stockPieces, status, featured, suitableRooms
   } = req.body;
 
   if (!name || !productCode || !categoryId || !pricePerPiece) {
@@ -99,6 +99,7 @@ export const createAdminProduct = (req: Request, res: Response) => {
     status: status || 'PUBLISHED',
     isSoldOut: status === 'SOLD_OUT' || !!req.body.isSoldOut,
     featured: !!featured,
+    suitableRooms: Array.isArray(suitableRooms) ? suitableRooms : ['living-room'],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -121,7 +122,7 @@ export const updateAdminProduct = (req: Request, res: Response) => {
     name, nameTh, productCode, slug, description, descriptionTh, shortDescription, shortDescriptionTh,
     categoryId, brandId, thumbnail, images, size, width, height, thickness, material, surface, color,
     pattern, indoorOutdoor, countryOfOrigin, piecesPerBox, coveragePerBox, weightPerBox, pricePerPiece,
-    pricePerBox, status, isSoldOut, featured
+    pricePerBox, status, isSoldOut, featured, suitableRooms
   } = req.body;
 
   const category = categoryId ? store.categories.find(c => c.id === categoryId) : null;
@@ -176,6 +177,7 @@ export const updateAdminProduct = (req: Request, res: Response) => {
     status: resolvedStatus,
     isSoldOut: resolvedSoldOut,
     featured: featured !== undefined ? !!featured : existing.featured,
+    suitableRooms: suitableRooms !== undefined ? (Array.isArray(suitableRooms) ? suitableRooms : []) : existing.suitableRooms,
     updatedAt: new Date().toISOString(),
   };
 

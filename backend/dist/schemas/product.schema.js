@@ -34,5 +34,6 @@ exports.createProductSchema = zod_1.z.object({
     status: zod_1.z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED', 'SOLD_OUT']).optional(),
     isSoldOut: zod_1.z.boolean().optional(),
     featured: zod_1.z.boolean().optional(),
+    suitableRooms: zod_1.z.array(zod_1.z.string()).optional(),
 });
 exports.updateProductSchema = exports.createProductSchema.partial();

@@ -155,6 +155,8 @@ export default function AdminCmsStudioPage() {
     field: 'bgImage',
   });
 
+  const [availableProducts, setAvailableProducts] = useState<any[]>([]);
+
   const updateRoomField = (room: 'living' | 'kitchen', field: string, value: any) => {
     setEditingSection((prev: any) => ({
       ...prev,
@@ -163,6 +165,19 @@ export default function AdminCmsStudioPage() {
         [room]: {
           ...(prev.settings?.[room] || {}),
           [field]: value,
+        },
+      },
+    }));
+  };
+
+  const updateRoomFields = (room: 'living' | 'kitchen', fields: Record<string, any>) => {
+    setEditingSection((prev: any) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        [room]: {
+          ...(prev.settings?.[room] || {}),
+          ...fields,
         },
       },
     }));
@@ -341,6 +356,11 @@ export default function AdminCmsStudioPage() {
 
   useEffect(() => {
     fetchDraftPage(activeSlug);
+    api.getAdminProducts().then(res => {
+      if (res && res.success && res.data) {
+        setAvailableProducts(res.data);
+      }
+    }).catch(() => {});
   }, [activeSlug]);
 
   const fetchDraftPage = async (slug: string) => {
@@ -1291,8 +1311,8 @@ export default function AdminCmsStudioPage() {
                           {/* Eyebrow / Kicker */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
-                                Eyebrow / Kicker (EN) 🇬🇧
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
+                                Eyebrow (EN) 🇬🇧
                               </label>
                               <input
                                 type="text"
@@ -1303,8 +1323,8 @@ export default function AdminCmsStudioPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
-                                Eyebrow ภาษาไทย (TH) 🇹🇭
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
+                                {isThai ? 'หัวข้อสั้น (TH) 🇹🇭' : 'Eyebrow (TH) 🇹🇭'}
                               </label>
                               <input
                                 type="text"
@@ -1319,7 +1339,7 @@ export default function AdminCmsStudioPage() {
                           {/* Heading Title */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
                                 Room Title (EN) 🇬🇧
                               </label>
                               <input
@@ -1331,8 +1351,8 @@ export default function AdminCmsStudioPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
-                                {isThai ? 'ชื่อหัวข้อห้องภาษาไทย (TH) 🇹🇭' : 'Room Title in Thai (TH) 🇹🇭'}
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
+                                {isThai ? 'ชื่อหัวข้อห้อง (TH) 🇹🇭' : 'Room Title (TH) 🇹🇭'}
                               </label>
                               <input
                                 type="text"
@@ -1347,7 +1367,7 @@ export default function AdminCmsStudioPage() {
                           {/* Description Body */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
                                 Description (EN) 🇬🇧
                               </label>
                               <textarea
@@ -1359,8 +1379,8 @@ export default function AdminCmsStudioPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
-                                {isThai ? 'คำบรรยายภาษาไทย (TH) 🇹🇭' : 'Description in Thai (TH) 🇹🇭'}
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
+                                {isThai ? 'คำบรรยาย (TH) 🇹🇭' : 'Description (TH) 🇹🇭'}
                               </label>
                               <textarea
                                 rows={2}
@@ -1375,7 +1395,7 @@ export default function AdminCmsStudioPage() {
                           {/* Button Label & URL */}
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
-                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
                                 Button Label (EN) 🇬🇧
                               </label>
                               <input
@@ -1387,8 +1407,8 @@ export default function AdminCmsStudioPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
-                                {isThai ? 'ข้อความบนปุ่ม (TH) 🇹🇭' : 'Button Label in Thai (TH) 🇹🇭'}
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
+                                {isThai ? 'ข้อความบนปุ่ม (TH) 🇹🇭' : 'Button Label (TH) 🇹🇭'}
                               </label>
                               <input
                                 type="text"
@@ -1399,14 +1419,14 @@ export default function AdminCmsStudioPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
-                                Button Destination URL
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
+                                Destination URL 🔗
                               </label>
                               <input
                                 type="text"
                                 value={currentRoomData.buttonUrl || ''}
                                 onChange={e => updateRoomField(activeRoomTab, 'buttonUrl', e.target.value)}
-                                className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold"
+                                className="w-full bg-white border border-border-subtle rounded-[2px] px-3 py-1.5 text-txt-main focus:outline-none focus:border-gold font-mono text-[11px]"
                                 placeholder={activeRoomTab === 'living' ? '/shop?room=living-room' : '/shop?room=kitchen'}
                               />
                             </div>
@@ -1415,14 +1435,107 @@ export default function AdminCmsStudioPage() {
 
                         {/* PART 2: Floating Spec Card Customization */}
                         <div className="bg-bg-secondary/40 border border-border-subtle rounded-[2px] p-4 space-y-4">
-                          <h5 className="font-bold text-gold uppercase tracking-wider text-[11px] flex items-center gap-1.5 pb-2 border-b border-border-subtle">
-                            <span>🏷️</span> {isThai ? '2. การ์ดป๊อปอัปสเปกกระเบื้องตัวอย่าง (Floating Spec Card)' : '2. Floating Spec Card Details'}
-                          </h5>
+                          <div className="flex items-center justify-between pb-2 border-b border-border-subtle">
+                            <h5 className="font-bold text-gold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                              <span>🏷️</span> {isThai ? '2. การ์ดป๊อปอัปสเปกกระเบื้องตัวอย่าง (Floating Spec Card)' : '2. Floating Spec Card Details'}
+                            </h5>
+                            <span className="text-[10px] text-txt-muted">
+                              {isThai ? 'เลือกจากสินค้าเพื่อดึงข้อมูลอัตโนมัติ' : 'Select product to auto-fill specs'}
+                            </span>
+                          </div>
+
+                          {/* Product Selector Dropdown */}
+                          <div className="bg-gold/10 border border-gold/40 rounded-[2px] p-3 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <label className="block text-gold font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                                <span>✨</span> {isThai ? 'เลือกสินค้าจากระบบ (ดึงสเปกและลิงก์อัตโนมัติ 100%)' : 'Select Product from Catalog (Auto-fill all specs)'}
+                              </label>
+                              <span className="text-[10px] text-txt-muted font-medium">
+                                {isThai ? 'ป้องกันการพิมพ์ผิดและลิงก์เสีย' : 'Guarantees valid product links'}
+                              </span>
+                            </div>
+
+                            <select
+                              value={currentRoomData.specProductId || ''}
+                              onChange={e => {
+                                const prodId = e.target.value;
+                                const prod = availableProducts.find(p => p.id === prodId);
+                                if (prod) {
+                                  updateRoomFields(activeRoomTab, {
+                                    specProductId: prod.id,
+                                    specTitle: prod.name,
+                                    specTitleTh: prod.nameTh || prod.name,
+                                    specImage: prod.thumbnail || (prod.images && prod.images[0]) || '',
+                                    specType: `${prod.material || 'Porcelain'} (${prod.surface || 'Matt'})`,
+                                    specTypeTh: `${prod.material || 'พอร์ซเลน'} (${prod.surface || 'ผิวแมตต์'})`,
+                                    specSize: prod.size ? `${prod.size} cm` : '',
+                                    specUrl: `/products/${prod.slug || prod.id}`,
+                                  });
+                                } else {
+                                  updateRoomField(activeRoomTab, 'specProductId', '');
+                                }
+                              }}
+                              className="w-full bg-white border border-gold/60 rounded-[2px] px-3 py-2 text-txt-main focus:outline-none focus:border-gold font-semibold text-xs"
+                            >
+                              <option value="">
+                                -- {isThai ? 'คลิกเพื่อเลือกกระเบื้องสำหรับห้องนี้...' : 'Select a tile product for this room...'} --
+                              </option>
+                              {availableProducts.map(p => (
+                                <option key={p.id} value={p.id}>
+                                  [{p.productCode}] {isThai && p.nameTh ? p.nameTh : p.name} ({p.size || '-'} cm) - ฿{Number(p.pricePerPiece || 0).toLocaleString()}/sqm
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Live Spec Card Preview */}
+                          <div className="bg-white border border-border-subtle rounded-[2px] p-3 shadow-xs">
+                            <div className="text-[10px] uppercase font-bold text-txt-muted tracking-wider mb-2 flex items-center justify-between">
+                              <span className="flex items-center gap-1.5">
+                                <span>👁️</span> {isThai ? 'ตัวอย่างการ์ดสเปกที่จะแสดงบนหน้าเว็บ (Live Preview)' : 'Live Floating Spec Card Preview'}
+                              </span>
+                              <span className="text-gold font-mono text-[10px]">{currentRoomData.specBadge || 'Featured Collection'}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="relative w-16 h-20 rounded-[2px] overflow-hidden bg-neutral-100 border border-border-subtle shrink-0">
+                                {currentRoomData.specImage ? (
+                                  <img
+                                    src={resolveMediaUrl(currentRoomData.specImage)}
+                                    alt="Spec Preview"
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      (e.currentTarget as HTMLImageElement).src =
+                                        activeRoomTab === 'living'
+                                          ? '/images/tiles/calacatta-marble.jpeg'
+                                          : '/images/tiles/sandstone-beige.jpeg';
+                                    }}
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <ImageIcon className="w-6 h-6 text-stone/40" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0 space-y-0.5">
+                                <h6 className="font-heading text-sm font-semibold text-txt-main truncate">
+                                  {isThai ? (currentRoomData.specTitleTh || currentRoomData.specTitle || 'ชื่อสินค้า') : (currentRoomData.specTitle || currentRoomData.specTitleTh || 'Product Name')}
+                                </h6>
+                                <div className="text-[11px] text-txt-muted truncate">
+                                  {isThai ? (currentRoomData.specTypeTh || currentRoomData.specType || 'ประเภทวัสดุ') : (currentRoomData.specType || currentRoomData.specTypeTh || 'Material')}
+                                  {currentRoomData.specSize ? ` • ${currentRoomData.specSize}` : ''}
+                                </div>
+                                <div className="pt-1 flex items-center gap-1.5 text-[11px] text-gold font-mono truncate">
+                                  <span>🔗</span>
+                                  <span className="underline truncate">{currentRoomData.specUrl || '/products/...'}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
 
                           {/* Spec Swatch Image Uploader */}
                           <div>
-                            <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
-                              {isThai ? 'ภาพตัวอย่างเนื้อกระเบื้อง (Spec Tile Swatch Image)' : 'Spec Tile Swatch Image'}
+                            <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
+                              {isThai ? 'ภาพเนื้อกระเบื้องตัวอย่าง (Spec Swatch Image)' : 'Spec Tile Swatch Image'}
                             </label>
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                               {/* Swatch Preview Thumbnail */}
@@ -1488,10 +1601,10 @@ export default function AdminCmsStudioPage() {
                             </div>
                           </div>
 
-                          {/* Spec Badge & Product Name */}
+                          {/* Spec Badge */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
                                 Spec Badge (EN) 🇬🇧
                               </label>
                               <input
@@ -1503,8 +1616,8 @@ export default function AdminCmsStudioPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
-                                {isThai ? 'ป้ายหัวการ์ดสเปก (TH) 🇹🇭' : 'Spec Badge in Thai (TH) 🇹🇭'}
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
+                                {isThai ? 'ป้ายหัวการ์ด (TH) 🇹🇭' : 'Spec Badge (TH) 🇹🇭'}
                               </label>
                               <input
                                 type="text"
@@ -1519,7 +1632,7 @@ export default function AdminCmsStudioPage() {
                           {/* Spec Product Title */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
                                 Product Name / Spec Title (EN) 🇬🇧
                               </label>
                               <input
@@ -1531,8 +1644,8 @@ export default function AdminCmsStudioPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
-                                {isThai ? 'ชื่อสินค้า/สเปกภาษาไทย (TH) 🇹🇭' : 'Spec Title in Thai (TH) 🇹🇭'}
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
+                                {isThai ? 'ชื่อสินค้าสเปก (TH) 🇹🇭' : 'Spec Title (TH) 🇹🇭'}
                               </label>
                               <input
                                 type="text"
@@ -1547,7 +1660,7 @@ export default function AdminCmsStudioPage() {
                           {/* Spec Material Type & Dimensions */}
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
-                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
                                 Material Type (EN) 🇬🇧
                               </label>
                               <input
@@ -1559,8 +1672,8 @@ export default function AdminCmsStudioPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-gold font-medium uppercase tracking-wider mb-1">
-                                {isThai ? 'ประเภทวัสดุ/พื้นผิว (TH) 🇹🇭' : 'Material Type in Thai (TH) 🇹🇭'}
+                              <label className="block text-gold font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
+                                {isThai ? 'ประเภทวัสดุ (TH) 🇹🇭' : 'Material Type (TH) 🇹🇭'}
                               </label>
                               <input
                                 type="text"
@@ -1571,7 +1684,7 @@ export default function AdminCmsStudioPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
+                              <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
                                 Dimensions / Size
                               </label>
                               <input
@@ -1586,8 +1699,8 @@ export default function AdminCmsStudioPage() {
 
                           {/* Spec Detail Link URL */}
                           <div>
-                            <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1">
-                              {isThai ? 'ลิงก์ไปยังหน้ารายละเอียดสินค้า (Product Page URL)' : 'Product Page Link URL'}
+                            <label className="block text-txt-muted font-medium uppercase tracking-wider mb-1 text-[11px] whitespace-nowrap">
+                              {isThai ? 'ลิงก์หน้ารายละเอียดสินค้า (Product Page URL)' : 'Product Page Link URL'}
                             </label>
                             <input
                               type="text"

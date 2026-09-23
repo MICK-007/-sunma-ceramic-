@@ -10,6 +10,15 @@ import { Badge } from '@/components/ui/Badge';
 import { Plus, Edit, Trash2, CheckCircle, Eye } from 'lucide-react';
 import Link from 'next/link';
 
+const ROOM_OPTIONS = [
+  { id: 'living-room', name: 'Living Room', nameTh: 'ห้องรับแขก', icon: '🛋️' },
+  { id: 'kitchen', name: 'Kitchen', nameTh: 'ห้องครัว', icon: '🍳' },
+  { id: 'bathroom', name: 'Bathroom', nameTh: 'ห้องน้ำ', icon: '🚿' },
+  { id: 'bedroom', name: 'Bedroom', nameTh: 'ห้องนอน', icon: '🛏️' },
+  { id: 'outdoor', name: 'Outdoor', nameTh: 'กลางแจ้ง/ระเบียง', icon: '🌿' },
+  { id: 'commercial', name: 'Commercial', nameTh: 'พื้นที่เชิงพาณิชย์', icon: '🏢' },
+];
+
 export default function AdminProductsPage() {
   const { t, language } = useLanguage();
   const isThai = language === 'TH';
@@ -47,6 +56,7 @@ export default function AdminProductsPage() {
   const [featured, setFeatured] = useState(false);
   const [isSoldOut, setIsSoldOut] = useState(false);
   const [thumbnail, setThumbnail] = useState('/images/tiles/calacatta-marble.jpeg');
+  const [suitableRooms, setSuitableRooms] = useState<string[]>(['living-room']);
 
   const [filterOptions, setFilterOptions] = useState<{ sizes: string[]; surfaces: string[]; materials: string[] }>({
     sizes: ['60x60', '60x120', '30x60', '20x120', '80x80'],
@@ -109,6 +119,7 @@ export default function AdminProductsPage() {
     setFeatured(false);
     setIsSoldOut(false);
     setThumbnail('/images/tiles/calacatta-marble.jpeg');
+    setSuitableRooms(['living-room']);
     setModalOpen(true);
   };
 
@@ -136,6 +147,7 @@ export default function AdminProductsPage() {
     setFeatured(!!prod.featured);
     setIsSoldOut(!!prod.isSoldOut || prod.status === 'SOLD_OUT');
     setThumbnail(prod.thumbnail || '/images/tiles/calacatta-marble.jpeg');
+    setSuitableRooms(Array.isArray(prod.suitableRooms) ? prod.suitableRooms : (prod.suitableRooms ? [prod.suitableRooms] : ['living-room']));
     setModalOpen(true);
   };
 
@@ -227,6 +239,7 @@ export default function AdminProductsPage() {
       featured,
       isSoldOut,
       status: isSoldOut ? 'SOLD_OUT' : 'PUBLISHED',
+      suitableRooms,
       thumbnail: thumbnail || '/images/tiles/calacatta-marble.jpeg',
       images: [thumbnail || '/images/tiles/calacatta-marble.jpeg'],
     };
@@ -323,6 +336,22 @@ export default function AdminProductsPage() {
                         <span className="text-[10.5px] text-txt-muted block">
                           {p.brandName || 'TILE STUDIO'} • {p.categoryName || 'Tiles'}
                         </span>
+                        {Array.isArray(p.suitableRooms) && p.suitableRooms.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {p.suitableRooms.map((rId: string) => {
+                              const roomObj = ROOM_OPTIONS.find(ro => ro.id === rId);
+                              return (
+                                <span
+                                  key={rId}
+                                  className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-[2px] bg-bg-secondary text-[9.5px] text-txt-muted border border-border-subtle font-sans"
+                                >
+                                  <span>{roomObj?.icon || '🏠'}</span>
+                                  <span>{isThai && roomObj?.nameTh ? roomObj.nameTh : (roomObj?.name || rId)}</span>
+                                </span>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     </td>
 
@@ -400,19 +429,22 @@ export default function AdminProductsPage() {
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
+        maxWidth="max-w-4xl sm:max-w-5xl"
         title={editingId ? (isThai ? 'แก้ไขรายละเอียดและสเปกกระเบื้อง' : 'Edit Product Specifications') : (isThai ? 'เพิ่มสินค้ากระเบื้องใหม่' : 'Create New Tile Product')}
       >
         <form onSubmit={handleSave} className="space-y-4 text-xs max-h-[80vh] overflow-y-auto pr-1">
           
           {/* Section 1: Basic Identifiers */}
-          <div className="bg-bg-secondary/30 p-3 rounded-[2px] border border-border-subtle space-y-3">
+          <div className="bg-bg-secondary/30 p-3.5 rounded-[2px] border border-border-subtle space-y-3">
             <h4 className="font-heading font-semibold text-txt-main text-[11.5px] uppercase tracking-wider text-gold">
               {isThai ? '1. ข้อมูลพื้นฐาน (Basic Information)' : '1. Basic Information'}
             </h4>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-txt-muted font-medium mb-1">CODE (รหัสสินค้า) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'รหัสสินค้า (Product Code) *' : 'Product Code *'}
+                </label>
                 <input
                   type="text"
                   required
@@ -424,21 +456,25 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label className="block text-txt-muted font-medium mb-1">สถานะเปิด/ปิดขาย (Status) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'สถานะเปิด/ปิดขาย (Status) *' : 'Availability Status *'}
+                </label>
                 <select
                   value={isSoldOut ? 'SOLD_OUT' : 'PUBLISHED'}
                   onChange={e => setIsSoldOut(e.target.value === 'SOLD_OUT')}
                   className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main focus:outline-none focus:border-gold font-semibold"
                 >
-                  <option value="PUBLISHED">🟢 เปิดขายตามปกติ (Active / In Stock)</option>
-                  <option value="SOLD_OUT">🔴 ปิดการขาย / สินค้าหมด (Sold Out / Grayscale)</option>
+                  <option value="PUBLISHED">🟢 {isThai ? 'เปิดขายตามปกติ (Active / In Stock)' : 'Active / In Stock'}</option>
+                  <option value="SOLD_OUT">🔴 {isThai ? 'ปิดการขาย / สินค้าหมด (Sold Out)' : 'Sold Out / Unavailable'}</option>
                 </select>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-txt-muted font-medium mb-1">NAME (ชื่อสินค้า EN) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'ชื่อสินค้า EN (Product Name) *' : 'Product Name (EN) *'}
+                </label>
                 <input
                   type="text"
                   required
@@ -450,7 +486,9 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label className="block text-txt-muted font-medium mb-1">ชื่อสินค้าภาษาไทย (NAME TH)</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'ชื่อสินค้าภาษาไทย (Name TH)' : 'Product Name (TH)'}
+                </label>
                 <input
                   type="text"
                   value={nameTh}
@@ -463,7 +501,9 @@ export default function AdminProductsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-txt-muted font-medium mb-1">CATEGORY (หมวดหมู่) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'หมวดหมู่สินค้า (Category) *' : 'Category *'}
+                </label>
                 <select
                   value={categoryId}
                   onChange={e => setCategoryId(e.target.value)}
@@ -478,7 +518,9 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label className="block text-txt-muted font-medium mb-1">BRAND (แบรนด์ผู้ผลิต)</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'แบรนด์ผู้ผลิต (Brand)' : 'Brand'}
+                </label>
                 <select
                   value={brandId}
                   onChange={e => setBrandId(e.target.value)}
@@ -495,14 +537,56 @@ export default function AdminProductsPage() {
           </div>
 
           {/* Section 2: Tile Specifications matching Image media_1790068429905.png */}
-          <div className="bg-bg-secondary/30 p-3 rounded-[2px] border border-border-subtle space-y-3">
+          <div className="bg-bg-secondary/30 p-3.5 rounded-[2px] border border-border-subtle space-y-4">
             <h4 className="font-heading font-semibold text-txt-main text-[11.5px] uppercase tracking-wider text-gold">
               {isThai ? '2. สเปกทางเทคนิคของกระเบื้อง (Tile Specifications)' : '2. Technical Specifications'}
             </h4>
 
+            {/* Suitable Rooms Multi-select Tagging */}
+            <div className="bg-white border border-border-subtle rounded-[2px] p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-gold font-bold uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                  <span>🏠</span> {isThai ? 'ห้องที่เหมาะสมสำหรับติดตั้งกระเบื้อง (Suitable Rooms)' : 'Suitable Rooms & Applications'}
+                </label>
+                <span className="text-[10px] text-txt-muted">
+                  {isThai ? 'ใช้สำหรับฟิลเตอร์ตามห้องในหน้า Shop' : 'Used for room filter on shop page'}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                {ROOM_OPTIONS.map(room => {
+                  const isSelected = suitableRooms.includes(room.id);
+                  return (
+                    <button
+                      key={room.id}
+                      type="button"
+                      onClick={() => {
+                        if (isSelected) {
+                          setSuitableRooms(prev => prev.filter(r => r !== room.id));
+                        } else {
+                          setSuitableRooms(prev => [...prev, room.id]);
+                        }
+                      }}
+                      className={`p-2 rounded-[2px] border text-center transition-all flex flex-col items-center justify-center gap-1 ${
+                        isSelected
+                          ? 'border-gold bg-gold/15 text-txt-main font-semibold shadow-xs ring-1 ring-gold'
+                          : 'border-border-subtle bg-bg-secondary/50 text-txt-muted hover:border-gold/50 hover:bg-white'
+                      }`}
+                    >
+                      <span className="text-base">{room.icon}</span>
+                      <span className="text-[11px] leading-tight font-medium truncate w-full">
+                        {isThai ? room.nameTh : room.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-txt-muted font-medium mb-1">TILE SIZE (ขนาด เช่น 60x60) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'ขนาดกระเบื้อง (เช่น 60x60) *' : 'Tile Size (e.g. 60x60) *'}
+                </label>
                 <input
                   type="text"
                   required
@@ -520,7 +604,9 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label className="block text-txt-muted font-medium mb-1">THICKNESS (ความหนา mm) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'ความหนา (มม.) *' : 'Thickness (mm) *'}
+                </label>
                 <input
                   type="number"
                   step="0.5"
@@ -533,7 +619,9 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label className="block text-txt-muted font-medium mb-1">MATERIAL (เนื้อวัสดุ) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'เนื้อวัสดุ (Material) *' : 'Material *'}
+                </label>
                 <select
                   value={material}
                   onChange={e => setMaterial(e.target.value)}
@@ -550,7 +638,9 @@ export default function AdminProductsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-txt-muted font-medium mb-1">SURFACE FINISH (ผิวสัมผัส) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'ผิวสัมผัส (Surface Finish) *' : 'Surface Finish *'}
+                </label>
                 <select
                   value={surface}
                   onChange={e => setSurface(e.target.value)}
@@ -564,9 +654,10 @@ export default function AdminProductsPage() {
                 </select>
               </div>
 
-
               <div>
-                <label className="block text-txt-muted font-medium mb-1">PATTERN DESIGN (ลวดลาย) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'ลวดลาย (Pattern Design) *' : 'Pattern Design *'}
+                </label>
                 <input
                   type="text"
                   required
@@ -578,22 +669,26 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label className="block text-txt-muted font-medium mb-1">SUITABLE ENVIRONMENT (พื้นที่ใช้งาน) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'สภาพแวดล้อม (Environment) *' : 'Suitable Environment *'}
+                </label>
                 <select
                   value={indoorOutdoor}
                   onChange={e => setIndoorOutdoor(e.target.value)}
                   className="w-full bg-white border border-border-subtle rounded-[2px] p-2 text-txt-main focus:outline-none focus:border-gold"
                 >
-                  <option value="Indoor">ภายในอาคาร (Indoor)</option>
-                  <option value="Outdoor">ภายนอกอาคาร (Outdoor)</option>
-                  <option value="Indoor/Outdoor">ทั้งภายในและภายนอก (Indoor/Outdoor)</option>
+                  <option value="Indoor">{isThai ? 'ภายในอาคาร (Indoor)' : 'Indoor'}</option>
+                  <option value="Outdoor">{isThai ? 'ภายนอกอาคาร (Outdoor)' : 'Outdoor'}</option>
+                  <option value="Indoor/Outdoor">{isThai ? 'ทั้งภายในและภายนอก (Indoor/Outdoor)' : 'Indoor/Outdoor'}</option>
                 </select>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
               <div>
-                <label className="block text-txt-muted font-medium mb-1">COUNTRY (ประเทศ) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'ประเทศผู้ผลิต *' : 'Country of Origin *'}
+                </label>
                 <input
                   type="text"
                   required
@@ -605,7 +700,9 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label className="block text-txt-muted font-medium mb-1">PIECES / BOX (แผ่น/กล่อง) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'จำนวนแผ่น (แผ่น/กล่อง) *' : 'Pieces / Box *'}
+                </label>
                 <input
                   type="number"
                   required
@@ -617,7 +714,9 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label className="block text-txt-muted font-medium mb-1">COVERAGE (ตร.ม./กล่อง) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'พื้นที่ปกคลุม (ตร.ม./กล่อง) *' : 'Coverage (sqm/Box) *'}
+                </label>
                 <input
                   type="number"
                   step="0.01"
@@ -630,7 +729,9 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label className="block text-txt-muted font-medium mb-1">WEIGHT (กก./กล่อง) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'น้ำหนัก (กก./กล่อง) *' : 'Weight (kg/Box) *'}
+                </label>
                 <input
                   type="number"
                   step="0.1"
@@ -645,14 +746,16 @@ export default function AdminProductsPage() {
           </div>
 
           {/* Section 3: Pricing (Price per SQM & Box) */}
-          <div className="bg-bg-secondary/30 p-3 rounded-[2px] border border-border-subtle space-y-3">
+          <div className="bg-bg-secondary/30 p-3.5 rounded-[2px] border border-border-subtle space-y-3">
             <h4 className="font-heading font-semibold text-txt-main text-[11.5px] uppercase tracking-wider text-gold">
-              {isThai ? '3. ราคาจำหน่ายต่อตารางเมตร (Pricing per SQM)' : '3. Pricing'}
+              {isThai ? '3. ราคาจำหน่ายต่อตารางเมตร (Pricing per SQM)' : '3. Pricing per SQM & Box'}
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-txt-muted font-medium mb-1">PRICE / SQM (ราคาต่อ ตร.ม. THB) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'ราคาต่อ ตร.ม. (THB / SQM) *' : 'Price per SQM (THB) *'}
+                </label>
                 <input
                   type="number"
                   required
@@ -667,7 +770,9 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label className="block text-txt-muted font-medium mb-1">PRICE / BOX (ราคารวมต่อกล่อง THB) *</label>
+                <label className="block text-txt-muted font-medium mb-1 text-[11px] whitespace-nowrap">
+                  {isThai ? 'ราคาต่อกล่อง (THB / Box) *' : 'Price per Box (THB) *'}
+                </label>
                 <input
                   type="number"
                   required

@@ -46,7 +46,7 @@ const getAdminProducts = (req, res) => {
 exports.getAdminProducts = getAdminProducts;
 const createAdminProduct = (req, res) => {
     // Explicit Field Destructuring (Mass Assignment Prevention)
-    const { name, nameTh, productCode, slug, description, descriptionTh, shortDescription, shortDescriptionTh, categoryId, brandId, thumbnail, images, size, width, height, thickness, material, surface, color, pattern, indoorOutdoor, countryOfOrigin, piecesPerBox, coveragePerBox, weightPerBox, pricePerPiece, pricePerBox, stockPieces, status, featured } = req.body;
+    const { name, nameTh, productCode, slug, description, descriptionTh, shortDescription, shortDescriptionTh, categoryId, brandId, thumbnail, images, size, width, height, thickness, material, surface, color, pattern, indoorOutdoor, countryOfOrigin, piecesPerBox, coveragePerBox, weightPerBox, pricePerPiece, pricePerBox, stockPieces, status, featured, suitableRooms } = req.body;
     if (!name || !productCode || !categoryId || !pricePerPiece) {
         return res.status(400).json({ success: false, message: 'Missing required product parameters.' });
     }
@@ -87,6 +87,7 @@ const createAdminProduct = (req, res) => {
         status: status || 'PUBLISHED',
         isSoldOut: status === 'SOLD_OUT' || !!req.body.isSoldOut,
         featured: !!featured,
+        suitableRooms: Array.isArray(suitableRooms) ? suitableRooms : ['living-room'],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     };
@@ -102,7 +103,7 @@ const updateAdminProduct = (req, res) => {
         return res.status(404).json({ success: false, message: 'Product not found.' });
     }
     const existing = store_1.store.products[index];
-    const { name, nameTh, productCode, slug, description, descriptionTh, shortDescription, shortDescriptionTh, categoryId, brandId, thumbnail, images, size, width, height, thickness, material, surface, color, pattern, indoorOutdoor, countryOfOrigin, piecesPerBox, coveragePerBox, weightPerBox, pricePerPiece, pricePerBox, status, isSoldOut, featured } = req.body;
+    const { name, nameTh, productCode, slug, description, descriptionTh, shortDescription, shortDescriptionTh, categoryId, brandId, thumbnail, images, size, width, height, thickness, material, surface, color, pattern, indoorOutdoor, countryOfOrigin, piecesPerBox, coveragePerBox, weightPerBox, pricePerPiece, pricePerBox, status, isSoldOut, featured, suitableRooms } = req.body;
     const category = categoryId ? store_1.store.categories.find(c => c.id === categoryId) : null;
     const brand = brandId ? store_1.store.brands.find(b => b.id === brandId) : null;
     let resolvedStatus = status !== undefined ? status : existing.status;
@@ -155,6 +156,7 @@ const updateAdminProduct = (req, res) => {
         status: resolvedStatus,
         isSoldOut: resolvedSoldOut,
         featured: featured !== undefined ? !!featured : existing.featured,
+        suitableRooms: suitableRooms !== undefined ? (Array.isArray(suitableRooms) ? suitableRooms : []) : existing.suitableRooms,
         updatedAt: new Date().toISOString(),
     };
     store_1.store.products[index] = updatedProduct;

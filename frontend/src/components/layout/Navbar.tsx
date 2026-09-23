@@ -112,36 +112,36 @@ export const Navbar = () => {
           : 'bg-[#FAF9F6]/95 backdrop-blur-md border-b border-neutral-200/80 py-4 shadow-sm'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-3.5 sm:px-8 lg:px-12 flex items-center justify-between">
         {/* Unified Brand Logo matching Image 3 */}
         <Link
           href="/"
           onClick={handleLogoClick}
-          className="group flex items-center gap-2 select-none cursor-pointer"
+          className="group flex items-center gap-2 select-none cursor-pointer shrink-0"
           title={isThai ? 'กลับสู่หน้าแรก (บนสุด)' : 'Return to top'}
         >
           {branding.logoType === 'image' && branding.logoImageUrl ? (
-            <div className="relative h-7 sm:h-8 w-32 sm:w-40 flex items-center">
+            <div className="relative h-6 sm:h-8 w-28 sm:w-40 flex items-center">
               <Image
                 src={resolveMediaUrl(branding.logoImageUrl)}
-                alt={branding.logoText || 'SUNMA'}
+                alt={branding.logoText || 'TILE STUDIO'}
                 fill
-                sizes="(max-width: 640px) 130px, 160px"
+                sizes="(max-width: 640px) 110px, 160px"
                 className="object-contain object-left"
                 priority
               />
             </div>
           ) : (
-            <div className="flex flex-col">
+            <div className="flex flex-col whitespace-nowrap">
               <span
-                className={`font-heading text-xl sm:text-2xl font-normal tracking-[0.3em] uppercase transition-colors ${
+                className={`font-heading text-[13px] xs:text-base sm:text-xl md:text-2xl font-normal tracking-[0.16em] xs:tracking-[0.22em] sm:tracking-[0.28em] md:tracking-[0.3em] uppercase transition-colors whitespace-nowrap ${
                   isTransparent ? 'text-white drop-shadow-md' : 'text-neutral-900'
                 }`}
               >
                 {branding.logoText}
               </span>
               <span
-                className={`text-[8.5px] tracking-[0.45em] font-medium uppercase -mt-1 transition-colors ${
+                className={`text-[6.5px] xs:text-[7.5px] sm:text-[8.5px] tracking-[0.22em] sm:tracking-[0.45em] font-medium uppercase -mt-0.5 sm:-mt-1 transition-colors whitespace-nowrap ${
                   isTransparent ? 'text-white/80 drop-shadow-sm' : 'text-neutral-500'
                 }`}
               >
@@ -176,7 +176,7 @@ export const Navbar = () => {
         </nav>
 
         {/* Utilities: Search, User, Cart, Hamburger Menu matching Image 3 */}
-        <div className="flex items-center space-x-5 sm:space-x-6">
+        <div className="flex items-center space-x-2.5 xs:space-x-3.5 sm:space-x-6 shrink-0">
           <Link
             href="/shop"
             className={`transition-colors p-1 ${
@@ -230,7 +230,7 @@ export const Navbar = () => {
           {/* Language Switcher (TH | EN) */}
           <button
             onClick={() => setLanguage(language === 'TH' ? 'EN' : 'TH')}
-            className={`flex items-center text-xs tracking-wider font-medium px-2 py-1 rounded transition-colors ${
+            className={`flex items-center text-[11px] sm:text-xs tracking-wider font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 rounded transition-colors ${
               isTransparent
                 ? 'text-white/90 hover:text-white drop-shadow-sm'
                 : 'text-neutral-700 hover:text-neutral-900'

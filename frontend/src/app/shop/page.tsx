@@ -23,6 +23,7 @@ function ShopContent() {
   const initialCollection = searchParams.get('collection') || '';
   const initialFeatured = searchParams.get('featured') || '';
   const initialSort = searchParams.get('sort') || 'featured';
+  const initialRoom = searchParams.get('room') || '';
 
   const [categories, setCategories] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
@@ -34,11 +35,17 @@ function ShopContent() {
   const [search, setSearch] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCat);
   const [selectedBrand, setSelectedBrand] = useState<string>(initialBrand);
+  const [selectedRoom, setSelectedRoom] = useState<string>(initialRoom);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedSurface, setSelectedSurface] = useState<string>('');
   const [selectedMaterial, setSelectedMaterial] = useState<string>('');
   const [sort, setSort] = useState<string>(initialSort);
   const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const r = searchParams.get('room') || '';
+    setSelectedRoom(r);
+  }, [searchParams]);
 
   useEffect(() => {
     api.getCategories().then(res => res.success && setCategories(res.data || []));
@@ -54,7 +61,6 @@ function ShopContent() {
     });
   }, []);
 
-
   useEffect(() => {
     setIsLoading(true);
     api
@@ -63,6 +69,7 @@ function ShopContent() {
         category: selectedCategory,
         brand: selectedBrand,
         collection: initialCollection,
+        room: selectedRoom,
         size: selectedSize,
         surface: selectedSurface,
         material: selectedMaterial,
@@ -81,6 +88,7 @@ function ShopContent() {
     selectedCategory,
     selectedBrand,
     initialCollection,
+    selectedRoom,
     selectedSize,
     selectedSurface,
     selectedMaterial,
@@ -92,6 +100,7 @@ function ShopContent() {
     setSearch('');
     setSelectedCategory('');
     setSelectedBrand('');
+    setSelectedRoom('');
     setSelectedSize('');
     setSelectedSurface('');
     setSelectedMaterial('');
@@ -100,7 +109,7 @@ function ShopContent() {
 
   // Group products by category when no specific category is filtered
   const hasActiveFilters =
-    search || selectedCategory || selectedBrand || selectedSize || selectedSurface || selectedMaterial;
+    search || selectedCategory || selectedBrand || selectedRoom || selectedSize || selectedSurface || selectedMaterial;
 
   const getProductsForCategory = (catSlug: string) => {
     return products.filter(p => p.categoryId === catSlug || p.categoryName?.toLowerCase().includes(catSlug.replace('-tiles', '')));
@@ -171,6 +180,8 @@ function ShopContent() {
             setSelectedCategory={setSelectedCategory}
             selectedBrand={selectedBrand}
             setSelectedBrand={setSelectedBrand}
+            selectedRoom={selectedRoom}
+            setSelectedRoom={setSelectedRoom}
             selectedSize={selectedSize}
             setSelectedSize={setSelectedSize}
             selectedSurface={selectedSurface}
@@ -183,7 +194,38 @@ function ShopContent() {
         </div>
 
         {/* Right Products Container */}
-        <div className="md:col-span-3 space-y-12">
+        <div className="md:col-span-3 space-y-8">
+          {/* Active Room Filter Notification Badge */}
+          {selectedRoom && (
+            <div className="flex items-center justify-between py-2.5 px-4 bg-gold/10 border border-gold/40 rounded-[2px] text-xs">
+              <div className="flex items-center gap-2">
+                <span className="text-gold font-bold uppercase tracking-wider text-[11px]">
+                  {isThai ? 'ตัวกรองพื้นที่ห้อง:' : 'Room Filter:'}
+                </span>
+                <span className="font-semibold text-txt-main">
+                  {selectedRoom === 'living-room'
+                    ? (isThai ? '🛋️ ห้องรับแขก (Living Room)' : '🛋️ Living Room')
+                    : selectedRoom === 'kitchen'
+                    ? (isThai ? '🍳 ห้องครัว (Kitchen)' : '🍳 Kitchen')
+                    : selectedRoom === 'bathroom'
+                    ? (isThai ? '🚿 ห้องน้ำ (Bathroom)' : '🚿 Bathroom')
+                    : selectedRoom === 'bedroom'
+                    ? (isThai ? '🛏️ ห้องนอน (Bedroom)' : '🛏️ Bedroom')
+                    : selectedRoom === 'outdoor'
+                    ? (isThai ? '🌿 กลางแจ้ง / ระเบียง (Outdoor)' : '🌿 Outdoor')
+                    : (isThai ? '🏢 พื้นที่เชิงพาณิชย์ (Commercial)' : '🏢 Commercial')}
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedRoom('')}
+                className="text-txt-muted hover:text-red-500 font-medium text-[11px] flex items-center gap-1 transition-colors"
+                title={isThai ? 'ล้างตัวกรองห้อง' : 'Clear room filter'}
+              >
+                <span>✕</span>
+                <span>{isThai ? 'ล้างตัวกรอง' : 'Clear'}</span>
+              </button>
+            </div>
+          )}
           {isLoading ? (
             <LoadingSkeleton count={6} />
           ) : products.length === 0 ? (

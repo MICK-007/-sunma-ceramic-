@@ -14,6 +14,8 @@ interface FilterProps {
   setSelectedCategory: (cat: string) => void;
   selectedBrand: string;
   setSelectedBrand: (brand: string) => void;
+  selectedRoom?: string;
+  setSelectedRoom?: (room: string) => void;
   selectedSize: string;
   setSelectedSize: (size: string) => void;
   selectedSurface: string;
@@ -33,6 +35,8 @@ export const ProductFilter: React.FC<FilterProps> = ({
   setSelectedCategory,
   selectedBrand,
   setSelectedBrand,
+  selectedRoom = '',
+  setSelectedRoom,
   selectedSize,
   setSelectedSize,
   selectedSurface,
@@ -96,6 +100,44 @@ export const ProductFilter: React.FC<FilterProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Room Application Filter */}
+      {setSelectedRoom && (
+        <div>
+          <label className="text-[10.5px] font-semibold uppercase tracking-widest text-txt-muted block mb-2.5">
+            {isThai ? 'พื้นที่ห้องใช้งาน' : 'Room Application'}
+          </label>
+          <div className="space-y-1">
+            <button
+              onClick={() => setSelectedRoom('')}
+              className={`w-full text-left text-xs px-3 py-1.5 rounded-[2px] transition-colors flex items-center justify-between ${
+                selectedRoom === '' ? 'bg-txt-main text-white font-medium' : 'text-txt-muted hover:text-txt-main hover:bg-bg-secondary'
+              }`}
+            >
+              <span>{isThai ? 'ทุกพื้นที่ห้อง' : 'All Rooms'}</span>
+            </button>
+            {[
+              { id: 'living-room', name: 'Living Room', nameTh: 'ห้องรับแขก', icon: '🛋️' },
+              { id: 'kitchen', name: 'Kitchen', nameTh: 'ห้องครัว', icon: '🍳' },
+              { id: 'bathroom', name: 'Bathroom', nameTh: 'ห้องน้ำ', icon: '🚿' },
+              { id: 'bedroom', name: 'Bedroom', nameTh: 'ห้องนอน', icon: '🛏️' },
+              { id: 'outdoor', name: 'Outdoor', nameTh: 'กลางแจ้ง/ระเบียง', icon: '🌿' },
+              { id: 'commercial', name: 'Commercial', nameTh: 'เชิงพาณิชย์', icon: '🏢' },
+            ].map(rm => (
+              <button
+                key={rm.id}
+                onClick={() => setSelectedRoom(selectedRoom === rm.id ? '' : rm.id)}
+                className={`w-full text-left text-xs px-3 py-1.5 rounded-[2px] transition-colors flex items-center gap-2 ${
+                  selectedRoom === rm.id ? 'bg-txt-main text-white font-medium' : 'text-txt-muted hover:text-txt-main hover:bg-bg-secondary'
+                }`}
+              >
+                <span>{rm.icon}</span>
+                <span>{isThai ? rm.nameTh : rm.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Size Filter */}
 
